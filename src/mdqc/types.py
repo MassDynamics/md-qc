@@ -1,0 +1,228 @@
+"""Shared enums and dataclasses used across the agent.
+
+Serialization formats here are part of the payload schema contract. Do not
+change values without coordinating with the cloud ingest team.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from datetime import datetime
+from enum import StrEnum
+from pathlib import Path
+from typing import Any
+from uuid import UUID, uuid4
+
+
+class ControlType(StrEnum):
+    SSC0 = "SSC0"
+    QC_A = "QC_A"
+    QC_B = "QC_B"
+    BLANK = "BLANK"
+    SAMPLE = "SAMPLE"
+
+    def is_qc(self) -> bool:
+        return self is not ControlType.SAMPLE
+
+
+class Vendor(StrEnum):
+    THERMO = "thermo"
+    BRUKER = "bruker"
+    SCIEX = "sciex"
+    WATERS = "waters"
+    AGILENT = "agilent"
+
+    @property
+    def is_directory_artifact(self) -> bool:
+        """Bruker .d, Waters .raw, Agilent .d are directories. Thermo .raw, Sciex .wiff are files."""
+        return self in (Vendor.BRUKER, Vendor.WATERS, Vendor.AGILENT)
+
+
+class Confidence(StrEnum):
+    HIGH = "HIGH"
+    MEDIUM = "MEDIUM"
+    LOW = "LOW"
+
+
+class ClassificationSource(StrEnum):
+    FILENAME = "FILENAME"
+    METADATA = "METADATA"
+    POSITION = "POSITION"
+    DEFAULT = "DEFAULT"
+
+
+class FinalizationState(StrEnum):
+    DETECTED = "DETECTED"
+    STABILIZING = "STABILIZING"
+    READY = "READY"
+    PROCESSING = "PROCESSING"
+    DONE = "DONE"
+    FAILED = "FAILED"
+
+
+class ExtractionStatus(StrEnum):
+    SUCCESS = "SUCCESS"
+    FAILED = "FAILED"
+    SKIPPED = "SKIPPED"
+
+
+@dataclass(frozen=True)
+class WellPosition:
+    """Plate well like A1, A12, H8.
+
+    Row is A-H, column is 1-12. Constructor returns None for out-of-range values.
+    """
+
+    row: str
+    column: int
+
+    @classmethod
+    def parse(cls, raw: str) -> WellPosition | None:
+        """Lenient parser: accepts a1, A1, A01."""
+        if not raw or len(raw) < 2:
+            return None
+        row = raw[0].upper()
+        try:
+            col = int(raw[1:])
+        except ValueError:
+            return None
+        if row not in "ABCDEFGH" or not 1 <= col <= 12:
+            return None
+        return cls(row=row, column=col)
+
+    def __str__(self) -> str:
+        return f"{self.row}{self.column}"
+
+
+@dataclass
+class RunClassification:
+    control_type: ControlType
+    well_position: WellPosition | None
+    instrument_id: str | None
+    plate_id: str | None
+    confidence: Confidence
+    source: ClassificationSource
+    # SPD ("samples per day") — the LC chromatography speed setting parsed
+    # from filename markers like `200spd`, `500SPD`, etc. ``None`` if not
+    # detectable from the filename. Surfaced as an orthogonal dashboard
+    # filter (independent of control_type).
+    spd: int | None = None
+    # Dilution level of the control as a percentage 1-100, parsed from
+    # filename markers like `QCB_75perc`. ``None`` for a neat control (the
+    # normal case). The independent variable in a dilution series, so the
+    # platform can group a threshold-calibration run by it without having to
+    # re-parse the filename.
+    dilution_pct: int | None = None
+    # LC serial number (e.g. ``S00462``), parsed from the
+    # filename. A customer can run more than one LC in front of the same
+    # mass spectrometer and swap between them day to day, so the LC identity
+    # has to travel with the run or a trend silently mixes two instruments.
+    # Auto-detection from the EVP procedure logs was considered and deferred:
+    # the log folders carry no reliable link back to the raw file (matching on
+    # timestamp breaks at fast SPD, where runs are minutes apart).
+    lc_serial: str | None = None
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "control_type": self.control_type.value,
+            "well_position": str(self.well_position) if self.well_position else None,
+            "instrument_id": self.instrument_id,
+            "plate_id": self.plate_id,
+            "classification_confidence": self.confidence.value,
+            "classification_source": self.source.value,
+            "spd": self.spd,
+            "dilution_pct": self.dilution_pct,
+            "lc_serial": self.lc_serial,
+        }
+
+
+@dataclass
+class TargetMetric:
+    """Per-peptide metric row from a Skyline report."""
+
+    target_id: str
+    peptide_sequence: str | None = None
+    precursor_mz: float | None = None
+    retention_time: float | None = None
+    rt_expected: float | None = None
+    rt_delta: float | None = None
+    peak_area: float | None = None
+    peak_height: float | None = None
+    peak_width_fwhm: float | None = None
+    peak_symmetry: float | None = None
+    mass_error_ppm: float | None = None
+    isotope_dot_product: float | None = None
+    library_dot_product: float | None = None
+    detected: bool = True
+    extra_metrics: dict[str, float] = field(default_factory=dict)
+    # Skyline `Peptide.Protein.Name` — used as the grouping key for the
+    # peptide-class system. Different protein names can be assigned different
+    # purposes (recovery / digest_efficiency / oxidation / ...) via
+    # [[classifier.peptide_classes]] in config.toml.
+    protein_name: str | None = None
+    peptide_class: str | None = None
+    peptide_class_purpose: str | None = None
+
+
+@dataclass
+class RunMetrics:
+    """Aggregated run-level metrics."""
+
+    targets_found: int
+    targets_expected: int
+    target_recovery_pct: float
+    median_rt_shift: float | None = None
+    median_mass_error_ppm: float | None = None
+    chromatography_score: float | None = None
+    # Digestion efficiency for the miss-cleavage pair, as a percentage
+    # 0-100: cleaved / (cleaved + miss-cleaved) peak area. None when no
+    # digest_efficiency-class peptides are configured/present. Colour banding
+    # (e.g. >80 green) is a display concern for the dashboard/platform.
+    digest_efficiency_pct: float | None = None
+
+
+@dataclass
+class ExtractionResult:
+    """Output of running Skyline against a single raw file."""
+
+    run_id: UUID = field(default_factory=uuid4)
+    raw_file_path: Path | None = None
+    raw_file_hash: str | None = None
+    template_path: Path | None = None
+    template_hash: str | None = None
+    backend: str = "skyline"
+    backend_version: str | None = None
+    extraction_time_ms: int = 0
+    status: ExtractionStatus = ExtractionStatus.SUCCESS
+    error_message: str | None = None
+    target_metrics: list[TargetMetric] = field(default_factory=list)
+    run_metrics: RunMetrics | None = None
+    stdout: str | None = None
+    stderr: str | None = None
+    # Real acquisition / modification timestamps read by Skyline from the
+    # raw-file header (offset-aware local ISO-8601). None when the report has
+    # no AcquiredTime column — the spool then falls back to the file mtime.
+    acquired_time: str | None = None
+    modified_time: str | None = None
+
+
+@dataclass
+class QcPayload:
+    """The JSON document uploaded to the cloud, written to spool.
+
+    Schema is part of the cross-language contract — field names must match
+    the reference agent exactly.
+    """
+
+    schema_version: str
+    payload_id: UUID
+    correlation_id: str
+    agent_id: str
+    agent_version: str
+    timestamp: datetime
+    run: dict[str, Any]
+    extraction: dict[str, Any]
+    target_metrics: list[dict[str, Any]]
+    run_metrics: dict[str, Any]
+    baseline_context: dict[str, Any] | None = None
+    comparison_metrics: dict[str, Any] | None = None

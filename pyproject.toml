@@ -1,0 +1,145 @@
+[build-system]
+requires = ["hatchling>=1.21"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mdqc"
+version = "1.0.0"
+description = "Automated quality-control monitoring for mass-spectrometry instruments"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Mass Dynamics", email = "engineering@massdynamics.com" }]
+keywords = ["mass-spectrometry", "qc", "proteomics", "skyline"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    # CLI
+    "typer>=0.12",
+
+    # Config
+    "pydantic>=2.6",
+    "pydantic-settings>=2.2",
+
+    # HTTP + retry
+    "httpx>=0.27",
+    "tenacity>=8.2",
+
+    # File watching
+    "watchdog>=4.0",
+
+    # Process control
+    "psutil>=5.9",
+
+    # Logging
+    "structlog>=24.1",
+    "python-json-logger>=2.0",
+
+    # Web UI
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.27",
+    "jinja2>=3.1",
+    "sse-starlette>=2.0",
+    "python-multipart>=0.0.9",
+    "tomli-w>=1.0",
+
+    # Windows-only: file-share / exclusive-open check in the watcher.
+    # pywin32 is lightweight and fast to install — keep it in core.
+    "pywin32>=306; sys_platform == 'win32'",
+
+    # mTLS deferred to v1.1, but the package is needed for the PFX→PEM split.
+    "cryptography>=42.0; sys_platform == 'win32'",
+]
+
+[project.optional-dependencies]
+tray = [
+    # System tray icon + Windows toast notifications.
+    # Install with: pip install mdqc[tray]
+    "pystray>=0.19",
+    "pillow>=10.2",
+    "winsdk>=1.0.0b10; sys_platform == 'win32'",
+]
+dev = [
+    "ruff>=0.3",
+    "mypy>=1.9",
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "pytest-cov>=4.1",
+    "respx>=0.21",
+    "freezegun>=1.4",
+    "tomli-w>=1.0",
+]
+build = [
+    "pyinstaller>=6.5",
+    # Pillow lets PyInstaller convert assets/icon.png -> .ico automatically
+    # when bundling on Windows. Without it the build fails with:
+    # "Received icon image '...icon.png' which exists but is not in the
+    #  correct format. On this platform, only ('exe', 'ico') images may
+    #  be used as icons."
+    "pillow>=10.2",
+]
+
+[project.scripts]
+mdqc = "mdqc.cli:app"
+
+[project.urls]
+Homepage = "https://github.com/MassDynamics/md-qc"
+Issues = "https://github.com/MassDynamics/md-qc/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/mdqc"]
+
+# ─── Tooling ────────────────────────────────────────────────────────────────
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "C4", "RUF"]
+# E501: line length (handled separately; long Skyline error/log strings are OK)
+# RUF001/002/003: ambiguous unicode characters — we use σ, ×, – intentionally
+#                 in chart labels and dashboard copy for proteomics-quality typography
+ignore = ["E501", "RUF001", "RUF002", "RUF003"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_ignores = true
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = ["winsdk.*", "win32.*", "pywin32.*", "pystray.*", "watchdog.observers.winapi"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+asyncio_mode = "auto"
+markers = [
+    "windows_only: tests that require Windows (skipped elsewhere)",
+    "skyline: tests that require a real SkylineCmd.exe install (opt-in)",
+    "integration: cross-module tests (slower)",
+    "parity: tests that compare Python output against Rust fixtures",
+    "live: live end-to-end tests that require the mdqc agent to be running",
+]
+
+[tool.coverage.run]
+source = ["src/mdqc"]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+]

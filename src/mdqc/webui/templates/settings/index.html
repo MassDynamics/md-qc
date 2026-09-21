@@ -1,0 +1,752 @@
+{% extends "base.html" %}
+{% block title %}Settings — MD QC Agent{% endblock %}
+{% block content %}
+<style>
+  .settings-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+  .settings-header h1 { margin: 0; }
+
+  .section-heading {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0 0 1rem;
+  }
+  .section-heading h2 { margin: 0; font-size: 1.05em; }
+
+  .dot { font-size: 1.1em; line-height: 1; }
+  .dot.ok    { color: var(--good); }
+  .dot.bad   { color: var(--bad); }
+  .dot.muted { color: var(--muted); }
+
+  .status-msg { font-size: 0.82em; margin-left: auto; }
+  .status-msg.ok    { color: var(--good); }
+  .status-msg.bad   { color: var(--bad); }
+  .status-msg.muted { color: var(--muted); }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    align-items: center;
+    gap: 0.5rem 1rem;
+    margin-bottom: 0.6rem;
+  }
+  .field-row label { margin: 0; font-weight: 500; }
+  .field-hint { font-size: 0.8em; color: var(--muted); margin-top: 0.1rem; }
+
+  .save-bar {
+    position: sticky;
+    bottom: 0;
+    background: var(--panel);
+    border-top: 1px solid var(--border);
+    padding: 0.75rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 0 -1.25rem -1.25rem;
+  }
+  .banner {
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 1rem;
+    font-size: 0.9em;
+  }
+  .banner.ok  { background: #eef8ee; border: 1px solid var(--good); color: var(--good); }
+  .banner.bad { background: #fdf0f0; border: 1px solid var(--bad);  color: var(--bad); }
+
+  input[type=text], input[type=number], input[type=password], select {
+    max-width: 100%;
+  }
+  .token-row { display: flex; gap: 0.5rem; align-items: center; }
+  .token-row input { flex: 1; max-width: 400px; }
+
+  .instrument-panel .remove-btn {
+    margin-left: 1rem;
+    background: none;
+    border: 1px solid var(--bad);
+    color: var(--bad);
+    border-radius: 4px;
+    padding: 0.2rem 0.6rem;
+    font-size: 0.8em;
+    cursor: pointer;
+    line-height: 1.4;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .instrument-panel .remove-btn:hover {
+    background: #fdf0f0;
+  }
+  .add-instrument-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: none;
+    border: 1px dashed var(--border);
+    color: var(--muted);
+    border-radius: 6px;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9em;
+    cursor: pointer;
+    width: 100%;
+    justify-content: center;
+    margin-bottom: 1rem;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .add-instrument-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* Classifier rules table */
+  .rules-table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
+  .rules-table th {
+    text-align: left; font-weight: 600; padding: 0.3rem 0.5rem;
+    border-bottom: 1px solid var(--border); color: var(--muted);
+  }
+  .rules-table td { padding: 0.3rem 0.4rem; vertical-align: middle; }
+  .rules-table tr:not(:last-child) td { border-bottom: 1px solid var(--border); }
+  .rules-table input[type=text] { width: 100%; font-size: 0.9em; padding: 0.2rem 0.4rem; }
+  .rules-table select { font-size: 0.9em; padding: 0.2rem 0.3rem; }
+  .rules-table .del-btn {
+    background: none; border: none; color: var(--bad);
+    cursor: pointer; font-size: 1rem; padding: 0 0.3rem; line-height: 1;
+  }
+  .rules-table .del-btn:hover { color: #c00; }
+  .add-rule-btn {
+    margin-top: 0.6rem; background: none; border: 1px dashed var(--border);
+    color: var(--muted); border-radius: 4px; padding: 0.3rem 0.9rem;
+    font-size: 0.85em; cursor: pointer;
+  }
+  .add-rule-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .drag-handle { cursor: grab; color: var(--muted); padding: 0 0.3rem; user-select: none; }
+
+  /* QC thresholds — collapsed by default so they aren't adjusted casually */
+  details.thresholds > summary {
+    display: flex; align-items: center; gap: 0.5rem;
+    cursor: pointer; list-style: none; font-size: 1.05em;
+  }
+  details.thresholds > summary::-webkit-details-marker { display: none; }
+  details.thresholds > summary::after {
+    content: "▸"; color: var(--muted); margin-left: 0.25rem; font-size: 0.9em;
+  }
+  details.thresholds[open] > summary::after { content: "▾"; }
+  .threshold-body { margin-top: 1rem; }
+  .threshold-prov {
+    font-size: 0.85em; color: var(--muted); background: #f7f7f7;
+    border: 1px solid var(--border); padding: 0.6rem 0.75rem; margin-bottom: 1rem;
+  }
+  .threshold-group {
+    font-weight: 600; font-size: 0.95em; margin: 1.1rem 0 0.15rem;
+  }
+  .threshold-row label { font-weight: 400; }
+  .threshold-input { display: flex; align-items: center; gap: 0.35rem; }
+  .threshold-input input { width: 90px; max-width: 90px; text-align: right; }
+  .threshold-input .pct { color: var(--muted); font-size: 0.9em; }
+  .threshold-changed {
+    font-size: 0.78em; color: var(--warn); margin-left: 0.5rem;
+  }
+</style>
+
+{% if saved %}
+<div class="banner ok">✓ Settings saved successfully.</div>
+{% endif %}
+{% if error %}
+<div class="banner bad">✗ {{ error }}</div>
+{% endif %}
+
+<div class="settings-header">
+  <h1>Settings</h1>
+</div>
+
+{% include "settings/cloud_panel.html" %}
+
+<form method="post" action="/settings" id="settings-form">
+
+  {# ── Instruments ────────────────────────────────────────────────────── #}
+  <div id="instruments-container">
+    {% for ic in instruments_ctx %}
+    <section class="panel instrument-panel" data-idx="{{ ic.idx }}">
+      <div class="section-heading">
+        <span class="dot {{ ic.status.state }}">●</span>
+        <h2>Instrument {% if instruments_ctx | length > 1 %}{{ loop.index }}{% endif %}</h2>
+        <span class="status-msg {{ ic.status.state }}">{{ ic.status.message }}</span>
+        <button type="button" class="remove-btn" onclick="removeInstrument(this)" title="Remove instrument">✕ Remove</button>
+      </div>
+
+      <div class="field-row">
+        <label>Instrument ID</label>
+        <div>
+          <input type="text" name="instrument_id_{{ ic.idx }}"
+                 value="{{ ic.inst.id }}" placeholder="e.g. Astral_0001">
+          <div class="field-hint">Unique name — used in payload metadata.</div>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <label>Vendor</label>
+        <select name="vendor_{{ ic.idx }}">
+          {% for v in vendors %}
+          <option value="{{ v }}" {% if ic.inst.vendor.value == v %}selected{% endif %}>
+            {{ v | capitalize }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="field-row">
+        <label>Watch path</label>
+        <div>
+          <input type="text" name="watch_path_{{ ic.idx }}"
+                 value="{{ ic.inst.watch_path }}" placeholder="e.g. D:\Data">
+          <div class="field-hint">Directory the agent monitors for new raw files.</div>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <label>File pattern</label>
+        <div>
+          <input type="text" name="file_pattern_{{ ic.idx }}"
+                 value="{{ ic.inst.file_pattern }}" placeholder="*.raw">
+          <div class="field-hint">Glob pattern for files to pick up (e.g. <code>*.raw</code>, <code>*.d</code>).</div>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <label>Template</label>
+        <div>
+          <div style="display:flex; gap:0.5rem; align-items:center;">
+            <input type="text" name="template_{{ ic.idx }}"
+                   value="{{ ic.inst.template }}" placeholder="QC_Method.sky"
+                   style="flex:1;" id="tpl-input-{{ ic.idx }}">
+            <button type="button" class="btn btn-secondary"
+                    style="white-space:nowrap; font-size:0.85em; padding:0.25rem 0.75rem;"
+                    onclick="openTemplate('tpl-input-{{ ic.idx }}')">Open in Skyline</button>
+          </div>
+          <div class="field-hint">
+            Skyline template filename or absolute path.
+            Status: <span class="{{ ic.status_template.state }}">{{ ic.status_template.message }}</span>
+          </div>
+        </div>
+      </div>
+    </section>
+    {% endfor %}
+
+    {% if not instruments_ctx %}
+    {# Render a blank instrument panel if none configured #}
+    <section class="panel instrument-panel" data-idx="0">
+      <div class="section-heading">
+        <span class="dot muted">●</span>
+        <h2>Instrument 1</h2>
+        <span class="status-msg muted">Not configured</span>
+        <button type="button" class="remove-btn" onclick="removeInstrument(this)" title="Remove instrument">✕ Remove</button>
+      </div>
+
+      <div class="field-row">
+        <label>Instrument ID</label>
+        <div>
+          <input type="text" name="instrument_id_0" value="" placeholder="e.g. Astral_0001">
+          <div class="field-hint">Unique name — used in payload metadata.</div>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <label>Vendor</label>
+        <select name="vendor_0">
+          {% for v in vendors %}
+          <option value="{{ v }}">{{ v | capitalize }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="field-row">
+        <label>Watch path</label>
+        <div>
+          <input type="text" name="watch_path_0" value="" placeholder="e.g. D:\Data">
+          <div class="field-hint">Directory the agent monitors for new raw files.</div>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <label>File pattern</label>
+        <div>
+          <input type="text" name="file_pattern_0" value="*" placeholder="*.raw">
+          <div class="field-hint">Glob pattern for files to pick up (e.g. <code>*.raw</code>, <code>*.d</code>).</div>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <label>Template</label>
+        <div>
+          <div style="display:flex; gap:0.5rem; align-items:center;">
+            <input type="text" name="template_0" value="QC_Method.sky" placeholder="QC_Method.sky"
+                   style="flex:1;" id="tpl-input-0">
+            <button type="button" class="btn btn-secondary"
+                    style="white-space:nowrap; font-size:0.85em; padding:0.25rem 0.75rem;"
+                    onclick="openTemplate('tpl-input-0')">Open in Skyline</button>
+          </div>
+          <div class="field-hint">Skyline template filename or absolute path.</div>
+        </div>
+      </div>
+    </section>
+    {% endif %}
+  </div>
+
+  <button type="button" class="add-instrument-btn" onclick="addInstrument()">
+    + Add Instrument
+  </button>
+
+  {# ── Classifier Rules ───────────────────────────────────────────────── #}
+  <section class="panel">
+    <div class="section-heading">
+      <span class="dot ok">●</span>
+      <h2>Filename Classifier Rules</h2>
+    </div>
+    <p class="field-hint" style="margin-bottom:0.75rem;">
+      Rules are matched as case-insensitive substrings of the raw filename (stem only, no extension).
+      Evaluated top-to-bottom — first match wins. Drag rows to reorder.
+    </p>
+
+    <table class="rules-table" id="rules-table">
+      <thead>
+        <tr>
+          <th style="width:1.5rem;"></th>
+          <th style="width:35%;">Pattern (substring)</th>
+          <th style="width:20%;">Control type</th>
+          <th>Notes</th>
+          <th style="width:2rem;"></th>
+        </tr>
+      </thead>
+      <tbody id="rules-body">
+        {% for rule in cfg.classifier_rules %}
+        <tr draggable="true" class="rule-row">
+          <td><span class="drag-handle">⠿</span></td>
+          <td><input type="text" name="rule_pattern_{{ loop.index0 }}" value="{{ rule.pattern }}" placeholder="e.g. Hela_QC"></td>
+          <td>
+            <select name="rule_type_{{ loop.index0 }}">
+              {% for ct in control_types %}
+              <option value="{{ ct }}" {% if rule.control_type == ct %}selected{% endif %}>{{ ct }}</option>
+              {% endfor %}
+            </select>
+          </td>
+          <td><input type="text" name="rule_notes_{{ loop.index0 }}" value="{{ rule.notes }}" placeholder="optional description"></td>
+          <td><button type="button" class="del-btn" onclick="deleteRule(this)" title="Remove">✕</button></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <button type="button" class="add-rule-btn" onclick="addRule()">+ Add rule</button>
+  </section>
+
+  {# ── Skyline ────────────────────────────────────────────────────────── #}
+  <section class="panel">
+    <div class="section-heading">
+      <span class="dot {{ status_skyline.state }}">●</span>
+      <h2>Skyline</h2>
+      <span class="status-msg {{ status_skyline.state }}">{{ status_skyline.message }}</span>
+    </div>
+
+    <div class="field-row">
+      <label for="skyline_path">SkylineCmd path</label>
+      <div>
+        <input type="text" id="skyline_path" name="skyline_path"
+               value="{{ cfg.skyline.path }}"
+               placeholder="auto">
+        <div class="field-hint">Leave <code>auto</code> to detect from registry and common paths.</div>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <label for="skyline_timeout">Timeout (seconds)</label>
+      <input type="number" id="skyline_timeout" name="skyline_timeout"
+             value="{{ cfg.skyline.timeout_seconds }}" min="60" max="3600" style="max-width:120px;">
+    </div>
+
+    <div class="field-row">
+      <label for="skyline_priority">Process priority</label>
+      <select id="skyline_priority" name="skyline_priority">
+        {% for p in priorities %}
+        <option value="{{ p }}" {% if cfg.skyline.process_priority == p %}selected{% endif %}>
+          {{ p.replace("_", " ") | capitalize }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+  </section>
+
+  {# ── Agent ──────────────────────────────────────────────────────────── #}
+  <section class="panel">
+    <div class="section-heading">
+      <span class="dot ok">●</span>
+      <h2>Agent</h2>
+    </div>
+
+    <div class="field-row">
+      <label for="log_level">Log level</label>
+      <select id="log_level" name="log_level" style="max-width:160px;">
+        {% for lvl in log_levels %}
+        <option value="{{ lvl }}" {% if cfg.agent.log_level == lvl %}selected{% endif %}>
+          {{ lvl | capitalize }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="field-row">
+      <label for="enable_toasts">Toast notifications</label>
+      <label style="font-weight:normal;">
+        <input type="checkbox" id="enable_toasts" name="enable_toasts"
+               value="true" {% if cfg.agent.enable_toast_notifications %}checked{% endif %}>
+        Show Windows toast notifications
+      </label>
+    </div>
+  </section>
+
+  {# ── Payload retention ──────────────────────────────────────────────── #}
+  <section class="panel">
+    <div class="section-heading">
+      <span class="dot {% if local_only %}muted{% else %}ok{% endif %}">●</span>
+      <h2>Payload retention</h2>
+      <span class="status-msg muted">
+        {% if local_only %}Local-only — kept by age{% else %}Cloud — kept by count{% endif %}
+      </span>
+    </div>
+
+    {% if local_only %}
+    <div class="field-hint" style="margin-bottom:0.8rem;">
+      No cloud upload is configured, so <code>spool\completed\</code> holds the
+      <strong>only</strong> copy of every payload. It is pruned by age only —
+      the count limit below is dormant, and takes effect once an API token is set.
+    </div>
+    {% else %}
+    <div class="field-hint" style="margin-bottom:0.8rem;">
+      Payloads are uploaded to Mass Dynamics, so <code>spool\completed\</code>
+      is a local copy for checking against and is capped at the newest N files.
+    </div>
+    {% endif %}
+
+    {% if retention_low %}
+    <div class="banner bad" style="margin-bottom:0.8rem;">
+      ⚠ <strong>Keep newest is set to {{ cfg.spool.completed_retention_count }}</strong> —
+      below one night of acquisition.
+      {% if local_only %}
+      This limit is dormant right now, but it will start deleting payloads as
+      soon as you save an API token. Raise it before you do.
+      {% else %}
+      Payloads beyond the newest {{ cfg.spool.completed_retention_count }} are
+      being deleted every hour.
+      {% endif %}
+      Suggested: {{ retention_low_watermark }} or more.
+    </div>
+    {% endif %}
+
+    <div class="field-row">
+      <label>Keep newest</label>
+      <div>
+        <input type="number" name="completed_retention_count" min="0" step="1"
+               value="{{ cfg.spool.completed_retention_count }}" style="max-width:140px;">
+        <div class="field-hint">
+          Maximum payloads retained in <code>completed\</code> once cloud upload
+          is configured. A single overnight batch can exceed 150 runs — set this
+          above your busiest expected night.
+        </div>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <label>Keep for (days)</label>
+      <div>
+        <input type="number" name="max_age_days" min="1" step="1"
+               value="{{ cfg.spool.max_age_days }}" style="max-width:140px;">
+        <div class="field-hint">
+          Payloads older than this are removed. In local-only mode this is the
+          only thing bounding <code>completed\</code>.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {# ── QC thresholds ──────────────────────────────────────────────────── #}
+  {# id is linked from the Gold standards page, which shades against these
+     same numbers — keep it if the panel moves. #}
+  <section class="panel" id="qc-thresholds">
+    <details class="thresholds"{% if not thresholds_are_default %} open{% endif %} id="qc-thresholds-details">
+      <summary>
+        <span class="dot {% if thresholds_are_default %}muted{% else %}ok{% endif %}">●</span>
+        <strong>QC thresholds</strong>
+        <span class="status-msg muted">
+          {% if thresholds_are_default %}Using recommended values{% else %}Customised{% endif %}
+        </span>
+      </summary>
+
+      <div class="threshold-body">
+        <div class="threshold-prov">
+          These decide when a run is flagged, relative to its <strong>SSC-gold</strong> baseline,
+          and they also set the shading on the Gold standards page. The current values come from
+          stress data generated on one instrument, a timsTOF HT, with further data being generated
+          across other platforms, so they are <strong>provisional</strong>. Treat them as guidance
+          for investigation, not as an instrument acceptance specification.
+        </div>
+
+        {% for group in threshold_groups %}
+        <div class="threshold-group">{{ group.title }}</div>
+        <p class="field-hint" style="margin:0 0 .5rem;">{{ group.question }}</p>
+        {% for f in group.fields %}
+        <div class="field-row threshold-row">
+          <label for="{{ f.name }}">{{ f.label }}</label>
+          <div>
+            <div class="threshold-input">
+              <input type="number" id="{{ f.name }}" name="{{ f.name }}"
+                     min="0" step="0.1" value="{{ f.value }}">
+              <span class="pct">%</span>
+              {% if f.value != f.default %}
+              <span class="threshold-changed">recommended {{ f.default }}%</span>
+              {% endif %}
+            </div>
+            <div class="field-hint">{{ f.hint }}</div>
+          </div>
+        </div>
+        {% endfor %}
+        {% endfor %}
+
+        <div style="margin-top:1rem;">
+          <button type="submit" name="restore_thresholds" value="1" class="btn"
+                  {% if thresholds_are_default %}disabled{% endif %}>
+            Restore recommended values
+          </button>
+        </div>
+
+        <div class="field-hint" style="margin-top:.9rem; border-top:1px solid var(--border); padding-top:.7rem;">
+          Changes apply to the <strong>next run</strong> — no restart needed, unlike cloud settings.
+          The values in force are written into every payload, so any result can be traced back to
+          the thresholds that produced it.
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <div class="save-bar">
+    <button type="submit" class="btn btn-primary">Save settings</button>
+    <span class="muted" style="font-size:0.85em;">
+      Config file: <code>{{ config_path }}</code>
+    </span>
+  </div>
+
+</form>
+
+{# ── Maintenance ────────────────────────────────────────────────────── #}
+<section class="panel">
+  <div class="section-heading">
+    <span class="dot muted">●</span>
+    <h2>Maintenance</h2>
+  </div>
+
+  <div class="field-row">
+    <label>Processed-file memory</label>
+    <div>
+      <button type="button" class="btn-danger"
+              hx-post="/settings/reset-processed"
+              hx-target="#reset-processed-status"
+              hx-swap="innerHTML"
+              hx-confirm="This will clear the agent's record of which files have already been processed. Any files already in your watch folder will be re-extracted on the next scan. Continue?">
+        Reset processed-file memory
+      </button>
+      <span id="reset-processed-status" style="margin-left:0.75rem;"></span>
+      <div class="field-hint">
+        Clears the list of paths the watcher remembers as already done. Use this
+        if you want to re-process files that have already been extracted (e.g.
+        for testing). Activity log and stored payloads are not affected.
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+const VENDORS = {{ vendors | tojson }};
+
+function mdqcToggleCloudCustom() {
+  const select = document.getElementById('cloud_environment');
+  const row = document.getElementById('cloud_endpoint_custom_row');
+  row.style.display = select.value === 'custom' ? '' : 'none';
+}
+
+function nextIdx() {
+  const panels = document.querySelectorAll('#instruments-container .instrument-panel');
+  let max = -1;
+  panels.forEach(p => {
+    const idx = parseInt(p.dataset.idx, 10);
+    if (idx > max) max = idx;
+  });
+  return max + 1;
+}
+
+function addInstrument() {
+  const idx = nextIdx();
+  const vendorOptions = VENDORS.map(v =>
+    `<option value="${v}">${v.charAt(0).toUpperCase() + v.slice(1)}</option>`
+  ).join('');
+
+  const html = `
+  <section class="panel instrument-panel" data-idx="${idx}">
+    <div class="section-heading">
+      <span class="dot muted">●</span>
+      <h2>Instrument</h2>
+      <span class="status-msg muted">Not saved yet</span>
+      <button type="button" class="remove-btn" onclick="removeInstrument(this)" title="Remove instrument">✕ Remove</button>
+    </div>
+
+    <div class="field-row">
+      <label>Instrument ID</label>
+      <div>
+        <input type="text" name="instrument_id_${idx}" value="" placeholder="e.g. Astral_0001">
+        <div class="field-hint">Unique name — used in payload metadata.</div>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <label>Vendor</label>
+      <select name="vendor_${idx}">${vendorOptions}</select>
+    </div>
+
+    <div class="field-row">
+      <label>Watch path</label>
+      <div>
+        <input type="text" name="watch_path_${idx}" value="" placeholder="e.g. D:\\Data">
+        <div class="field-hint">Directory the agent monitors for new raw files.</div>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <label>File pattern</label>
+      <div>
+        <input type="text" name="file_pattern_${idx}" value="*" placeholder="*.raw">
+        <div class="field-hint">Glob pattern for files to pick up (e.g. <code>*.raw</code>, <code>*.d</code>).</div>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <label>Template</label>
+      <div>
+        <div style="display:flex; gap:0.5rem; align-items:center;">
+          <input type="text" name="template_${idx}" value="QC_Method.sky" placeholder="QC_Method.sky"
+                 style="flex:1;" id="tpl-input-${idx}">
+          <button type="button" class="btn btn-secondary"
+                  style="white-space:nowrap; font-size:0.85em; padding:0.25rem 0.75rem;"
+                  onclick="openTemplate('tpl-input-${idx}')">Open in Skyline</button>
+        </div>
+        <div class="field-hint">Skyline template filename or absolute path.</div>
+      </div>
+    </div>
+  </section>`;
+
+  const container = document.getElementById('instruments-container');
+  container.insertAdjacentHTML('beforeend', html);
+  updateHeadings();
+}
+
+function removeInstrument(btn) {
+  const panels = document.querySelectorAll('#instruments-container .instrument-panel');
+  if (panels.length <= 1) {
+    alert('At least one instrument is required.');
+    return;
+  }
+  btn.closest('.instrument-panel').remove();
+  updateHeadings();
+}
+
+// ── Classifier rules ──────────────────────────────────────────────────────
+const CONTROL_TYPES = {{ control_types | tojson }};
+
+function ruleRowIdx() {
+  return document.querySelectorAll('#rules-body .rule-row').length;
+}
+
+function reindexRules() {
+  document.querySelectorAll('#rules-body .rule-row').forEach((row, i) => {
+    row.querySelector('input[name^="rule_pattern_"]').name = `rule_pattern_${i}`;
+    row.querySelector('select[name^="rule_type_"]').name    = `rule_type_${i}`;
+    row.querySelector('input[name^="rule_notes_"]').name   = `rule_notes_${i}`;
+  });
+}
+
+function addRule() {
+  const idx = ruleRowIdx();
+  const opts = CONTROL_TYPES.map(ct => `<option value="${ct}">${ct}</option>`).join('');
+  const row = document.createElement('tr');
+  row.draggable = true;
+  row.className = 'rule-row';
+  row.innerHTML = `
+    <td><span class="drag-handle">⠿</span></td>
+    <td><input type="text" name="rule_pattern_${idx}" value="" placeholder="e.g. Hela_QC"></td>
+    <td><select name="rule_type_${idx}">${opts}</select></td>
+    <td><input type="text" name="rule_notes_${idx}" value="" placeholder="optional description"></td>
+    <td><button type="button" class="del-btn" onclick="deleteRule(this)" title="Remove">✕</button></td>`;
+  document.getElementById('rules-body').appendChild(row);
+  attachDrag(row);
+  row.querySelector('input[type=text]').focus();
+}
+
+function deleteRule(btn) {
+  btn.closest('tr').remove();
+  reindexRules();
+}
+
+// ── Drag-to-reorder ───────────────────────────────────────────────────────
+let _dragSrc = null;
+
+function attachDrag(row) {
+  row.addEventListener('dragstart', e => {
+    _dragSrc = row;
+    e.dataTransfer.effectAllowed = 'move';
+    row.style.opacity = '0.4';
+  });
+  row.addEventListener('dragend', () => { row.style.opacity = ''; reindexRules(); });
+  row.addEventListener('dragover', e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; });
+  row.addEventListener('drop', e => {
+    e.preventDefault();
+    if (_dragSrc && _dragSrc !== row) {
+      const tbody = document.getElementById('rules-body');
+      const rows = [...tbody.querySelectorAll('tr')];
+      const srcIdx = rows.indexOf(_dragSrc);
+      const tgtIdx = rows.indexOf(row);
+      if (srcIdx < tgtIdx) tbody.insertBefore(_dragSrc, row.nextSibling);
+      else tbody.insertBefore(_dragSrc, row);
+    }
+  });
+}
+
+document.querySelectorAll('#rules-body .rule-row').forEach(attachDrag);
+
+function openTemplate(inputId) {
+  const name = document.getElementById(inputId).value.trim();
+  if (!name) { alert('Enter a template name or path first.'); return; }
+  fetch('/settings/open-template?name=' + encodeURIComponent(name))
+    .then(r => r.json())
+    .then(d => { if (!d.ok) alert('Could not open template:\n' + d.error); })
+    .catch(e => alert('Request failed: ' + e));
+}
+
+// The thresholds panel is collapsed unless it has been customised, so a
+// deep link from the Gold standards page would otherwise land on a closed
+// panel with nothing visible.
+if (window.location.hash === '#qc-thresholds') {
+  const d = document.getElementById('qc-thresholds-details');
+  if (d) { d.open = true; d.scrollIntoView({ block: 'start' }); }
+}
+
+function updateHeadings() {
+  const panels = document.querySelectorAll('#instruments-container .instrument-panel');
+  panels.forEach((panel, i) => {
+    const h2 = panel.querySelector('.section-heading h2');
+    if (panels.length > 1) {
+      h2.textContent = `Instrument ${i + 1}`;
+    } else {
+      h2.textContent = 'Instrument';
+    }
+  });
+}
+</script>
+{% endblock %}

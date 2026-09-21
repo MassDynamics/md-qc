@@ -1,0 +1,120 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: ${{ matrix.os }} / py${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install dev dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Lint (ruff)
+        run: ruff check src tests
+
+      - name: Run tests
+        # Exclude `live` and `skyline` markers — both require external state
+        # (running agent + Skyline install + raw files) that CI doesn't have.
+        run: pytest -q -m "not live and not skyline"
+
+  build-exe:
+    name: Build Windows exe
+    needs: test
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dev + build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,build]"
+
+      - name: Read version from pyproject.toml
+        id: version
+        shell: pwsh
+        run: |
+          $version = (Select-String -Path pyproject.toml -Pattern '^version = "(.*)"').Matches.Groups[1].Value
+          "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+      - name: Build PyInstaller binary
+        run: python scripts/build.py --clean
+
+      - name: Run selfcheck on built binary
+        shell: pwsh
+        run: dist\mdqc.exe selfcheck
+
+      - name: Rename exe to include version
+        shell: pwsh
+        run: |
+          Rename-Item -Path dist\mdqc.exe -NewName "mdqc-${{ steps.version.outputs.version }}.exe"
+
+      - name: Upload exe artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mdqc-exe-${{ steps.version.outputs.version }}
+          path: dist/mdqc-${{ steps.version.outputs.version }}.exe
+          retention-days: 30
+
+  release:
+    name: GitHub Release
+    needs: build-exe
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read version from pyproject.toml
+        id: version
+        shell: bash
+        run: |
+          version=$(grep '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/')
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Download exe artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: mdqc-exe-${{ steps.version.outputs.version }}
+          path: artifacts
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: MD QC Agent v${{ steps.version.outputs.version }}
+          files: artifacts/mdqc-${{ steps.version.outputs.version }}.exe
+          generate_release_notes: true
+          body: |
+            ## Installation
+
+            1. Download `mdqc-${{ steps.version.outputs.version }}.exe` below
+            2. Run it from the command line: `mdqc-${{ steps.version.outputs.version }}.exe run --config path\to\config.toml`
+
+            Requires Windows 10/11 x64. No Python installation needed.

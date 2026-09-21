@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — MD QC Agent{% endblock %}
+{% block content %}
+<style>
+  .control-bar {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+  }
+  .btn-danger {
+    background: transparent;
+    border: 1px solid var(--bad);
+    color: var(--bad);
+  }
+  .btn-danger:hover { background: #fdf0f0; }
+</style>
+
+<h1>Dashboard</h1>
+
+<section class="panel">
+  <h2>Service</h2>
+  <div id="service-status"
+       hx-get="/dashboard/status"
+       hx-trigger="every 10s"
+       hx-swap="innerHTML">
+    {% include "dashboard/status_fragment.html" %}
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Queue</h2>
+  <div id="queue" hx-get="/dashboard/queue" hx-trigger="every 5s" hx-swap="innerHTML">
+    {% include "dashboard/queue_fragment.html" %}
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Instruments ({{ instruments | length }})</h2>
+  {% if instruments %}
+  <table>
+    <thead><tr><th>ID</th><th>Vendor</th><th>Watch path</th><th>Template</th></tr></thead>
+    <tbody>
+      {% for i in instruments %}
+      <tr>
+        <td>{{ i.id }}</td>
+        <td>{{ i.vendor.value if i.vendor.value is defined else i.vendor }}</td>
+        <td><code>{{ i.watch_path }}</code></td>
+        <td><code>{{ i.template }}</code></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">No instruments configured. <a href="/settings">Open Settings</a> to add one.</p>
+  {% endif %}
+</section>
+
+<section class="panel">
+  <h2>Recent activity</h2>
+  <div id="activity" hx-get="/dashboard/activity" hx-trigger="every 10s" hx-swap="innerHTML">
+    {% include "dashboard/activity_fragment.html" %}
+  </div>
+</section>
+
+<script>
+function confirmRestart() {
+  if (!confirm('Restart the QC agent service?\n\nThe page will become unavailable briefly while it restarts.')) return;
+  const btn = document.getElementById('restart-btn');
+  btn.disabled = true;
+  btn.textContent = 'Restarting…';
+  fetch('/api/restart', { method: 'POST' })
+    .then(() => {
+      // Poll until the service is back up
+      const start = Date.now();
+      const poll = setInterval(() => {
+        fetch('/api/health')
+          .then(r => { if (r.ok) { clearInterval(poll); window.location.reload(); } })
+          .catch(() => {});
+        if (Date.now() - start > 30000) {
+          clearInterval(poll);
+          btn.textContent = 'Service stopped — restart manually';
+        }
+      }, 1500);
+    })
+    .catch(() => {
+      btn.disabled = false;
+      btn.textContent = '↺ Restart';
+    });
+}
+</script>
+{% endblock %}

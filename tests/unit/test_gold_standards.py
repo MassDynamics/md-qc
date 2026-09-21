@@ -1,0 +1,749 @@
+"""Tests for local gold-standard (SSC0) baseline storage and computation."""
+
+from __future__ import annotations
+
+from datetime import UTC, datetime, tzinfo
+from pathlib import Path
+from typing import Self
+from uuid import uuid4
+
+import pytest
+
+from mdqc import gold_standards as gs
+from mdqc.config.schema import PeptideClassRule
+from mdqc.types import (
+    ClassificationSource,
+    Confidence,
+    ControlType,
+    ExtractionResult,
+    RunClassification,
+    RunMetrics,
+    TargetMetric,
+)
+
+
+def _classification(
+    control_type: ControlType = ControlType.SSC0,
+    instrument_id: str | None = "Astral_0001",
+    spd: int | None = 200,
+) -> RunClassification:
+    return RunClassification(
+        control_type=control_type,
+        well_position=None,
+        instrument_id=instrument_id,
+        plate_id=None,
+        confidence=Confidence.HIGH,
+        source=ClassificationSource.FILENAME,
+        spd=spd,
+    )
+
+
+def _extraction(metrics: list[TargetMetric], targets_found: int | None = None) -> ExtractionResult:
+    run_metrics = (
+        RunMetrics(
+            targets_found=targets_found if targets_found is not None else len(metrics),
+            targets_expected=len(metrics),
+            target_recovery_pct=100.0,
+        )
+        if metrics or targets_found is not None
+        else None
+    )
+    return ExtractionResult(run_id=uuid4(), target_metrics=metrics, run_metrics=run_metrics)
+
+
+def _pep(
+    seq: str, protein: str = "Non_reactive_Targets", area: float = 1000.0, rt: float = 5.0
+) -> TargetMetric:
+    return TargetMetric(
+        target_id=seq, peptide_sequence=seq, protein_name=protein, peak_area=area, retention_time=rt
+    )
+
+
+# ─── record_ssc0_run / list_ssc0_runs ──────────────────────────────────────
+
+
+def test_record_ssc0_run_appends_snapshot(tmp_data_dir: Path) -> None:
+    metrics = [_pep("PEPA", area=1000.0, rt=5.0), _pep("PEPB", area=2000.0, rt=8.0)]
+    extraction = _extraction(metrics)
+    gs.record_ssc0_run(_classification(), extraction)
+
+    runs = gs.list_ssc0_runs("Astral_0001", 200)
+    assert len(runs) == 1
+    run = runs[0]
+    assert run["run_id"] == str(extraction.run_id)
+    assert run["instrument_id"] == "Astral_0001"
+    assert run["spd"] == 200
+    assert run["targets_found"] == 2
+    key = "Non_reactive_Targets|PEPA"
+    assert run["peptides"][key]["peak_area"] == 1000.0
+    assert run["peptides"][key]["retention_time"] == 5.0
+
+
+def test_record_ssc0_run_ignores_non_ssc0(tmp_data_dir: Path) -> None:
+    gs.record_ssc0_run(_classification(control_type=ControlType.QC_A), _extraction([_pep("A")]))
+    assert gs.list_ssc0_runs("Astral_0001", 200) == []
+
+
+def test_list_ssc0_runs_scoped_by_instrument_and_spd(tmp_data_dir: Path) -> None:
+    gs.record_ssc0_run(
+        _classification(instrument_id="Astral_0001", spd=200), _extraction([_pep("A")])
+    )
+    gs.record_ssc0_run(
+        _classification(instrument_id="Astral_0001", spd=500), _extraction([_pep("A")])
+    )
+    gs.record_ssc0_run(
+        _classification(instrument_id="Exploris01", spd=200), _extraction([_pep("A")])
+    )
+    assert len(gs.list_ssc0_runs("Astral_0001", 200)) == 1
+    assert len(gs.list_ssc0_runs("Astral_0001", 500)) == 1
+    assert len(gs.list_ssc0_runs("Exploris01", 200)) == 1
+    assert gs.list_ssc0_runs("Astral_0001", 300) == []
+
+
+def test_list_available_spds(tmp_data_dir: Path) -> None:
+    gs.record_ssc0_run(
+        _classification(instrument_id="Astral_0001", spd=500), _extraction([_pep("A")])
+    )
+    gs.record_ssc0_run(
+        _classification(instrument_id="Astral_0001", spd=200), _extraction([_pep("A")])
+    )
+    assert gs.list_available_spds("Astral_0001") == [200, 500]
+    assert gs.list_available_spds("Unknown_Instrument") == []
+
+
+def test_record_ssc0_run_handles_unknown_instrument_and_spd(tmp_data_dir: Path) -> None:
+    gs.record_ssc0_run(
+        _classification(instrument_id=None, spd=None), _extraction([_pep("A")])
+    )
+    assert len(gs.list_ssc0_runs(None, None)) == 1
+
+
+def test_record_ssc0_run_caps_bucket_size(
+    tmp_data_dir: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(gs, "_MAX_RUNS_PER_BUCKET", 3)
+    run_ids = []
+    for _ in range(4):
+        extraction = _extraction([_pep("A")])
+        run_ids.append(str(extraction.run_id))
+        gs.record_ssc0_run(_classification(), extraction)
+    runs = gs.list_ssc0_runs("Astral_0001", 200)
+    assert len(runs) == 3
+    # Oldest (first recorded) was evicted; newest 3 remain, in order.
+    assert [r["run_id"] for r in runs] == run_ids[1:]
+
+
+# ─── compute_baseline_preview ──────────────────────────────────────────────
+
+
+def _run_dict(run_id: str, area: float, rt: float, peptide_class: str | None = None) -> dict:
+    return {
+        "run_id": run_id,
+        "peptides": {
+            "Prot|PEP": {
+                "protein_name": "Prot",
+                "peptide_sequence": "PEP",
+                "peptide_class": peptide_class,
+                "peptide_class_purpose": None,
+                "retention_time": rt,
+                "peak_area": area,
+            }
+        },
+    }
+
+
+def test_compute_baseline_preview_median_and_cv() -> None:
+    runs = [
+        _run_dict("r1", 100.0, 5.0),
+        _run_dict("r2", 110.0, 5.1),
+        _run_dict("r3", 120.0, 4.9),
+    ]
+    stats = gs.compute_baseline_preview(runs, {"r1", "r2", "r3"})
+    stat = stats["Prot|PEP"]
+    # mean=110, pstdev=sqrt(((100-110)**2+(110-110)**2+(120-110)**2)/3)=8.1650
+    assert stat.peak_area_median == 110.0
+    assert stat.peak_area_cv_pct == pytest.approx(7.4229, abs=0.001)
+    assert stat.retention_time_median == 5.0
+    assert stat.n == 3
+
+
+def test_compute_baseline_preview_excludes_unchecked_runs() -> None:
+    runs = [
+        _run_dict("r1", 100.0, 5.0),
+        _run_dict("r2", 999.0, 9.0),  # not selected — must not affect stats
+    ]
+    stats = gs.compute_baseline_preview(runs, {"r1"})
+    assert stats["Prot|PEP"].peak_area_median == 100.0
+    assert stats["Prot|PEP"].n == 1
+
+
+def test_compute_baseline_preview_empty_checked_set_returns_empty() -> None:
+    runs = [_run_dict("r1", 100.0, 5.0)]
+    assert gs.compute_baseline_preview(runs, set()) == {}
+
+
+def test_compute_baseline_preview_excludes_flagged_peptide_class() -> None:
+    runs = [
+        _run_dict("r1", 100.0, 5.0, peptide_class="Digest"),
+    ]
+    rules = [
+        PeptideClassRule(
+            protein_name="Prot", label="Digest", purpose="digest_efficiency",
+            exclude_from_baseline=True,
+        )
+    ]
+    stats = gs.compute_baseline_preview(runs, {"r1"}, rules)
+    assert stats == {}
+
+
+def test_compute_baseline_preview_keeps_unflagged_class() -> None:
+    runs = [_run_dict("r1", 100.0, 5.0, peptide_class="Recovery")]
+    rules = [PeptideClassRule(protein_name="Prot", label="Recovery", purpose="recovery")]
+    stats = gs.compute_baseline_preview(runs, {"r1"}, rules)
+    assert "Prot|PEP" in stats
+
+
+# ─── save_baseline / get_active_baseline / list_baselines ─────────────────
+
+
+def _seed_runs(n: int, area: float = 1000.0) -> list[str]:
+    ids = []
+    for _ in range(n):
+        extraction = _extraction([_pep("PEPA", area=area, rt=5.0)])
+        ids.append(str(extraction.run_id))
+        gs.record_ssc0_run(_classification(), extraction)
+    return ids
+
+
+def test_save_baseline_persists_and_activates(tmp_data_dir: Path) -> None:
+    run_ids = _seed_runs(3)
+    record = gs.save_baseline("Astral_0001", 200, run_ids, label="Install baseline")
+
+    assert record["label"] == "Install baseline"
+    assert sorted(record["source_run_ids"]) == sorted(run_ids)
+    assert record["per_peptide"]["Non_reactive_Targets|PEPA"]["peak_area_median"] == 1000.0
+
+    active = gs.get_active_baseline("Astral_0001", 200)
+    assert active is not None
+    assert active["baseline_id"] == record["baseline_id"]
+
+
+def test_save_baseline_label_defaults_when_blank(tmp_data_dir: Path) -> None:
+    run_ids = _seed_runs(1)
+    record = gs.save_baseline("Astral_0001", 200, run_ids, label="   ")
+    assert record["label"].startswith("Baseline ")
+
+
+def test_save_baseline_versions_history(tmp_data_dir: Path) -> None:
+    run_ids = _seed_runs(2, area=1000.0)
+    first = gs.save_baseline("Astral_0001", 200, run_ids[:1], label="First")
+    second = gs.save_baseline("Astral_0001", 200, run_ids, label="Second")
+
+    assert first["baseline_id"] != second["baseline_id"]
+    active = gs.get_active_baseline("Astral_0001", 200)
+    assert active is not None
+    assert active["baseline_id"] == second["baseline_id"]
+
+    history = gs.list_baselines("Astral_0001", 200)
+    assert {r["baseline_id"] for r in history} == {first["baseline_id"], second["baseline_id"]}
+    assert history[0]["baseline_id"] == second["baseline_id"]  # newest first
+
+
+def test_list_baselines_newest_first_when_timestamps_tie(
+    tmp_data_dir: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Saves that share a timestamp still list newest first.
+
+    Windows' clock is coarse enough for two quick saves to get the same
+    created_at, and the stable sort then kept the older baseline first - the
+    test above failed that way on Windows CI (31 Aug, 2 Sep, 11 Sep 2026).
+    Freezing the clock makes every platform see the tie.
+    """
+    run_ids = _seed_runs(2, area=1000.0)
+
+    class _FrozenClock(datetime):
+        @classmethod
+        def now(cls, tz: tzinfo | None = None) -> Self:
+            return cls(2026, 9, 11, 5, 25, 7, tzinfo=UTC)
+
+    monkeypatch.setattr(gs, "datetime", _FrozenClock)
+    first = gs.save_baseline("Astral_0001", 200, run_ids[:1], label="First")
+    second = gs.save_baseline("Astral_0001", 200, run_ids, label="Second")
+    third = gs.save_baseline("Astral_0001", 200, run_ids[1:], label="Third")
+
+    assert first["created_at"] == second["created_at"] == third["created_at"]
+    history = gs.list_baselines("Astral_0001", 200)
+    assert [r["label"] for r in history] == ["Third", "Second", "First"]
+
+
+def test_get_active_baseline_none_when_unset(tmp_data_dir: Path) -> None:
+    assert gs.get_active_baseline("Astral_0001", 200) is None
+
+
+def test_list_baselines_empty_when_unset(tmp_data_dir: Path) -> None:
+    assert gs.list_baselines("Astral_0001", 200) == []
+
+
+# ─── comparison_metrics (vendor decision matrix, 2026-07-28) ──────────────
+
+
+def _baseline_with(area: float, rt: float, idotp: float = 0.95, dotp: float = 0.90) -> dict:
+    return {
+        "baseline_id": "bl-1",
+        "per_peptide": {
+            "Prot|PEP": {
+                "peak_area_median": area,
+                "retention_time_median": rt,
+                "isotope_dot_product_median": idotp,
+                "library_dot_product_median": dotp,
+            }
+        },
+    }
+
+
+def _target(
+    area: float | None = None,
+    rt: float | None = None,
+    idotp: float | None = None,
+    dotp: float | None = None,
+) -> TargetMetric:
+    return TargetMetric(
+        target_id="PEP", peptide_sequence="PEP", protein_name="Prot",
+        peak_area=area, retention_time=rt,
+        isotope_dot_product=idotp, library_dot_product=dotp,
+    )
+
+
+def test_comparison_healthy_run_is_close_to_baseline() -> None:
+    """QC B at full load reads ~100% of SSC0 (the vendor measured 101-105%)."""
+    baseline = _baseline_with(area=1000.0, rt=5.0)
+    targets = [_target(area=1020.0, rt=5.01, idotp=0.95, dotp=0.90)]
+    m = gs.compute_comparison_metrics(targets, baseline)
+
+    pep = m["per_peptide"]["Prot|PEP"]
+    assert pep["peak_area_ratio_to_baseline"] == pytest.approx(1.02)
+    assert pep["peak_area_deviation_pct"] == pytest.approx(2.0)
+    assert pep["rt_deviation_pct"] == pytest.approx(0.2)
+    assert pep["target_extraction_suspect"] is False
+    assert m["peak_area_verdict"] == "ok"
+    assert m["targets_extraction_suspect"] == 0
+    assert m["baseline_id"] == "bl-1"
+
+
+def test_comparison_flags_mis_extracted_target() -> None:
+    """Reproduces the RISGLIYEETR signature seen at 500 SPD.
+
+    Wrong peak picked: retention time far off the SSC0 median, dot products
+    depressed, peak area collapsed. Must be flagged as an extraction problem
+    rather than read as an LC-MS performance drop.
+    """
+    baseline = _baseline_with(area=1000.0, rt=5.0, idotp=0.95, dotp=0.90)
+    targets = [_target(area=350.0, rt=6.5, idotp=0.59, dotp=0.60)]
+    m = gs.compute_comparison_metrics(targets, baseline)
+
+    pep = m["per_peptide"]["Prot|PEP"]
+    assert pep["rt_outside_threshold"] is True
+    assert pep["target_extraction_suspect"] is True
+    assert m["targets_extraction_suspect"] == 1
+
+
+def test_comparison_dot_product_alone_does_not_flag() -> None:
+    """A wrongly-extracted peak was seen at idotp 0.92 — dot products alone
+    are not diagnostic, so a low one with stable RT must not be flagged."""
+    baseline = _baseline_with(area=1000.0, rt=5.0, idotp=0.95, dotp=0.90)
+    targets = [_target(area=980.0, rt=5.005, idotp=0.70, dotp=0.60)]
+    m = gs.compute_comparison_metrics(targets, baseline)
+    assert m["per_peptide"]["Prot|PEP"]["target_extraction_suspect"] is False
+
+
+def test_comparison_rt_drift_alone_does_not_flag() -> None:
+    """RT drift with healthy area and dot products is an LC shift, not a
+    mis-extraction — the rule is deliberately a conjunction."""
+    baseline = _baseline_with(area=1000.0, rt=5.0)
+    targets = [_target(area=1000.0, rt=5.5, idotp=0.95, dotp=0.90)]
+    m = gs.compute_comparison_metrics(targets, baseline)
+    pep = m["per_peptide"]["Prot|PEP"]
+    assert pep["rt_outside_threshold"] is True
+    assert pep["target_extraction_suspect"] is False
+
+
+@pytest.mark.parametrize(
+    ("area", "expected"),
+    [
+        (1000.0, "ok"),
+        # Inside the widened band. This used to warn at the old 10% threshold.
+        (895.0, "ok"),
+        (830.0, "warn"),
+        (740.0, "fail"),
+    ],
+)
+def test_comparison_peak_area_verdict_bands(area: float, expected: str) -> None:
+    """15% below SSC-gold warns (~25% Evotip load loss); 25% fails (~50% loss).
+
+    The warn band was 10% until the vendor raised it (SOP review, annotations
+    46-48): late-eluting targets under-estimate recovery loss and were
+    producing false warnings.
+    """
+    m = gs.compute_comparison_metrics(
+        [_target(area=area, rt=5.0)], _baseline_with(area=1000.0, rt=5.0)
+    )
+    assert m["peak_area_verdict"] == expected
+
+
+def test_seventy_five_percent_load_reads_ok_at_the_widened_band() -> None:
+    """Recorded consequence of the 15% warn band, not an accident.
+
+    The 75% load condition medians at about -9.5% deviation, so a quarter
+    of the material can be missing without a warning. It cleared the old 10%
+    band by half a point too. The intended fix is per-peptide handling, where
+    only mid-gradient peptides score recovery.
+    """
+    m = gs.compute_comparison_metrics(
+        [_target(area=905.0, rt=5.0)], _baseline_with(area=1000.0, rt=5.0)
+    )
+    assert m["peak_area_verdict"] == "ok"
+
+
+def test_comparison_thresholds_are_configurable_and_recorded() -> None:
+    from mdqc.config.schema import QcThresholdsConfig
+
+    baseline = _baseline_with(area=1000.0, rt=5.0)
+    targets = [_target(area=1000.0, rt=5.15)]  # 3% RT deviation
+
+    default = gs.compute_comparison_metrics(targets, baseline)
+    assert default["per_peptide"]["Prot|PEP"]["rt_outside_threshold"] is True
+
+    relaxed = gs.compute_comparison_metrics(
+        targets, baseline, QcThresholdsConfig(rt_deviation_pct_max=5.0)
+    )
+    assert relaxed["per_peptide"]["Prot|PEP"]["rt_outside_threshold"] is False
+    # The applied thresholds travel with the payload so the platform can tell
+    # which numbers produced a verdict.
+    assert relaxed["thresholds_applied"]["rt_deviation_pct_max"] == 5.0
+
+
+def test_baseline_peptide_order_is_stable() -> None:
+    """Baseline keys must follow first appearance, not set-iteration order.
+
+    Python randomises string hashing per process, so iterating the kept-key
+    set gave a different order on every run. That order lands in the stored
+    baseline and in the baseline_context of every payload, which made diffs
+    between two payloads unreadable.
+    """
+    runs = [
+        {
+            "run_id": "r1",
+            "peptides": {
+                f"Prot|PEP{i}": {
+                    "protein_name": "Prot",
+                    "peptide_sequence": f"PEP{i}",
+                    "peptide_class": None,
+                    "peptide_class_purpose": None,
+                    "retention_time": 1.0 + i,
+                    "peak_area": 1000.0 + i,
+                }
+                for i in range(12)
+            },
+        }
+    ]
+    expected = [f"Prot|PEP{i}" for i in range(12)]
+    stats = gs.compute_baseline_preview(runs, {"r1"})
+    assert list(stats) == expected
+
+
+def test_comparison_reports_whether_thresholds_are_stock() -> None:
+    """The platform cannot infer "customised" from the values alone.
+
+    It would have to know our shipped defaults for every agent version. A warn
+    on a tuned instrument does not mean the same as a warn on a stock one, so
+    the distinction travels with the payload.
+    """
+    from mdqc.config.schema import QcThresholdsConfig
+
+    baseline = _baseline_with(area=1000.0, rt=5.0)
+    targets = [_target(area=1000.0, rt=5.0)]
+
+    stock = gs.compute_comparison_metrics(targets, baseline)
+    assert stock["thresholds_source"] == "default"
+
+    tuned = gs.compute_comparison_metrics(
+        targets, baseline, QcThresholdsConfig(peak_area_deviation_pct_warn=8.0)
+    )
+    assert tuned["thresholds_source"] == "custom"
+    # The values themselves still travel, so a verdict can always be re-derived.
+    assert tuned["thresholds_applied"]["peak_area_deviation_pct_warn"] == 8.0
+
+
+@pytest.mark.parametrize(
+    ("control_type", "expect_verdict"),
+    [
+        (ControlType.SSC0, True),
+        (ControlType.QC_B, True),
+        (ControlType.QC_A, False),
+        (ControlType.BLANK, False),
+    ],
+)
+def test_area_verdict_only_where_the_expected_ratio_is_one(
+    control_type: ControlType, expect_verdict: bool
+) -> None:
+    """QC A runs ~6x the SSC0 load, so QC B's bands would fail every one.
+
+    Surfaced while generating reference payloads for the platform team: a QC A
+    run scored 5.88x baseline and came back "fail", which would have marked
+    every process control as failing in the app.
+    """
+    baseline = _baseline_with(area=1000.0, rt=5.0)
+    targets = [_target(area=5900.0, rt=5.0)]  # ~6x, as QC A is by design
+    m = gs.compute_comparison_metrics(targets, baseline, control_type=control_type)
+
+    if expect_verdict:
+        assert m["peak_area_verdict"] == "fail"
+        assert m["peak_area_verdict_note"] is None
+    else:
+        assert m["peak_area_verdict"] is None
+        assert control_type.value in m["peak_area_verdict_note"]
+    # The underlying ratio is emitted either way — only the judgement is withheld.
+    assert m["median_peak_area_ratio"] == pytest.approx(5.9)
+
+
+def test_area_verdict_still_produced_when_control_type_unknown() -> None:
+    """Callers that don't pass a control type keep the previous behaviour."""
+    m = gs.compute_comparison_metrics(
+        [_target(area=1000.0, rt=5.0)], _baseline_with(area=1000.0, rt=5.0)
+    )
+    assert m["peak_area_verdict"] == "ok"
+
+
+def test_comparison_skips_peptides_absent_from_baseline() -> None:
+    baseline = _baseline_with(area=1000.0, rt=5.0)
+    other = TargetMetric(
+        target_id="X", peptide_sequence="OTHER", protein_name="Other",
+        peak_area=500.0, retention_time=9.0,
+    )
+    m = gs.compute_comparison_metrics([other], baseline)
+    assert m["targets_compared"] == 0
+    assert m["per_peptide"] == {}
+
+
+def test_comparison_tolerates_baseline_without_dot_products() -> None:
+    """Baselines recorded before v0.5.8 have no dot-product medians."""
+    baseline = {
+        "baseline_id": "bl-old",
+        "per_peptide": {
+            "Prot|PEP": {"peak_area_median": 1000.0, "retention_time_median": 5.0}
+        },
+    }
+    m = gs.compute_comparison_metrics([_target(area=1000.0, rt=5.0, idotp=0.9)], baseline)
+    pep = m["per_peptide"]["Prot|PEP"]
+    assert pep["isotope_dot_product_deviation_pct"] is None
+    assert pep["target_extraction_suspect"] is False
+
+
+def test_comparison_handles_missing_measurements() -> None:
+    m = gs.compute_comparison_metrics([_target()], _baseline_with(area=1000.0, rt=5.0))
+    pep = m["per_peptide"]["Prot|PEP"]
+    assert pep["peak_area_ratio_to_baseline"] is None
+    assert pep["rt_deviation_pct"] is None
+    assert m["median_peak_area_ratio"] is None
+    assert m["peak_area_verdict"] is None
+
+
+def test_comparison_against_vendor_measured_200spd_ratios() -> None:
+    """Replays the vendor's own measured SSC0 area ratios (2026-07-28).
+
+    Documents a live calibration finding: the 75% QC B condition medians at
+    -9.5%, which clears the stated 10% warn threshold by half a point and so
+    reads "ok" — the very case the threshold was chosen to catch. Kept at
+    the vendor's number rather than silently retuned; see QcThresholdsConfig.
+    """
+    peps = [
+        "RISGLIYEETR", "ISGLIYEETR", "IGGIGTVPVGR", "GALQNIIPASTGAAK",
+        "TTPSYVAFTDTER", "VSFELFADK", "YISPDQLADLYK", "YRPGTVALR",
+    ]
+    observed = {
+        "100": ([101, 102, 101, 102, 105, 103, 104, 103], "ok"),
+        "75": ([88, 91, 87, 90, 91, 95, 97, 86], "ok"),
+        "50": ([66, 75, 61, 72, 73, 76, 81, 67], "fail"),
+    }
+    baseline = {
+        "baseline_id": "bl",
+        "per_peptide": {
+            f"P|{p}": {"peak_area_median": 1000.0, "retention_time_median": 5.0}
+            for p in peps
+        },
+    }
+    for cond, (vals, expected) in observed.items():
+        targets = [
+            TargetMetric(
+                target_id=p, peptide_sequence=p, protein_name="P",
+                peak_area=10.0 * v, retention_time=5.0,
+            )
+            for p, v in zip(peps, vals, strict=True)
+        ]
+        m = gs.compute_comparison_metrics(targets, baseline)
+        assert m["peak_area_verdict"] == expected, f"{cond}% condition"
+
+    m75 = gs.compute_comparison_metrics(
+        [
+            TargetMetric(
+                target_id=p, peptide_sequence=p, protein_name="P",
+                peak_area=10.0 * v, retention_time=5.0,
+            )
+            for p, v in zip(peps, observed["75"][0], strict=True)
+        ],
+        baseline,
+    )
+    assert m75["median_peak_area_deviation_pct"] == pytest.approx(-9.5)
+
+
+# ─── build_payload_comparison ──────────────────────────────────────────────
+
+
+def test_build_payload_comparison_returns_none_without_baseline(
+    tmp_data_dir: Path,
+) -> None:
+    assert gs.build_payload_comparison(
+        _classification(), _extraction([_pep("PEPA")])
+    ) == (None, None)
+
+
+def test_build_payload_comparison_populates_both_fields(tmp_data_dir: Path) -> None:
+    run_ids = _seed_runs(3, area=1000.0)
+    gs.save_baseline("Astral_0001", 200, run_ids, label="Install")
+
+    context, metrics = gs.build_payload_comparison(
+        _classification(control_type=ControlType.QC_B),
+        _extraction([_pep("PEPA", area=1020.0, rt=5.0)]),
+    )
+
+    assert context is not None and metrics is not None
+    assert context["label"] == "Install"
+    assert context["source_run_count"] == 3
+    assert "Non_reactive_Targets|PEPA" in context["per_peptide"]
+    assert metrics["baseline_id"] == context["baseline_id"]
+    assert metrics["median_peak_area_ratio"] == pytest.approx(1.02)
+
+
+def test_build_payload_comparison_matches_baseline_by_spd(tmp_data_dir: Path) -> None:
+    """A 200 SPD run must not be compared against a 500 SPD baseline."""
+    run_ids = _seed_runs(2, area=1000.0)
+    gs.save_baseline("Astral_0001", 200, run_ids, label="200 only")
+
+    context, metrics = gs.build_payload_comparison(
+        _classification(spd=500), _extraction([_pep("PEPA", area=1000.0)])
+    )
+    assert (context, metrics) == (None, None)
+
+
+# ── Baseline candidates: SSC runs, not just SSC0-marked ones ────────────────
+# The vendor's workflow (SOP review, annotations 3 and 4): the gold standard is a
+# *selection* made on the Gold standards page from routine SSC runs, not a type
+# declared in a filename. "The file names then only need to differentiate
+# between PC (QCA) and SSC (QCB)."
+
+
+def _classified(control_type: ControlType, spd: int = 200) -> RunClassification:
+    return RunClassification(
+        control_type=control_type,
+        well_position=None,
+        instrument_id="inst-1",
+        plate_id=None,
+        confidence=Confidence.HIGH,
+        source=ClassificationSource.FILENAME,
+        spd=spd,
+    )
+
+
+def _extracted(area: float = 1000.0) -> ExtractionResult:
+    return ExtractionResult(
+        run_id=uuid4(),
+        target_metrics=[
+            TargetMetric(
+                target_id="PEPA", peptide_sequence="PEPA", protein_name="Targets",
+                peak_area=area, retention_time=5.0,
+            )
+        ],
+        run_metrics=RunMetrics(targets_found=1, targets_expected=1, target_recovery_pct=100.0),
+    )
+
+
+def test_routine_ssc_runs_are_baseline_candidates(tmp_data_dir: Path) -> None:
+    """A file named `SSC_...` classifies QC_B and must still be selectable.
+
+    Before this, only SSC0-typed runs were indexed, so a site following
+    the new naming would open the Gold standards page and find it empty.
+    """
+    gs.record_ssc0_run(_classified(ControlType.QC_B), _extracted())
+    runs = gs.list_ssc0_runs("inst-1", 200)
+    assert len(runs) == 1
+
+
+def test_ssc0_marked_runs_remain_baseline_candidates(tmp_data_dir: Path) -> None:
+    """Legacy filenames declaring SSC0 must keep working."""
+    gs.record_ssc0_run(_classified(ControlType.SSC0), _extracted())
+    assert len(gs.list_ssc0_runs("inst-1", 200)) == 1
+
+
+def test_process_control_runs_are_not_baseline_candidates(tmp_data_dir: Path) -> None:
+    """PC carries digestion at up to ~6x the load; it can never be the reference."""
+    gs.record_ssc0_run(_classified(ControlType.QC_A), _extracted())
+    gs.record_ssc0_run(_classified(ControlType.BLANK), _extracted())
+    assert gs.list_ssc0_runs("inst-1", 200) == []
+
+
+def test_baseline_candidate_types_are_explicit() -> None:
+    assert ControlType.QC_B in gs.BASELINE_CANDIDATE_TYPES
+    assert ControlType.SSC0 in gs.BASELINE_CANDIDATE_TYPES
+    assert ControlType.QC_A not in gs.BASELINE_CANDIDATE_TYPES
+
+
+# ── deleting runs and baselines (v0.5.25) ───────────────────────────────────
+# The store was append-only and baselines could only be superseded, so a run
+# recorded against the wrong instrument, or a gold standard saved over a single
+# run by mistake, stayed in the history for good.
+
+
+def test_delete_ssc0_run_removes_it(tmp_data_dir: Path) -> None:
+    run_ids = _seed_runs(3)
+    assert len(gs.list_ssc0_runs("Astral_0001", 200)) == 3
+
+    assert gs.delete_ssc0_run("Astral_0001", 200, run_ids[1]) is True
+
+    remaining = [r["run_id"] for r in gs.list_ssc0_runs("Astral_0001", 200)]
+    assert run_ids[1] not in remaining
+    assert len(remaining) == 2
+
+
+def test_delete_ssc0_run_unknown_id_reports_false(tmp_data_dir: Path) -> None:
+    _seed_runs(1)
+    assert gs.delete_ssc0_run("Astral_0001", 200, "not-a-run") is False
+    assert len(gs.list_ssc0_runs("Astral_0001", 200)) == 1
+
+
+def test_delete_active_baseline_promotes_the_newest_remaining(tmp_data_dir: Path) -> None:
+    run_ids = _seed_runs(3)
+    first = gs.save_baseline("Astral_0001", 200, run_ids[:1], label="First")
+    second = gs.save_baseline("Astral_0001", 200, run_ids, label="Second")
+    assert gs.get_active_baseline("Astral_0001", 200)["baseline_id"] == second["baseline_id"]
+
+    assert gs.delete_baseline("Astral_0001", 200, second["baseline_id"]) is True
+
+    active = gs.get_active_baseline("Astral_0001", 200)
+    assert active is not None
+    assert active["baseline_id"] == first["baseline_id"], "the older baseline should take over"
+
+
+def test_delete_the_only_baseline_leaves_none(tmp_data_dir: Path) -> None:
+    run_ids = _seed_runs(2)
+    only = gs.save_baseline("Astral_0001", 200, run_ids, label="Only")
+
+    assert gs.delete_baseline("Astral_0001", 200, only["baseline_id"]) is True
+    assert gs.get_active_baseline("Astral_0001", 200) is None
+    assert gs.list_baselines("Astral_0001", 200) == []
+
+
+def test_delete_baseline_unknown_id_reports_false(tmp_data_dir: Path) -> None:
+    run_ids = _seed_runs(2)
+    gs.save_baseline("Astral_0001", 200, run_ids, label="Only")
+    assert gs.delete_baseline("Astral_0001", 200, "not-a-baseline") is False
+    assert len(gs.list_baselines("Astral_0001", 200)) == 1

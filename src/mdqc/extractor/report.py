@@ -1,0 +1,622 @@
+"""Skyline CSV report parser.
+
+Column matching is case-insensitive and ignores spaces/underscores. The
+alias table is taken verbatim from the reference extractor.
+"""
+
+from __future__ import annotations
+
+import csv
+import hashlib
+import logging
+import math
+import re
+from datetime import datetime
+from functools import lru_cache
+from pathlib import Path
+
+from mdqc.types import TargetMetric
+
+logger = logging.getLogger(__name__)
+
+# First <view name="..."> in a .skyr — the report name Skyline's --report-name
+# must match. Non-greedy so it captures the name attribute wherever it sits in
+# the opening tag.
+_VIEW_NAME_RE = re.compile(rb'<view\b[^>]*?\bname\s*=\s*"([^"]+)"', re.DOTALL)
+
+
+def read_skyr_report_name(path: Path) -> str | None:
+    """Read the report (view) name defined inside a Skyline ``.skyr`` file.
+
+    A ``.skyr`` declares one or more ``<view name="...">`` elements; Skyline's
+    ``--report-name`` must match one exactly. mdqc reads the first view name so
+    the export request always matches whatever the operator named their
+    report — a versioned name like ``MD_QC_Report_20260723`` works without any
+    extra config. Returns ``None`` if the file can't be read or has no view
+    name (caller then keeps its default report name).
+    """
+    try:
+        data = path.read_bytes()
+    except OSError:
+        return None
+    match = _VIEW_NAME_RE.search(data)
+    if match is None:
+        return None
+    try:
+        return match.group(1).decode("utf-8")
+    except UnicodeDecodeError:
+        return None
+
+# Skyline writes AcquiredTime / ModifiedTime in the instrument PC's locale,
+# and 3/02/2026 means different months in Chicago and Melbourne. Guessing
+# month-first (the old behaviour, taken from a US pilot machine) put every
+# run with a day <= 12 in the wrong month on an en-AU or en-GB PC. Ask the
+# OS for the user's date order instead.
+_MONTH_FIRST_FORMATS = (
+    "%m/%d/%Y %I:%M:%S %p",   # 7/22/2026 2:44:30 AM  (US 12h — Skyline default)
+    "%m/%d/%Y %H:%M:%S",       # US 24h
+)
+_DAY_FIRST_FORMATS = (
+    "%d/%m/%Y %I:%M:%S %p",   # 3/02/2026 12:40:31 AM  (en-AU/en-GB 12h)
+    "%d/%m/%Y %H:%M:%S",       # EU 24h
+)
+_COMMON_TIME_FORMATS = (
+    "%Y-%m-%d %H:%M:%S",       # ISO-ish, space-separated
+)
+
+_ALIASES: dict[str, list[str]] = {
+    "protein_name": [
+        "protein",
+        "protein name",
+        "peptide.protein.name",
+        "peptide protein name",
+        "proteinname",
+    ],
+    "peptide_sequence": [
+        "peptide sequence",
+        "peptidesequence",
+        "peptide",
+        "modified sequence",
+    ],
+    "precursor_mz": [
+        "precursor mz",
+        "precursormz",
+        "mz",
+        "precursor m/z",
+    ],
+    "retention_time": [
+        "best retention time",
+        "peptide retention time",
+        "retention time",
+        "rt",
+        "peptideretentiontime",
+    ],
+    "rt_start": [
+        "min start time",
+        "minstarttime",
+    ],
+    "rt_end": [
+        "max end time",
+        "maxendtime",
+    ],
+    "rt_expected": [
+        "expected rt",
+        "expected retention time",
+        "rt expected",
+    ],
+    "rt_delta": [
+        "rt delta",
+        "delta rt",
+        "retention time delta",
+    ],
+    "peak_area": [
+        "total area",
+        "totalarea",
+        "sum area",
+        "peak area",
+        "area",
+    ],
+    # DIA reports (e.g. Astral) split intensity into MS1 + fragment
+    # columns instead of providing a single "Total Area". When both are
+    # present we sum them into peak_area below.
+    "peak_area_ms1": [
+        "total area ms1",
+        "totalareams1",
+    ],
+    "peak_area_fragment": [
+        "total area fragment",
+        "totalareafragment",
+    ],
+    "peak_height": [
+        "max height",
+        "maxheight",
+        "peak height",
+        "height",
+    ],
+    "peak_width_fwhm": [
+        "max fwhm",
+        "maxfwhm",
+        "fwhm",
+        "peak width fwhm",
+    ],
+    "peak_symmetry": [
+        "peak symmetry",
+        "asymmetry",
+        "asymmetry factor",
+    ],
+    "mass_error_ppm": [
+        "average mass error ppm",
+        "mass error ppm",
+        "ppm error",
+        "averagemasserrorppm",
+    ],
+    "isotope_dot_product": [
+        "isotope dot product",
+        "isotopedotp",
+        "isotope dotp",
+    ],
+    "library_dot_product": [
+        "library dot product",
+        "librarydotp",
+        "library dotp",
+    ],
+}
+
+
+def _normalise(s: str) -> str:
+    return s.strip().lower().replace(" ", "").replace("_", "")
+
+
+def _column_index(headers: list[str], leaf: str) -> int | None:
+    """Index of the column whose name is, or ends with, ``leaf``."""
+    for i, header in enumerate(headers):
+        if not header:
+            continue
+        normalised = _normalise(header)
+        if normalised == leaf or normalised.rsplit(".", 1)[-1] == leaf:
+            return i
+    return None
+
+
+def _build_alias_index() -> dict[str, str]:
+    index: dict[str, str] = {}
+    for canonical, aliases in _ALIASES.items():
+        for alias in aliases:
+            index[_normalise(alias)] = canonical
+    return index
+
+
+_ALIAS_INDEX = _build_alias_index()
+
+
+ColumnOverrides = dict[str, "str | list[str] | None"]
+
+
+def _resolve_overrides(
+    headers: list[str],
+    overrides: ColumnOverrides | None,
+) -> tuple[dict[str, int], dict[str, list[int]], set[int]]:
+    """Resolve user-supplied column overrides to header indices.
+
+    Returns ``(single_idx, sum_idx, consumed)`` where:
+      - ``single_idx`` maps canonical → header index for single-column overrides
+      - ``sum_idx`` maps canonical → [indices] for sum-list overrides (the
+        parser sums these at row time, used by DIA reports that split
+        intensity into MS1 + fragment columns)
+      - ``consumed`` is the set of indices already claimed — used to skip
+        the alias-fallback for those headers so they don't double-map.
+    """
+    single_idx: dict[str, int] = {}
+    sum_idx: dict[str, list[int]] = {}
+    consumed: set[int] = set()
+    if not overrides:
+        return single_idx, sum_idx, consumed
+
+    header_lookup: dict[str, int] = {}
+    for idx, header in enumerate(headers):
+        if header is None:
+            continue
+        header_lookup[_normalise(header)] = idx
+
+    for canonical, override in overrides.items():
+        if override is None:
+            continue
+        names = [override] if isinstance(override, str) else list(override)
+        indices: list[int] = []
+        for name in names:
+            idx = header_lookup.get(_normalise(name))
+            if idx is None:
+                logger.warning(
+                    "Column override %s=%r not found in CSV headers; falling back to defaults",
+                    canonical, name,
+                )
+                indices = []
+                break
+            indices.append(idx)
+        if not indices:
+            continue
+        if len(indices) == 1 and not isinstance(override, list):
+            single_idx[canonical] = indices[0]
+        else:
+            sum_idx[canonical] = indices
+        consumed.update(indices)
+    return single_idx, sum_idx, consumed
+
+
+def _map_columns(
+    headers: list[str],
+    overrides: ColumnOverrides | None = None,
+) -> tuple[dict[str, int], dict[str, list[int]], list[tuple[str, int]]]:
+    """Map CSV headers to canonical metric names.
+
+    Resolution order per canonical:
+      1. Explicit override from ``overrides`` (single column or sum list)
+      2. Built-in alias table (``_ALIASES``)
+      3. Otherwise passed through as ``extra_metrics``
+
+    Returns ``(single_idx, sum_idx, extra)``.
+    """
+    single_idx, sum_idx, consumed = _resolve_overrides(headers, overrides)
+    extra: list[tuple[str, int]] = []
+    for idx, header in enumerate(headers):
+        if header is None or idx in consumed:
+            continue
+        normalised = _normalise(header)
+        canonical = _ALIAS_INDEX.get(normalised)
+        if canonical is not None and canonical not in single_idx and canonical not in sum_idx:
+            single_idx[canonical] = idx
+        else:
+            name = header.strip()
+            if name:
+                extra.append((name, idx))
+    return single_idx, sum_idx, extra
+
+
+_NA_TOKENS = frozenset({"#n/a", "n/a", "na", "nan", "null", "none", ""})
+
+
+def _parse_float(raw: str) -> float | None:
+    """Parse a CSV cell to a finite float, or None.
+
+    Rejects NA tokens *and* non-finite values. ``float("NaN")`` /
+    ``float("inf")`` succeed in Python, so a plain ``float()`` would let
+    Skyline's ``NaN`` (emitted for per-fragment metrics on non-lead
+    fragments) leak in as a real value and poison any downstream mean.
+    """
+    if raw.lower() in _NA_TOKENS:
+        return None
+    try:
+        value = float(raw)
+    except ValueError:
+        return None
+    return value if math.isfinite(value) else None
+
+
+def _get_float(row: list[str], idx: int | None) -> float | None:
+    if idx is None or idx >= len(row):
+        return None
+    return _parse_float(row[idx].strip())
+
+
+def _get_str(row: list[str], idx: int | None) -> str | None:
+    if idx is None or idx >= len(row):
+        return None
+    raw = row[idx].strip()
+    return raw or None
+
+
+def _windows_short_date_pattern() -> str | None:
+    """The user's short-date pattern from Windows, e.g. "d/MM/yyyy"."""
+    try:
+        import ctypes
+
+        buf = ctypes.create_unicode_buffer(80)
+        # LOCALE_NAME_USER_DEFAULT = None, LOCALE_SSHORTDATE = 0x1F
+        written = ctypes.windll.kernel32.GetLocaleInfoEx(None, 0x1F, buf, len(buf))
+        return buf.value if written else None
+    except Exception:
+        return None
+
+
+@lru_cache(maxsize=1)
+def locale_prefers_day_first() -> bool:
+    """True where the machine writes 3/02/2026 meaning the 3rd of February."""
+    pattern = _windows_short_date_pattern()
+    if not pattern:
+        return False
+    for ch in pattern.lstrip("'\" "):
+        if ch in "dD":
+            return True
+        if ch in "mMyY":
+            return False
+    return False
+
+
+def _skyline_time_formats(day_first: bool) -> tuple[str, ...]:
+    ordered = _DAY_FIRST_FORMATS + _MONTH_FIRST_FORMATS if day_first else (
+        _MONTH_FIRST_FORMATS + _DAY_FIRST_FORMATS
+    )
+    return ordered + _COMMON_TIME_FORMATS
+
+
+def _parse_skyline_time(raw: str, *, day_first: bool | None = None) -> str | None:
+    """Parse a Skyline AcquiredTime/ModifiedTime cell to offset-aware ISO-8601.
+
+    Skyline's value is a naive wall-clock in the instrument PC's local
+    timezone (read from the raw-file header). mdqc runs *on* that PC, so we
+    attach the machine's local offset — preserving the wall clock the operator
+    recognizes ("the 2:44 AM run") while making the timestamp unambiguous and
+    comparable. Returns None on an unparseable value (caller falls back to
+    file mtime).
+    """
+    if not raw or raw.lower() in _NA_TOKENS:
+        return None
+    try:
+        return datetime.fromisoformat(raw).astimezone().isoformat()
+    except ValueError:
+        pass
+    if day_first is None:
+        day_first = locale_prefers_day_first()
+    for fmt in _skyline_time_formats(day_first):
+        try:
+            naive = datetime.strptime(raw, fmt)
+        except ValueError:
+            continue
+        return naive.astimezone().isoformat()
+    logger.warning("could not parse Skyline time %r; falling back to file mtime", raw)
+    return None
+
+
+def _mean_or_none(values: list[float | None]) -> float | None:
+    """Mean of the non-null values, or None if all are null.
+
+    Used by the transition→peptide collapse: for a field that repeats
+    identically across a peptide's transitions the mean is that value; for a
+    genuinely per-fragment field (Skewness, Kurtosis) it is the per-peptide
+    average, skipping the ``NaN`` fragments Skyline emits.
+    """
+    present = [v for v in values if v is not None and math.isfinite(v)]
+    if not present:
+        return None
+    return sum(present) / len(present)
+
+
+def _hash_target_id(seq: str | None, mz: float | None, fallback_idx: int) -> str:
+    if seq:
+        h = hashlib.sha1()
+        h.update(seq.encode("utf-8"))
+        if mz is not None:
+            h.update(f"|{mz:.6f}".encode())
+        return h.hexdigest()[:16]
+    return str(fallback_idx)
+
+
+def _sum_indices(row: list[str], indices: list[int]) -> float | None:
+    """Sum the numeric values at the given column indices for one row.
+
+    Returns ``None`` if every cell is non-numeric (so callers can fall back
+    to alternative resolution). Missing components are treated as zero so
+    long as at least one value is present.
+    """
+    values: list[float] = []
+    for idx in indices:
+        v = _get_float(row, idx)
+        if v is not None:
+            values.append(v)
+    if not values:
+        return None
+    return sum(values)
+
+
+def _resolve_value(
+    row: list[str],
+    canonical: str,
+    single_idx: dict[str, int],
+    sum_idx: dict[str, list[int]],
+) -> float | None:
+    """Look up a numeric canonical column, preferring sum-list overrides."""
+    if canonical in sum_idx:
+        return _sum_indices(row, sum_idx[canonical])
+    return _get_float(row, single_idx.get(canonical))
+
+
+def parse_skyline_csv(
+    path: Path,
+    column_overrides: ColumnOverrides | None = None,
+) -> list[TargetMetric]:
+    """Parse a Skyline-produced CSV into ``TargetMetric`` rows.
+
+    ``column_overrides`` lets the caller declare the mapping from CSV header
+    names to canonical metrics (``peak_area``, ``mass_error_ppm``, ...) — used
+    when a deployment's ``.skyr`` exports columns whose names don't match
+    mdqc's built-in alias dictionary. Each value is either a single column
+    name or a list of column names to sum. Anything left out falls back to
+    the built-in aliases.
+    """
+    metrics: list[TargetMetric] = []
+    with open(path, newline="", encoding="utf-8-sig") as fh:
+        reader = csv.reader(fh)
+        try:
+            headers = next(reader)
+        except StopIteration:
+            return metrics
+
+        single_idx, sum_idx, extra = _map_columns(headers, column_overrides)
+
+        for row_idx, row in enumerate(reader):
+            if not row or all(not cell.strip() for cell in row):
+                continue
+
+            peptide_seq = _get_str(row, single_idx.get("peptide_sequence"))
+            protein_name = _get_str(row, single_idx.get("protein_name"))
+            precursor_mz = _resolve_value(row, "precursor_mz", single_idx, sum_idx)
+            retention_time = _resolve_value(row, "retention_time", single_idx, sum_idx)
+            rt_expected = _resolve_value(row, "rt_expected", single_idx, sum_idx)
+            rt_delta = _resolve_value(row, "rt_delta", single_idx, sum_idx)
+            if rt_delta is None and retention_time is not None and rt_expected is not None:
+                rt_delta = retention_time - rt_expected
+
+            peak_area = _resolve_value(row, "peak_area", single_idx, sum_idx)
+            if peak_area is None:
+                # Legacy fallback: DIA reports often expose MS1 + fragment as
+                # the only intensity columns. Sum them if neither an explicit
+                # peak_area column nor an override is present.
+                ms1 = _get_float(row, single_idx.get("peak_area_ms1"))
+                frag = _get_float(row, single_idx.get("peak_area_fragment"))
+                if ms1 is not None or frag is not None:
+                    peak_area = (ms1 or 0.0) + (frag or 0.0)
+
+            extra_metrics: dict[str, float] = {}
+            for name, idx in extra:
+                if idx >= len(row):
+                    continue
+                raw = row[idx].strip()
+                if not raw:
+                    continue
+                value = _parse_float(raw)
+                if value is None:
+                    logger.debug("dropping non-numeric/non-finite extra column %s=%r", name, raw)
+                    continue
+                extra_metrics[name] = value
+
+            target = TargetMetric(
+                target_id=_hash_target_id(peptide_seq, precursor_mz, row_idx),
+                peptide_sequence=peptide_seq,
+                protein_name=protein_name,
+                precursor_mz=precursor_mz,
+                retention_time=retention_time,
+                rt_expected=rt_expected,
+                rt_delta=rt_delta,
+                peak_area=peak_area,
+                peak_height=_resolve_value(row, "peak_height", single_idx, sum_idx),
+                peak_width_fwhm=_resolve_value(row, "peak_width_fwhm", single_idx, sum_idx),
+                peak_symmetry=_resolve_value(row, "peak_symmetry", single_idx, sum_idx),
+                mass_error_ppm=_resolve_value(row, "mass_error_ppm", single_idx, sum_idx),
+                isotope_dot_product=_resolve_value(row, "isotope_dot_product", single_idx, sum_idx),
+                library_dot_product=_resolve_value(row, "library_dot_product", single_idx, sum_idx),
+                detected=peak_area is not None and peak_area > 0,
+                extra_metrics=extra_metrics,
+            )
+            metrics.append(target)
+
+    return metrics
+
+
+def parse_skyline_run_metadata(path: Path) -> tuple[str | None, str | None]:
+    """Extract run-level ``(acquired_time, modified_time)`` from a Skyline CSV.
+
+    These columns (added to the ``.skyr`` in 2026-07) carry the real
+    acquisition timestamp Skyline reads from the raw-file header — identical on
+    every row, so we read the first data row only. Returns offset-aware local
+    ISO-8601 strings, or ``None`` for each column that is absent or
+    unparseable (the caller then falls back to the raw-file mtime).
+    """
+    with open(path, newline="", encoding="utf-8-sig") as fh:
+        reader = csv.reader(fh)
+        try:
+            headers = next(reader)
+        except StopIteration:
+            return None, None
+        # Skyline captions simple columns ("Protein Name") but exports the
+        # full property path for nested ones:
+        #   Results!*.Value.PrecursorResult.ResultFile.AcquiredTime
+        # Match the final segment so both styles resolve.
+        acq_idx = _column_index(headers, "acquiredtime")
+        mod_idx = _column_index(headers, "modifiedtime")
+        if acq_idx is None and mod_idx is None:
+            return None, None
+        for row in reader:
+            if not row or all(not cell.strip() for cell in row):
+                continue
+            acquired = (
+                _parse_skyline_time(row[acq_idx].strip())
+                if acq_idx is not None and acq_idx < len(row)
+                else None
+            )
+            modified = (
+                _parse_skyline_time(row[mod_idx].strip())
+                if mod_idx is not None and mod_idx < len(row)
+                else None
+            )
+            return acquired, modified
+        return None, None
+
+
+def collapse_transitions_to_peptides(metrics: list[TargetMetric]) -> list[TargetMetric]:
+    """Collapse transition-level rows to one row per peptide.
+
+    Skyline reports with ``rowsource="Transition"`` emit one CSV row per
+    transition (3-8 per peptide). Most metrics repeat identically across a
+    peptide's transitions; a few (Skewness, Kurtosis) are genuinely
+    per-fragment.
+
+    The universal rule: for every numeric field and numeric extra-metric, take
+    the mean of the non-null values in the peptide group. Mean of N identical
+    values is that value (handles the repeats correctly — e.g. Total Area is
+    not summed); mean of the per-fragment values is the correct per-peptide
+    summary. String fields take the first non-null; ``detected`` is OR-ed.
+
+    Grouping key is ``(protein_name, peptide_sequence)``, falling back to
+    ``target_id`` when a peptide sequence is absent. Peptide order is preserved
+    by first appearance. Idempotent: a list that is already one-row-per-peptide
+    passes through unchanged (each group has size 1).
+    """
+    if not metrics:
+        return metrics
+
+    groups: dict[tuple[str, str], list[TargetMetric]] = {}
+    order: list[tuple[str, str]] = []
+    for m in metrics:
+        key = (m.protein_name or "", m.peptide_sequence or m.target_id)
+        if key not in groups:
+            groups[key] = []
+            order.append(key)
+        groups[key].append(m)
+
+    collapsed: list[TargetMetric] = []
+    for idx, key in enumerate(order):
+        group = groups[key]
+        if len(group) == 1:
+            collapsed.append(group[0])
+            continue
+
+        # Union of extra-metric keys (first-appearance order), each averaged
+        # across the group; drop keys that are null in every row.
+        extra_keys: list[str] = []
+        seen_keys: set[str] = set()
+        for m in group:
+            for k in m.extra_metrics:
+                if k not in seen_keys:
+                    seen_keys.add(k)
+                    extra_keys.append(k)
+        merged_extra: dict[str, float] = {}
+        for k in extra_keys:
+            mean = _mean_or_none([m.extra_metrics.get(k) for m in group])
+            if mean is not None:
+                merged_extra[k] = mean
+
+        seq = next((m.peptide_sequence for m in group if m.peptide_sequence), None)
+        protein = next((m.protein_name for m in group if m.protein_name), None)
+        mz = _mean_or_none([m.precursor_mz for m in group])
+
+        collapsed.append(
+            TargetMetric(
+                target_id=_hash_target_id(seq, mz, idx),
+                peptide_sequence=seq,
+                protein_name=protein,
+                precursor_mz=mz,
+                retention_time=_mean_or_none([m.retention_time for m in group]),
+                rt_expected=_mean_or_none([m.rt_expected for m in group]),
+                rt_delta=_mean_or_none([m.rt_delta for m in group]),
+                peak_area=_mean_or_none([m.peak_area for m in group]),
+                peak_height=_mean_or_none([m.peak_height for m in group]),
+                peak_width_fwhm=_mean_or_none([m.peak_width_fwhm for m in group]),
+                peak_symmetry=_mean_or_none([m.peak_symmetry for m in group]),
+                mass_error_ppm=_mean_or_none([m.mass_error_ppm for m in group]),
+                isotope_dot_product=_mean_or_none([m.isotope_dot_product for m in group]),
+                library_dot_product=_mean_or_none([m.library_dot_product for m in group]),
+                detected=any(m.detected for m in group),
+                extra_metrics=merged_extra,
+            )
+        )
+    return collapsed
