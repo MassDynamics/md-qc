@@ -44,12 +44,12 @@ core monitoring loop.
 
 ### Install
 
-Windows, PowerShell, with [Python 3.11 or 3.12](https://www.python.org/downloads/)
+Windows, PowerShell, with [Python 3.11 or newer](https://www.python.org/downloads/)
 installed. Everything goes in one virtual environment:
 
 ```powershell
-py -3.12 -m venv C:\MassDynamics\mdqc
-C:\MassDynamics\mdqc\Scripts\pip install https://github.com/MassDynamics/md-qc/archive/refs/tags/v1.0.1.tar.gz
+py -3 -m venv C:\MassDynamics\mdqc
+C:\MassDynamics\mdqc\Scripts\pip install https://github.com/MassDynamics/md-qc/archive/refs/tags/v1.0.2.tar.gz
 C:\MassDynamics\mdqc\Scripts\mdqc version
 ```
 
@@ -63,7 +63,7 @@ prefer to activate it, `C:\MassDynamics\mdqc\Scripts\Activate.ps1` then plain
 ```powershell
 git clone https://github.com/MassDynamics/md-qc
 cd md-qc
-py -3.12 -m venv .venv
+py -3 -m venv .venv
 .venv\Scripts\pip install -e ".[dev]"
 ```
 
@@ -142,7 +142,7 @@ printed at startup:
 
 ## Status
 
-**v1.0.1.** The pipeline is end-to-end on Windows: watcher, classifier,
+**v1.0.2.** The pipeline is end-to-end on Windows: watcher, classifier,
 Skyline extraction, spool, gold-standard comparison, and cloud upload to the
 Mass Dynamics platform. Validated by replay tests against real acquisitions at
 48/48 target recovery.

@@ -16,6 +16,19 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
         python-version: ["3.11", "3.12"]
+        # Newer interpreters on the two platforms that matter: Windows is where
+        # the agent runs, Linux is the cheapest place to catch a language-level
+        # break. Instrument PCs turn up with whatever Python was current when
+        # they were built, so "we only test 3.11 and 3.12" is not a plan.
+        include:
+          - os: windows-latest
+            python-version: "3.13"
+          - os: windows-latest
+            python-version: "3.14"
+          - os: ubuntu-latest
+            python-version: "3.13"
+          - os: ubuntu-latest
+            python-version: "3.14"
     steps:
       - uses: actions/checkout@v5
 
@@ -110,10 +123,10 @@ jobs:
           body: |
             ## Installation
 
-            Windows PowerShell, with Python 3.11 or 3.12 installed:
+            Windows PowerShell, with Python 3.11 or newer installed:
 
             ```powershell
-            py -3.12 -m venv C:\MassDynamics\mdqc
+            py -3 -m venv C:\MassDynamics\mdqc
             C:\MassDynamics\mdqc\Scripts\pip install https://github.com/MassDynamics/md-qc/archive/refs/tags/v${{ steps.version.outputs.version }}.tar.gz
             C:\MassDynamics\mdqc\Scripts\mdqc run --foreground
             ```

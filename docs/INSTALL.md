@@ -48,8 +48,9 @@ optional: without a token the agent is a complete local QC monitor.
   **ClickOnce installs are not supported** — these have paths containing
   `\apps\2.0\`. Use the regular installer from <https://skyline.ms>.
 
-- **Python 3.11 or 3.12** — install from <https://www.python.org/downloads>
-  with the "Add Python to PATH" option ticked
+- **Python 3.11 or newer** — install from <https://www.python.org/downloads>
+  with the "Add Python to PATH" option ticked. `py -0` lists what a machine
+  already has; any 3.11+ entry will do, and most instrument PCs have one.
 - **Git** (only if cloning from GitHub) — <https://git-scm.com/download/win>
 
 ### Verifying Skyline is detected (recommended before first run)
@@ -73,11 +74,11 @@ starting the agent — extraction will fail on every file otherwise.
 
 ### Option A — into its own virtual environment (recommended for operators)
 
-In **PowerShell**, with Python 3.11 or 3.12 installed (§2):
+In **PowerShell**, with Python 3.11 or newer installed (§2):
 
 ```powershell
-py -3.12 -m venv C:\MassDynamics\mdqc
-C:\MassDynamics\mdqc\Scripts\pip install https://github.com/MassDynamics/md-qc/archive/refs/tags/v1.0.1.tar.gz
+py -3 -m venv C:\MassDynamics\mdqc
+C:\MassDynamics\mdqc\Scripts\pip install https://github.com/MassDynamics/md-qc/archive/refs/tags/v1.0.2.tar.gz
 ```
 
 Calling the environment's `pip` and `mdqc` by full path means you never have to
@@ -92,7 +93,7 @@ read works. Keep it off a network drive.
 ```powershell
 git clone https://github.com/MassDynamics/md-qc.git
 cd md-qc
-py -3.12 -m venv .venv
+py -3 -m venv .venv
 .venv\Scripts\pip install -e ".[dev]"
 ```
 
@@ -100,7 +101,7 @@ Either way you should now be able to run:
 ```powershell
 C:\MassDynamics\mdqc\Scripts\mdqc version
 ```
-and see `mdqc 1.0.1`.
+and see `mdqc 1.0.2`.
 
 To build a single-file executable or the Inno Setup installer (service
 registration, tray shortcut, uninstaller) for sites that cannot install Python,
