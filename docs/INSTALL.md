@@ -13,8 +13,8 @@ Estimated setup time: **20–30 minutes** end to end.
   metrics per run.
 - The agent's own **web UI**, opened from the tray icon or the link printed
   at `service_started`:
-  - Dashboard — status banner, KPI tiles, scorecard heatmap of recent
-    runs × metrics
+  - Dashboard — service state, upload queue, configured instruments and
+    the most recent extractions
   - Gold standards — record the baseline each run is scored against
   - Settings, Diagnostics, Failed files, Logs
 
@@ -54,7 +54,7 @@ optional: without a token the agent is a complete local QC monitor.
 
 ### Verifying Skyline is detected (recommended before first run)
 ```powershell
-python -c "from mdqc.extractor.skyline import find_skyline; p = find_skyline(); print(p or 'NOT FOUND - install Skyline or set [skyline].path in config.toml')"
+C:\MassDynamics\mdqc\Scripts\python -c "from mdqc.extractor.skyline import find_skyline; p = find_skyline(); print(p or 'NOT FOUND - install Skyline or set [skyline].path in config.toml')"
 ```
 Should print the resolved path. If it prints `NOT FOUND`, fix that before
 starting the agent — extraction will fail on every file otherwise.
@@ -71,31 +71,41 @@ starting the agent — extraction will fail on every file otherwise.
 
 ## 3. Install the agent
 
-### Option A — the Windows binary (recommended for operators)
-1. Download `mdqc-1.0.0.exe` from the
-   [latest release](https://github.com/MassDynamics/md-qc/releases/latest).
-2. Put it somewhere permanent, e.g. `C:\Program Files\MassDynamics\`. No
-   Python installation is needed — everything is bundled.
-3. Run it from PowerShell:
-   ```powershell
-   mdqc-1.0.0.exe run --foreground
-   ```
+### Option A — into its own virtual environment (recommended for operators)
 
-To build the Inno Setup installer (service registration, tray shortcut,
-uninstaller) from source instead, see [`installer/README.md`](../installer/README.md).
+In **PowerShell**, with Python 3.11 or 3.12 installed (§2):
+
+```powershell
+py -3.12 -m venv C:\MassDynamics\mdqc
+C:\MassDynamics\mdqc\Scripts\pip install https://github.com/MassDynamics/md-qc/archive/refs/tags/v1.0.1.tar.gz
+```
+
+Calling the environment's `pip` and `mdqc` by full path means you never have to
+activate it, and so never have to change PowerShell's execution policy. If you
+would rather activate it, run `C:\MassDynamics\mdqc\Scripts\Activate.ps1` first
+and then use plain `pip` and `mdqc`.
+
+The agent is not pinned to that location — any folder the service account can
+read works. Keep it off a network drive.
 
 ### Option B — from source (for developers)
 ```powershell
 git clone https://github.com/MassDynamics/md-qc.git
 cd md-qc
-pip install --user -e .
+py -3.12 -m venv .venv
+.venv\Scripts\pip install -e ".[dev]"
 ```
 
 Either way you should now be able to run:
 ```powershell
-python -m mdqc --version
+C:\MassDynamics\mdqc\Scripts\mdqc version
 ```
-and see the version string.
+and see `mdqc 1.0.1`.
+
+To build a single-file executable or the Inno Setup installer (service
+registration, tray shortcut, uninstaller) for sites that cannot install Python,
+see [`installer/README.md`](../installer/README.md) — neither is published as a
+release asset.
 
 ---
 
@@ -175,8 +185,8 @@ vendor = "thermo"
 watch_path = "D:\\Acquisition\\QC\\raw"                       # <-- EDIT (where Astral writes .raw files)
 file_pattern = "*.raw"
 template = "QC_Method.sky"
-method_name = "Whisper200SPD"                                 # <-- EDIT (free text)
-column_info = "EV3837"                                        # <-- EDIT (your column ID)
+# method_name and lc_column are reserved: the payload carries them, but the
+# agent has no source for either yet, so both are always null.
 
 # Peptide classes — map the Skyline Protein column to a purpose. The
 # miss-cleavage pair drives the digest-efficiency % in the payload and is
@@ -211,7 +221,7 @@ Should print `Config OK`. If it errors, fix the file before continuing.
 
 In a PowerShell window:
 ```powershell
-python -m mdqc run --foreground
+C:\MassDynamics\mdqc\Scripts\mdqc run --foreground
 ```
 You should see a startup line ending with `service_started`. Leave this
 window open — closing it stops the agent. (For an unattended install,

@@ -318,3 +318,22 @@ def test_locale_day_first_is_a_boolean() -> None:
     from mdqc.extractor.report import locale_prefers_day_first
 
     assert isinstance(locale_prefers_day_first(), bool)
+
+
+def test_peptide_level_fwhm_column_is_recognised(tmp_path: Path) -> None:
+    """A peptide-level report exports FWHM as 'Mean Max Fwhm'.
+
+    Until it was aliased, a site using its own .skyr silently shipped no peak
+    width at all: the column was there, the value was there, and the payload
+    carried null.
+    """
+    path = tmp_path / "peptide_level.csv"
+    path.write_text(
+        "Peptide,Peptide Retention Time,Mean Max Fwhm,Total Area MS1,Total Area Fragment\n"
+        "IGGIGTVPVGR,2.96,0.05,1670324224,68887912\n"
+    )
+    rows = parse_skyline_csv(path)
+    assert len(rows) == 1
+    assert rows[0].peak_width_fwhm == pytest.approx(0.05)
+    # And the canonical area is still the MS1 + fragment sum, not TIC.
+    assert rows[0].peak_area == pytest.approx(1739212136.0)

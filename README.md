@@ -44,29 +44,33 @@ core monitoring loop.
 
 ### Install
 
-**Windows binary** (no Python required) — download `mdqc-1.0.0.exe` from the
-[latest release](https://github.com/MassDynamics/md-qc/releases/latest) and run
-it directly:
+Windows, PowerShell, with [Python 3.11 or 3.12](https://www.python.org/downloads/)
+installed. Everything goes in one virtual environment:
 
 ```powershell
-mdqc-1.0.0.exe run --config C:\ProgramData\MassDynamics\QC\config.toml
+py -3.12 -m venv C:\MassDynamics\mdqc
+C:\MassDynamics\mdqc\Scripts\pip install https://github.com/MassDynamics/md-qc/archive/refs/tags/v1.0.1.tar.gz
+C:\MassDynamics\mdqc\Scripts\mdqc version
 ```
 
-**From source:**
+Calling the environment's `pip` and `mdqc` by path avoids activating it, so
+there is no PowerShell execution-policy change to argue about with IT. If you
+prefer to activate it, `C:\MassDynamics\mdqc\Scripts\Activate.ps1` then plain
+`pip` and `mdqc` work as usual.
+
+**From source**, for development:
 
 ```powershell
 git clone https://github.com/MassDynamics/md-qc
 cd md-qc
-python -m venv .venv
-.venv\Scripts\activate              # Windows PowerShell
-# source .venv/bin/activate         # macOS/Linux
-pip install -e .
+py -3.12 -m venv .venv
+.venv\Scripts\pip install -e ".[dev]"
 ```
 
 ### Run the agent
 
-```bash
-python -m mdqc run --foreground
+```powershell
+C:\MassDynamics\mdqc\Scripts\mdqc run --foreground
 ```
 
 Watches the folders configured in `config.toml` and processes every new file.
@@ -84,7 +88,7 @@ Two cooperating processes:
 
 | Process | Role |
 |---|---|
-| **Agent** (`python -m mdqc run`) | Headless service. Filesystem watcher → finalizer → classifier → Skyline extractor → payload spool → uploader, plus the web UI. |
+| **Agent** (`mdqc run`) | Headless service. Filesystem watcher → finalizer → classifier → Skyline extractor → payload spool → uploader, plus the web UI. |
 | **Tray** (`mdqc tray`) | Per-user process: tray icon, toast notifications, opens the web UI. Toasts raised from Session 0 are silently dropped, so the service publishes events and the tray decides how to surface them. |
 
 Each Skyline extraction runs in its own temp directory with hardlinked
@@ -138,7 +142,7 @@ printed at startup:
 
 ## Status
 
-**v1.0.0.** The pipeline is end-to-end on Windows: watcher, classifier,
+**v1.0.1.** The pipeline is end-to-end on Windows: watcher, classifier,
 Skyline extraction, spool, gold-standard comparison, and cloud upload to the
 Mass Dynamics platform. Validated by replay tests against real acquisitions at
 48/48 target recovery.

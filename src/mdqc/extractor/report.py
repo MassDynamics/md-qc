@@ -11,6 +11,7 @@ import hashlib
 import logging
 import math
 import re
+from collections.abc import Iterable
 from datetime import datetime
 from functools import lru_cache
 from pathlib import Path
@@ -60,6 +61,9 @@ _DAY_FIRST_FORMATS = (
     "%d/%m/%Y %I:%M:%S %p",   # 3/02/2026 12:40:31 AM  (en-AU/en-GB 12h)
     "%d/%m/%Y %H:%M:%S",       # EU 24h
 )
+# Distinct timestamp strings sampled from a report to settle its date order.
+_DATE_SAMPLE_LIMIT = 64
+
 _COMMON_TIME_FORMATS = (
     "%Y-%m-%d %H:%M:%S",       # ISO-ish, space-separated
 )
@@ -138,6 +142,9 @@ _ALIASES: dict[str, list[str]] = {
         "maxfwhm",
         "fwhm",
         "peak width fwhm",
+        # Peptide-level reports export the per-transition maximum averaged
+        # over the peptide's transitions, under its own caption.
+        "mean max fwhm",
     ],
     "peak_symmetry": [
         "peak symmetry",
@@ -330,6 +337,38 @@ def locale_prefers_day_first() -> bool:
         if ch in "mMyY":
             return False
     return False
+
+
+_SLASH_DATE_RE = re.compile(r"^\s*(\d{1,2})/(\d{1,2})/\d{4}")
+
+
+def infer_day_first(values: Iterable[str]) -> bool | None:
+    """Decide day-first vs month-first from the timestamps themselves.
+
+    A slash date whose first field exceeds 12 can only be a day; one whose
+    second field exceeds 12 can only be a month. Either settles the whole
+    export, which one machine wrote in one format.
+
+    This has to come from the file, not from the machine mdqc runs on. Skyline
+    renders the timestamp in the exporting PC's locale, and a host that
+    disagrees silently misreads every date whose day is 12 or less while
+    getting the rest right - the worst possible failure, because it looks
+    correct. Returns None when every value is ambiguous, or when the file
+    contradicts itself, leaving the decision to the host locale.
+    """
+    day_first = month_first = False
+    for value in values:
+        m = _SLASH_DATE_RE.match(value or "")
+        if m is None:
+            continue
+        first, second = int(m.group(1)), int(m.group(2))
+        if first > 12:
+            day_first = True
+        elif second > 12:
+            month_first = True
+    if day_first == month_first:      # undecided, or contradictory
+        return None
+    return day_first
 
 
 def _skyline_time_formats(day_first: bool) -> tuple[str, ...]:
@@ -525,21 +564,48 @@ def parse_skyline_run_metadata(path: Path) -> tuple[str | None, str | None]:
         mod_idx = _column_index(headers, "modifiedtime")
         if acq_idx is None and mod_idx is None:
             return None, None
+
+        first: list[str] | None = None
+        seen: list[str] = []
         for row in reader:
             if not row or all(not cell.strip() for cell in row):
                 continue
-            acquired = (
-                _parse_skyline_time(row[acq_idx].strip())
-                if acq_idx is not None and acq_idx < len(row)
-                else None
+            if first is None:
+                first = row
+            for idx in (acq_idx, mod_idx):
+                if idx is None or idx >= len(row):
+                    continue
+                cell = row[idx].strip()
+                # A single-file extraction repeats one pair of timestamps on
+                # every row, so a handful of distinct values is the whole file.
+                if cell and cell not in seen and len(seen) < _DATE_SAMPLE_LIMIT:
+                    seen.append(cell)
+        if first is None:
+            return None, None
+
+        day_first = infer_day_first(seen)
+        if day_first is None:
+            day_first = locale_prefers_day_first()
+        elif day_first != locale_prefers_day_first():
+            # Worth a line: it means Skyline and Windows disagree on this PC,
+            # which is exactly the case that used to produce silent wrong dates.
+            logger.info(
+                "skyline_date_order_from_file day_first=%s host_day_first=%s",
+                day_first,
+                locale_prefers_day_first(),
             )
-            modified = (
-                _parse_skyline_time(row[mod_idx].strip())
-                if mod_idx is not None and mod_idx < len(row)
-                else None
-            )
-            return acquired, modified
-        return None, None
+
+        acquired = (
+            _parse_skyline_time(first[acq_idx].strip(), day_first=day_first)
+            if acq_idx is not None and acq_idx < len(first)
+            else None
+        )
+        modified = (
+            _parse_skyline_time(first[mod_idx].strip(), day_first=day_first)
+            if mod_idx is not None and mod_idx < len(first)
+            else None
+        )
+        return acquired, modified
 
 
 def collapse_transitions_to_peptides(metrics: list[TargetMetric]) -> list[TargetMetric]:

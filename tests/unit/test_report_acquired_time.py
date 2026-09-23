@@ -14,8 +14,12 @@ from unittest.mock import AsyncMock, patch
 import pytest
 
 from mdqc.config.schema import SkylineConfig
-from mdqc.extractor import Extractor
-from mdqc.extractor.report import _parse_skyline_time, parse_skyline_run_metadata
+from mdqc.extractor import Extractor, report
+from mdqc.extractor.report import (
+    _parse_skyline_time,
+    infer_day_first,
+    parse_skyline_run_metadata,
+)
 from mdqc.extractor.skyline import SkylineRunResult
 from mdqc.types import ExtractionStatus
 
@@ -133,3 +137,99 @@ async def test_extract_populates_acquired_time(tmp_path: Path) -> None:
     assert result.acquired_time.startswith("2026-07-22T02:44:30")
     assert result.modified_time is not None
     assert result.modified_time.startswith("2026-07-22T02:50:54")
+
+
+# ─── Date order comes from the file, not the host ────────────────────────────
+#
+# Skyline renders the timestamp in the exporting PC's locale. Deciding the
+# order from the machine mdqc happens to run on misreads every date whose day
+# is 12 or less while getting days 13+ right — wrong in a way that looks fine.
+
+
+def test_infer_day_first_from_an_unambiguous_day() -> None:
+    assert infer_day_first(["22/07/2026 14:05:00"]) is True
+
+
+def test_infer_month_first_from_an_unambiguous_month() -> None:
+    assert infer_day_first(["7/22/2026 5:09:14 AM"]) is False
+
+
+def test_infer_settles_the_whole_file_from_one_value() -> None:
+    # The ambiguous value alone proves nothing; its neighbour decides.
+    assert infer_day_first(["9/1/2026 3:58:34 AM", "7/22/2026 5:09:14 AM"]) is False
+
+
+def test_infer_undecided_when_every_value_is_ambiguous() -> None:
+    assert infer_day_first(["9/1/2026 3:58:34 AM", "2/3/2026 1:00:00 AM"]) is None
+
+
+def test_infer_undecided_when_the_file_contradicts_itself() -> None:
+    assert infer_day_first(["22/07/2026 14:05:00", "7/22/2026 5:09:14 AM"]) is None
+
+
+def test_infer_ignores_non_dates() -> None:
+    assert infer_day_first(["", "NaN", "not a date"]) is None
+
+
+def test_month_first_file_parses_on_a_day_first_host(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Regression: an Evosep export read 2026-01-09 instead of 2026-09-01.
+
+    The run is named for the day it started, 31 Aug, so 9/1/2026 can only be
+    1 September. The modified column carries the value that proves the order.
+    """
+    monkeypatch.setattr(report, "locale_prefers_day_first", lambda: True)
+    csv = tmp_path / "month_first.csv"
+    csv.write_text(
+        "Acquired Time,Modified Time,Replicate Name\n"
+        "9/1/2026 3:58:34 AM,7/22/2026 5:09:14 AM,20260831_QCB_4\n"
+    )
+    acquired, modified = parse_skyline_run_metadata(csv)
+    assert acquired is not None and acquired.startswith("2026-09-01T03:58:34")
+    assert modified is not None and modified.startswith("2026-07-22T05:09:14")
+
+
+def test_day_first_file_parses_on_a_month_first_host(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(report, "locale_prefers_day_first", lambda: False)
+    csv = tmp_path / "day_first.csv"
+    csv.write_text(
+        "Acquired Time,Modified Time,Peptide\n"
+        "3/02/2026 12:40:31 AM,22/07/2026 14:05:00,PEP\n"
+    )
+    acquired, modified = parse_skyline_run_metadata(csv)
+    assert acquired is not None and acquired.startswith("2026-02-03T00:40:31")
+    assert modified is not None and modified.startswith("2026-07-22T14:05:00")
+
+
+@pytest.mark.parametrize(
+    ("host_day_first", "expected"),
+    [(True, "2026-01-09T03:58:34"), (False, "2026-09-01T03:58:34")],
+)
+def test_ambiguous_file_falls_back_to_the_host(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, host_day_first: bool, expected: str
+) -> None:
+    """With nothing in the file to go on, the machine's own setting is all there is."""
+    monkeypatch.setattr(report, "locale_prefers_day_first", lambda: host_day_first)
+    csv = tmp_path / "ambiguous.csv"
+    csv.write_text("Acquired Time,Peptide\n9/1/2026 3:58:34 AM,PEP\n")
+    acquired, _ = parse_skyline_run_metadata(csv)
+    assert acquired is not None and acquired.startswith(expected)
+
+
+def test_order_is_inferred_from_later_rows_too(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A multi-replicate export settles the order even when row 1 is ambiguous."""
+    monkeypatch.setattr(report, "locale_prefers_day_first", lambda: True)
+    csv = tmp_path / "multi.csv"
+    csv.write_text(
+        "Acquired Time,Replicate Name\n"
+        "9/1/2026 3:58:34 AM,run_a\n"
+        "9/1/2026 3:58:34 AM,run_a\n"
+        "7/22/2026 5:09:14 AM,run_b\n"
+    )
+    acquired, _ = parse_skyline_run_metadata(csv)
+    assert acquired is not None and acquired.startswith("2026-09-01T03:58:34")

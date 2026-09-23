@@ -99,22 +99,27 @@ jobs:
           version=$(grep '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/')
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
-      - name: Download exe artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: mdqc-exe-${{ steps.version.outputs.version }}
-          path: artifacts
-
+      # No binary is attached. The frozen build still runs in `build-exe` as a
+      # packaging check, but an unsigned 31 MB executable is the hardest thing
+      # to get past a lab's IT review, and pip needs no exception from anyone.
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           name: MD QC Agent v${{ steps.version.outputs.version }}
-          files: artifacts/mdqc-${{ steps.version.outputs.version }}.exe
           generate_release_notes: true
           body: |
             ## Installation
 
-            1. Download `mdqc-${{ steps.version.outputs.version }}.exe` below
-            2. Run it from the command line: `mdqc-${{ steps.version.outputs.version }}.exe run --config path\to\config.toml`
+            Windows PowerShell, with Python 3.11 or 3.12 installed:
 
-            Requires Windows 10/11 x64. No Python installation needed.
+            ```powershell
+            py -3.12 -m venv C:\MassDynamics\mdqc
+            C:\MassDynamics\mdqc\Scripts\pip install https://github.com/MassDynamics/md-qc/archive/refs/tags/v${{ steps.version.outputs.version }}.tar.gz
+            C:\MassDynamics\mdqc\Scripts\mdqc run --foreground
+            ```
+
+            Calling the venv's `pip` and `mdqc` by path avoids activating it,
+            so no PowerShell execution-policy change is needed.
+
+            See [docs/INSTALL.md](https://github.com/MassDynamics/md-qc/blob/main/docs/INSTALL.md)
+            for Skyline setup, configuration and the Windows service.
