@@ -29,7 +29,8 @@ optional: without a token the agent is a complete local QC monitor.
 ### Hardware / OS
 - **Windows 10 or 11** (the agent is Windows-tested)
 - ~**2 GB free disk** (spectral libraries ~210 MB, spool grows ~5 KB per payload)
-- Local administrator rights for the first install only
+- No administrator rights needed with the setup program (§3, Option A), unless
+  you install for all users
 
 ### Software
 - **Skyline (64-bit)** — daily or release build. The agent auto-detects it at:
@@ -48,12 +49,15 @@ optional: without a token the agent is a complete local QC monitor.
   **ClickOnce installs are not supported** — these have paths containing
   `\apps\2.0\`. Use the regular installer from <https://skyline.ms>.
 
-- **Python 3.11 or newer** — install from <https://www.python.org/downloads>
-  with the "Add Python to PATH" option ticked. `py -0` lists what a machine
-  already has; any 3.11+ entry will do, and most instrument PCs have one.
+- **Python 3.11 or newer** — *only for the install script or a source
+  install* (§3, Options B and C); the setup program carries its own. Install
+  from <https://www.python.org/downloads> with "Add Python to PATH" ticked.
+  `py -0` lists what a machine already has; any 3.11+ entry will do.
 - **Git** (only if cloning from GitHub) — <https://git-scm.com/download/win>
 
 ### Verifying Skyline is detected (recommended before first run)
+Once MDQC is installed, *Start menu > Mass Dynamics QC > MD QC Diagnostics*
+shows whether Skyline was found. Or, after the install script:
 ```powershell
 C:\MassDynamics\mdqc\Scripts\python -c "from mdqc.extractor.skyline import find_skyline; p = find_skyline(); print(p or 'NOT FOUND - install Skyline or set [skyline].path in config.toml')"
 ```
@@ -72,7 +76,34 @@ starting the agent — extraction will fail on every file otherwise.
 
 ## 3. Install the agent
 
-### Option A — the install script (recommended for operators)
+### Option A — the setup program (recommended; no Python or PowerShell)
+
+Download **MDQC-Setup-`<version>`.exe** from the
+[latest release](https://github.com/MassDynamics/md-qc/releases/latest), copy it to
+the instrument PC (a USB stick is fine) and double-click it. It carries its own
+Python, so nothing else needs installing apart from Skyline, and the PC needs no
+internet.
+
+- By default it installs for the current user, with no administrator rights.
+  *Install for all users* (admin) is offered on the first page.
+- It starts the agent with its tray icon and opens the dashboard. The agent
+  then starts at every login.
+- Running a newer setup program upgrades in place, keeping your settings.
+- Remove it from *Settings > Apps > MD QC Agent*. Configuration and results
+  in `C:\ProgramData\MassDynamics\QC` are kept.
+- For IT rollouts: `MDQC-Setup-<version>.exe /VERYSILENT /CURRENTUSER` (or
+  `/ALLUSERS`).
+
+Until the setup program is code-signed, Windows may show "Windows protected
+your PC": choose *More info > Run anyway*.
+
+The commands in the rest of this guide use the install script's location,
+`C:\MassDynamics\mdqc\Scripts\mdqc`. After the setup program, use
+`mdqc.cmd` in its folder instead — for a per-user install,
+`%LOCALAPPDATA%\Programs\Mass Dynamics\MDQC\mdqc.cmd` (e.g.
+`...\mdqc.cmd doctor`).
+
+### Option B — the install script (PowerShell, uses an installed Python)
 
 With Python 3.11 or newer installed (§2), download the script for the release
 and run it:
@@ -128,7 +159,7 @@ and then use plain `pip` and `mdqc`.
 The agent is not pinned to that location — any folder the service account can
 read works. Keep it off a network drive.
 
-### Option B — from source (for developers)
+### Option C — from source (for developers)
 ```powershell
 git clone https://github.com/MassDynamics/md-qc.git
 cd md-qc
@@ -142,10 +173,8 @@ C:\MassDynamics\mdqc\Scripts\mdqc version
 ```
 and see `mdqc 1.2.0`.
 
-To build a single-file executable or the Inno Setup installer (service
-registration, tray shortcut, uninstaller) for sites that cannot install Python,
-see [`installer/README.md`](../installer/README.md) — neither is published as a
-release asset.
+How the setup program in Option A is built, tested and signed is in
+[`installer/README.md`](../installer/README.md).
 
 ---
 
