@@ -1409,3 +1409,122 @@ def test_gold_standards_selection_basis_is_the_median(
     assert 'value="mean"' not in body
     assert "(value - st.areaMedian) / st.areaMedian" in body
     assert "hasBaseline ? 'gold' : 'median'" in body
+
+
+# ─── Upload gate in the UI ───────────────────────────────────────────────────
+
+
+def _held_run(state: _FakeAppState, instrument_id: str = "qe-test", spd: int = 200) -> Path:
+    classification = RunClassification(
+        control_type=ControlType.SSC, well_position=None, instrument_id=instrument_id,
+        plate_id=None, confidence=Confidence.HIGH, source=ClassificationSource.FILENAME, spd=spd,
+    )
+    extraction = ExtractionResult(
+        run_id=uuid4(),
+        target_metrics=[TargetMetric(target_id="PEPA", peptide_sequence="PEPA",
+                                     protein_name="Targets", peak_area=1000.0, retention_time=5.0)],
+        run_metrics=RunMetrics(targets_found=1, targets_expected=1, target_recovery_pct=100.0),
+    )
+    return state.spool.enqueue(classification, extraction, held=True)
+
+
+def test_every_page_says_when_uploads_are_paused(
+    state_with_instruments: _FakeAppState, tmp_data_dir: Path
+) -> None:
+    _held_run(state_with_instruments)
+    client = _client(_build_app(state_with_instruments))
+    for page in ("/dashboard", "/settings", "/gold-standards"):
+        body = client.get(page).text
+        assert "Uploads paused for <strong>qe-test</strong> at 200 SPD" in body, page
+        assert "no gold standard has been saved yet" in body
+
+
+def test_no_banner_when_nothing_is_held(state_with_instruments: _FakeAppState) -> None:
+    client = _client(_build_app(state_with_instruments))
+    assert "Uploads paused" not in client.get("/dashboard").text
+
+
+def test_saving_a_baseline_releases_the_held_runs(
+    state_with_instruments: _FakeAppState, tmp_data_dir: Path
+) -> None:
+    gold = _seed_ssc0_run()
+    held = _held_run(state_with_instruments)
+    client = _client(_build_app(state_with_instruments))
+    response = client.post(
+        "/gold-standards/save",
+        data={"instrument_id": "qe-test", "spd": "200", "label": "gold", "run_id": [gold]},
+    )
+    assert "1 held run re-scored against it and released for upload" in response.text
+    assert not held.exists()
+    assert (state_with_instruments.spool.pending_dir / held.name).exists()
+    assert "Uploads paused" not in response.text
+
+
+def test_gate_can_be_paused_and_released_from_the_page(
+    state_with_instruments: _FakeAppState, tmp_data_dir: Path
+) -> None:
+    gold = _seed_ssc0_run()
+    client = _client(_build_app(state_with_instruments))
+    client.post("/gold-standards/save",
+                data={"instrument_id": "qe-test", "spd": "200", "label": "g", "run_id": [gold]})
+
+    page = client.post("/gold-standards/gate/pause", data={"instrument_id": "qe-test", "spd": "200"})
+    assert "paused while a new baseline is set" in page.text
+
+    _held_run(state_with_instruments)
+    page = client.post("/gold-standards/gate/release",
+                       data={"instrument_id": "qe-test", "spd": "200"})
+    assert "1 held run released for upload as it was" in page.text
+
+
+# ── Settings changes reach the folder watcher ────────────────────────────────
+
+
+@pytest.fixture()
+def watcher_reloads(monkeypatch: pytest.MonkeyPatch) -> list[int]:
+    from mdqc.service import lifecycle
+
+    calls: list[int] = []
+
+    async def fake_reload(state: Any) -> None:
+        calls.append(len(state.cfg.instruments))
+
+    monkeypatch.setattr(lifecycle, "reload_watcher", fake_reload)
+    return calls
+
+
+def test_adding_an_instrument_restarts_the_watcher(
+    state_without_instruments: _FakeAppState, tmp_data_dir: Path, tmp_path: Path,
+    watcher_reloads: list[int],
+) -> None:
+    """The watcher was built once at startup: an instrument added on a fresh
+    install was saved but its folder never watched until a restart."""
+    client = _client(_build_app(state_without_instruments))
+    response = client.post(
+        "/settings",
+        data=_base_settings_form(
+            instrument_id_0="NEW-01", vendor_0="thermo", watch_path_0=str(tmp_path),
+            file_pattern_0="*.raw", template_0="QC_Method.sky",
+        ),
+    )
+    assert response.status_code == 200
+    assert watcher_reloads == [1]
+
+
+def test_a_save_that_leaves_instruments_alone_keeps_the_watcher(
+    state_without_instruments: _FakeAppState, tmp_data_dir: Path, watcher_reloads: list[int]
+) -> None:
+    client = _client(_build_app(state_without_instruments))
+    assert client.post("/settings", data=_base_settings_form()).status_code == 200
+    assert watcher_reloads == []
+
+
+def test_settings_lists_the_built_in_file_names(
+    state_without_instruments: _FakeAppState, tmp_data_dir: Path
+) -> None:
+    """The rules table held only the old names, so the page read as if the
+    new ones weren't supported. They're built in; the page now says so."""
+    html = _client(_build_app(state_without_instruments)).get("/settings").text
+    for name in ("PCD96", "PCD384", "SSCBASE", "SSCGOLD", "SSC0", "BLANK"):
+        assert f"<code>{name}</code>" in html
+    assert "Extra rules" in html

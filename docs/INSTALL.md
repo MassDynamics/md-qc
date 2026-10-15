@@ -72,13 +72,52 @@ starting the agent — extraction will fail on every file otherwise.
 
 ## 3. Install the agent
 
-### Option A — into its own virtual environment (recommended for operators)
+### Option A — the install script (recommended for operators)
 
-In **PowerShell**, with Python 3.11 or newer installed (§2):
+With Python 3.11 or newer installed (§2), download the script for the release
+and run it:
+
+```powershell
+Invoke-WebRequest -UseBasicParsing https://raw.githubusercontent.com/MassDynamics/md-qc/v1.2.0/scripts/install.ps1 -OutFile install.ps1
+powershell -ExecutionPolicy Bypass -File install.ps1
+```
+
+Run it as the Windows user who uses the instrument PC. It:
+
+- finds a suitable Python and creates or upgrades the environment at
+  `C:\MassDynamics\mdqc`, with the release and the tray icon
+- checks the installed version and runs `mdqc doctor`
+- creates an empty `config.toml` if there is none, so the agent can start and
+  be set up from the dashboard's Settings page (an existing one is never
+  touched)
+- makes the agent and its tray icon **start at login, with no window**, and
+  adds a *Mass Dynamics QC* Start-menu folder: **MD QC Dashboard**, **MD QC
+  Agent** (starts it again if it was stopped) and **MD QC Diagnostics**
+- starts everything straight away
+
+After that nobody needs PowerShell: the tray icon's menu opens the dashboard,
+settings and diagnostics, and shows Windows notifications. Re-running the
+script upgrades in place: it stops the running agent first (letting it finish
+the file in hand), upgrades, and starts it again.
+
+Options:
+
+| Option | What it does |
+|---|---|
+| `-Service -NssmPath <nssm.exe>` | *Advanced, for IT teams.* Run the agent as a Windows service instead, so it starts with Windows before anyone logs in. Needs an elevated PowerShell and [NSSM](https://nssm.cc). The tray icon still starts at login. Starting at login (the default) is the tested, supported setup. |
+| `-Version <x.y.z>` | Install another release. |
+| `-Python <path\to\python.exe>` | Use this interpreter instead of the newest 3.11+ the `py` launcher finds. |
+| `-NoStart` | Install and register, but start nothing now. |
+| `-Uninstall` | Stop the agent and remove the environment, startup entry, shortcuts and service. Configuration and results in `C:\ProgramData\MassDynamics\QC` are kept. |
+
+Only one agent runs per PC: a second one, from a shortcut or another
+installation, exits straight away rather than processing every file twice.
+
+The same install by hand (no startup entry or shortcuts; start it as in §5):
 
 ```powershell
 py -3 -m venv C:\MassDynamics\mdqc
-C:\MassDynamics\mdqc\Scripts\pip install https://github.com/MassDynamics/md-qc/archive/refs/tags/v1.0.2.tar.gz
+C:\MassDynamics\mdqc\Scripts\pip install "mdqc[tray] @ https://github.com/MassDynamics/md-qc/archive/refs/tags/v1.2.0.tar.gz"
 ```
 
 Calling the environment's `pip` and `mdqc` by full path means you never have to
@@ -101,7 +140,7 @@ Either way you should now be able to run:
 ```powershell
 C:\MassDynamics\mdqc\Scripts\mdqc version
 ```
-and see `mdqc 1.0.2`.
+and see `mdqc 1.2.0`.
 
 To build a single-file executable or the Inno Setup installer (service
 registration, tray shortcut, uninstaller) for sites that cannot install Python,
@@ -163,7 +202,10 @@ timeout_seconds = 900
 process_priority = "below_normal"
 # report_skyr_path: which Skyline report (.skyr) defines the CSV columns.
 #   "auto" (default) uses the bundled MD_QC_Report.skyr in the methods folder.
-#   Point it at your own .skyr to change the exported metrics without renaming:
+#   Point it at your own .skyr to change the exported metrics without renaming.
+#   Give yours its own name: the agent restores its bundled copy over
+#   methods\MD_QC_Report.skyr whenever the bundled one is newer, so edits
+#   saved under that name are lost on upgrade.
 # report_skyr_path = "C:\\ProgramData\\MassDynamics\\QC\\methods\\MD_QC_Report_20260723.skyr"
 # collapse_transitions_to_peptides: fold Skyline's per-transition rows down to
 #   one row per peptide (default true). Leave on for the diagnostic-peptide QC.
@@ -189,21 +231,28 @@ template = "QC_Method.sky"
 # method_name and lc_column are reserved: the payload carries them, but the
 # agent has no source for either yet, so both are always null.
 
-# Peptide classes — map the Skyline Protein column to a purpose. The
-# miss-cleavage pair drives the digest-efficiency % in the payload and is
-# excluded from target recovery (the 1-miss peptide is often below LOQ, so
-# counting it would drag recovery down). Match the exact Protein names in
-# your .skyr.
-[[peptide_classes]]
-protein_name = "Non_reactive_Targets"
-label = "Non-reactive targets"
-purpose = "recovery"
+# Peptide classes — map the Skyline Protein column to a purpose. With none
+# configured, the agent uses the standard QC panel's: Non_reactive_Targets
+# (recovery) and the miss-cleavage pair (digest efficiency, which needs this
+# rule to be calculated at all) under both spellings found in templates,
+# Miss-cleavage_pair and Miss-clevage_pair. Configure your own only for a different panel;
+# protein_name must match the Protein column, so copy it from the .skyr export.
+# [[peptide_classes]]
+# protein_name = "My_Targets"                               # <-- EDIT
+# label = "My targets"
+# purpose = "recovery"
 
-[[peptide_classes]]
-protein_name = "Miss-clevage_pair"                           # <-- EDIT (your exact Protein name)
-label = "Miss-cleavage pair"
-purpose = "digest_efficiency"
-exclude_from_recovery = true
+# Per-SPD thresholds — override any [qc_thresholds] value at one SPD. A 500 SPD
+# gradient is under half the length of a 200 SPD one, so a retention-time
+# tolerance that suits 200 SPD is too loose there. Anything not listed is
+# inherited.
+# [qc_thresholds_by_spd.500]
+# rt_deviation_pct_max = 1.0
+
+# Strict naming — only a QC type at the very start of the name (PCD96_…,
+# SSC_…, SSCBASE_…) counts, and wells never imply one. Use it once automated
+# sample prep names the files, so a customer sample can't be taken for a QC run.
+# classification_mode = "strict"
 ```
 
 > **File encoding matters.** Save as **plain UTF-8 (no BOM)**. Notepad's
@@ -218,15 +267,53 @@ Should print `Config OK`. If it errors, fix the file before continuing.
 
 ---
 
+### 4d. Name your QC files
+
+The agent decides what a run is from its filename. Put one of these markers
+in the name, separated from the rest by `_`, `-`, `.` or a space:
+
+| Marker | What it is | Reported as |
+|---|---|---|
+| `PCD96`, `PCD384` | Process Control Digest, from a 96- or 384-well kit | `PCD`, with `kit_format` 96 or 384 |
+| `SSC` | System Suitability Control | `SSC` |
+| `SSC_GOLD` | A run you intend as a gold standard | `SSC0` |
+| `BLANK` | Blank injection | `BLANK` |
+
+PCD96 and PCD384 are the same control and are treated identically; the kit
+size is recorded so the two can still be told apart. Any other file is
+treated as an experimental sample. Earlier names — `QCA`, `QC_A`, `PC`,
+`QCB`, `QC_B`, `SSC0` — are still recognised, so existing batches don't need
+renaming. Check a name before relying on it:
+
+```powershell
+C:\MassDynamics\mdqc\Scripts\mdqc classify PCD96_2026-09-23_200SPD_S00572_r01.raw
+```
+
+It uses your `config.toml` rules as the agent does, and prints the type,
+kit, SPD and LC serial it found.
+
+When automated sample prep writes the file names, set
+`classification_mode = "strict"` (§4b). Then only the first part of a name
+decides its type — `SSCBASE` for
+gold-standard runs — and customers must not start a sample name with a QC type.
+
 ## 5. Run the agent
 
-In a PowerShell window:
+Installed with the script (§3, Option A), the agent is already running and
+starts by itself at every login. Open the dashboard from the tray icon or
+*Start menu > Mass Dynamics QC > MD QC Dashboard*. If it was stopped,
+*MD QC Agent* in the same folder starts it again, or from PowerShell:
+```powershell
+C:\MassDynamics\mdqc\Scripts\mdqc start
+```
+
+To watch it work instead — for troubleshooting — stop it and run it in a
+PowerShell window:
 ```powershell
 C:\MassDynamics\mdqc\Scripts\mdqc run --foreground
 ```
-You should see a startup line ending with `service_started`. Leave this
-window open — closing it stops the agent. (For an unattended install,
-register it as a Windows Service; see `installer\README.md`.)
+You should see a startup line ending with `service_started` and the web UI
+address. Closing that window stops the agent.
 
 The agent will now process any new `.raw` file dropped into the
 configured `watch_path`. Each file is matched against the stability
@@ -247,10 +334,21 @@ that deviates from the currently-ticked set, so an equilibration outlier is
 visible before you save.
 
 The baseline is stored locally per (instrument, SPD) under
-`gold_standards\` (see §11). From then on, every QC A / QC B payload
+`gold_standards\` (see §11). From then on, every PCD / SSC payload
 carries `baseline_context` and `comparison_metrics`: per-peptide ratios
-against that baseline plus a peak-area verdict. Runs acquired *before* a
-baseline exists keep their measurements but carry no verdict.
+against that baseline plus a peak-area verdict.
+
+**Uploads wait for the gold standard.** With cloud upload configured, an
+instrument's runs at an SPD are held on the PC — not uploaded — until a
+baseline exists for it, and again whenever gold-standard runs (`SSCGOLD`, or
+the older `SSC0`) arrive, until they are saved as the new baseline. Every page
+shows a red banner while anything is held. Saving the baseline re-scores the
+held runs against it and uploads them, so nothing reaches the platform compared
+against the wrong reference. Two buttons on the Gold standards page cover the
+exceptions: **Pause uploads for a new baseline**, for gold-standard runs that
+weren't marked as such, and **Upload as they are**, to release held runs
+without a new baseline. To turn the hold off entirely, set
+`hold_until_gold_standard = false` under `[cloud]`.
 
 ---
 
@@ -277,6 +375,7 @@ the acquisition. See *Troubleshooting* below.
 |---------|--------------|-----|
 | Dashboard shows "No `*_payload.json` files found" and the log has repeated `processed_callback_failed: SkylineNotFound: SkylineCmd.exe not found` | Skyline isn't installed at any default location and `[skyline].path` isn't set in config | Install Skyline at default path, OR add `[skyline] path = "C:\\path\\to\\SkylineCmd.exe"` to `config.toml`. Verify with the `find_skyline` snippet in §2 |
 | `0/48 targets found` on every run | Skyline template doesn't match acquisition method | Open `QC_Method.sky` in Skyline GUI, drag in one raw file, confirm peaks ARE found there. If not, the libraries are wrong-method (e.g., 200 SPD libraries vs 500 SPD acquisition) |
+| Log shows `skyr_column_not_found`, and Diagnostics says runs "used the file mtime" | The report's Acquired Time column path doesn't exist for the report's row source. `Results!*.Value.PeptideResult.ResultFile.AcquiredTime` works in a precursor-level report like the one that ships; a peptide-level report needs a different path. Skyline writes `#COLUMN … NOT FOUND#` instead of failing | Add **Acquired Time** with Skyline's report editor rather than pasting a path — Skyline then writes the one that fits. Each payload's `acquisition_time_source` says `instrument` once it works |
 | Agent log says `MD_QC_Report does not exist` | `MD_QC_Report.skyr` missing from `methods/` | Copy it in. It ships with the agent under `src/mdqc/methods/`. |
 | Skyline error: `file is being used by another process` | Concurrent Skyline runs writing to the same `.skyd` cache | Already handled in code via per-extraction temp dir + library hardlinking. If you still see this, kill all stuck `SkylineCmd.exe` processes via Task Manager and restart the agent. |
 | `instrument_id` shows as filename prefix instead of your config ID | The watch path differs from `instrument.watch_path` after `.resolve()` (mapped/UNC drive issue) | The agent has a single-instrument fallback; if you have one instrument configured, this works automatically. For multi-instrument setups use UNC paths consistently. |
@@ -288,11 +387,15 @@ the acquisition. See *Troubleshooting* below.
 - **Activity history**: `C:\ProgramData\MassDynamics\QC\activity_log.json`
 
 ### Stopping the agent cleanly
-- **Ctrl+C** in the PowerShell window where it's running, OR
-- **HTTP shutdown** (from any other shell):
+- **Ctrl+C** in the PowerShell window, if it runs in one, OR
+- from any PowerShell window, ask it to stop (it finishes the file in hand):
   ```powershell
-  python -c "import sys, httpx; sys.path.insert(0,'src'); from mdqc.ipc.runtime import RuntimeFile; from mdqc.config.paths import runtime_file; info = RuntimeFile(path=runtime_file()).read(); httpx.post(f'http://127.0.0.1:{info.port}/api/shutdown', cookies={'mdqc_session': info.token}, timeout=3)"
+  $info = Get-Content C:\ProgramData\MassDynamics\QC\runtime.json | ConvertFrom-Json
+  Invoke-RestMethod -Method Post "http://127.0.0.1:$($info.port)/api/restart?token=$($info.token)"
   ```
+  Run as a Windows service, it is restarted by the service manager; stop the
+  service instead (`Stop-Service MassDynamicsQC`, elevated). Quitting the tray
+  icon closes only the icon, not the agent.
 
 ---
 

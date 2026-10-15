@@ -238,7 +238,12 @@ class TrayApp:
             return handler
 
         items = [
-            pystray.MenuItem("Open Dashboard", make_opener("/dashboard"), enabled=lambda _i: self._service_available),
+            # default=True: a left-click on the icon opens the dashboard; the
+            # full menu is on right-click. Without it a left-click did nothing.
+            pystray.MenuItem(
+                "Open Dashboard", make_opener("/dashboard"),
+                enabled=lambda _i: self._service_available, default=True,
+            ),
             pystray.MenuItem("Settings", make_opener("/settings"), enabled=lambda _i: self._service_available),
             pystray.MenuItem("Run Diagnostics", make_opener("/diagnostics"), enabled=lambda _i: self._service_available),
             pystray.MenuItem("View Failed Files", make_opener("/failed"), enabled=lambda _i: self._service_available),
@@ -392,6 +397,11 @@ class TrayApp:
 
     def run(self) -> None:
         configure_logging("info", log_to_console=False)
+        from mdqc import single_instance
+
+        if not single_instance.acquire(single_instance.TRAY_MUTEX):
+            log.info("tray_already_running")
+            return
         info: RuntimeInfo | None
         try:
             info = self.runtime_file.wait_for(self.runtime_poll_timeout_s)

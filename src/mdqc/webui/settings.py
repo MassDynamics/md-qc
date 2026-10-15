@@ -21,6 +21,7 @@ from pydantic import ValidationError
 
 from mdqc.config import defaults, paths
 from mdqc.config.schema import (
+    CONTROL_TYPE_LABELS,
     CONTROL_TYPE_VALUES,
     QC_THRESHOLD_FIELDS,
     AgentConfig,
@@ -29,6 +30,7 @@ from mdqc.config.schema import (
     Config,
     InstrumentConfig,
     QcThresholdsConfig,
+    normalise_control_type,
     normalise_endpoint,
 )
 from mdqc.extractor.skyline import find_skyline
@@ -269,6 +271,10 @@ def _close_uploader_later(old: Any, delay_s: float = 5.0) -> None:
         asyncio.get_running_loop().create_task(_close())
 
 
+def _watch_specs(cfg: Config) -> list[tuple[str, str, str]]:
+    return [(str(i.watch_path), str(i.vendor), i.file_pattern) for i in cfg.instruments]
+
+
 def _apply_cloud_live(state: Any, cfg: Config) -> bool:
     """Swap the running uploader so a saved token works without a restart.
 
@@ -407,12 +413,16 @@ def _parse_classifier_rules(form: dict[str, Any]) -> list[ClassifierRule]:
     rules = []
     for idx in sorted(indices):
         pattern = str(form.get(f"rule_pattern_{idx}", "")).strip()
-        control_type = str(form.get(f"rule_type_{idx}", "QC_A"))
+        control_type = str(form.get(f"rule_type_{idx}", "PCD"))
         notes = str(form.get(f"rule_notes_{idx}", "")).strip()
         if not pattern:
             continue
-        if control_type not in CONTROL_TYPES:
-            control_type = "QC_A"
+        # A page rendered before 1.3 can still post QC_A / QC_B; translate
+        # rather than overwrite the operator's choice with a default.
+        try:
+            control_type = normalise_control_type(control_type)
+        except ValueError:
+            control_type = "PCD"
         rules.append(ClassifierRule(pattern=pattern, control_type=control_type, notes=notes))
     return rules
 
@@ -427,6 +437,7 @@ def _settings_context(
         "log_levels": LOG_LEVELS,
         "priorities": PRIORITIES,
         "control_types": CONTROL_TYPES,
+        "control_type_labels": CONTROL_TYPE_LABELS,
         "status_skyline": _status_skyline(cfg),
         "cloud_probe": _initial_cloud_probe(cfg),
         "endpoint_migrated": _endpoint_migrated(cfg),
@@ -538,6 +549,7 @@ async def settings_cloud_post(request: Request) -> HTMLResponse:
                 api_token=api_token,
                 certificate_thumbprint=prev.cloud.certificate_thumbprint,
                 proxy=prev.cloud.proxy,
+                hold_until_gold_standard=prev.cloud.hold_until_gold_standard,
             )
         }
     )
@@ -644,6 +656,9 @@ async def settings_post(request: Request) -> HTMLResponse:
             classifier_rules=classifier_rules,
             peptide_classes=prev.peptide_classes,
             qc_thresholds=qc_thresholds,
+            # Not on this form yet; carried forward so a save can't reset them.
+            qc_thresholds_by_spd=prev.qc_thresholds_by_spd,
+            classification_mode=prev.classification_mode,
         )
 
         # The running Uploader was built once at startup from a snapshot of
@@ -655,6 +670,15 @@ async def settings_post(request: Request) -> HTMLResponse:
         state.cfg = cfg
         _clear_cloud_status_cache()
         log.info("settings_saved", extra={"path": str(paths.config_path()), "instruments": len(instruments)})
+        if _watch_specs(prev) != _watch_specs(cfg):
+            # The folder watcher is built from the instruments at startup;
+            # without this a new instrument was saved but never watched.
+            try:
+                from mdqc.service.lifecycle import reload_watcher
+
+                await reload_watcher(state)
+            except Exception as exc:
+                log.warning("watcher_reload_failed", extra={"error": str(exc)})
 
     except ValidationError as exc:
         # Surface the rule that was broken, not pydantic's full report — the
