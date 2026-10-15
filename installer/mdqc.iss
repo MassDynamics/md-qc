@@ -8,7 +8,7 @@
 ; Build with: python scripts/package.py [--version X.Y.Z]
 
 #ifndef AppVersion
-#define AppVersion "1.0.2"
+#define AppVersion "1.2.0"
 #endif
 
 [Setup]
@@ -79,6 +79,6 @@ Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: 
 
 [Icons]
 ; Start Menu shortcut required for AUMID toast registration. Without an AUMID
-; on a real shortcut, winsdk toasts either appear unbranded or not at all.
+; on a real shortcut, toasts either appear unbranded or not at all.
 Name: "{group}\Mass Dynamics QC Agent"; Filename: "{app}\mdqc.exe"; Parameters: "tray"; AppUserModelID: "MassDynamics.QCAgent"
 Name: "{group}\Mass Dynamics QC Agent Diagnostics"; Filename: "{app}\mdqc.exe"; Parameters: "doctor"; AppUserModelID: "MassDynamics.QCAgent"

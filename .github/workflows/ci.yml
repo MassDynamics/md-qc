@@ -51,6 +51,64 @@ jobs:
         # (running agent + Skyline install + raw files) that CI doesn't have.
         run: pytest -q -m "not live and not skyline"
 
+  install-script:
+    # The operator install path, end to end, on every Python an instrument PC
+    # might have: fresh install, upgrade over the running agent, uninstall.
+    # This is where a dependency without wheels for a new Python shows up
+    # (winsdk did, on 3.13 and 3.14).
+    name: install.ps1 / py${{ matrix.python-version }}
+    needs: test
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Isolate the data folder
+        shell: powershell
+        run: |
+          "MDQC_DATA_DIR=$env:RUNNER_TEMP\mdqc-data" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding ascii
+
+      - name: Set up Python
+        id: py
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Fresh install
+        shell: powershell
+        run: |
+          powershell -ExecutionPolicy Bypass -File scripts\install.ps1 -Source . -InstallDir "$env:RUNNER_TEMP\mdqc" -Python "${{ steps.py.outputs.python-path }}"
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+
+      - name: Agent answers, single instance
+        shell: powershell
+        run: |
+          $py = "$env:RUNNER_TEMP\mdqc\Scripts\python.exe"
+          $url = & $py -m mdqc open --print-url
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          (Invoke-WebRequest -UseBasicParsing $url).StatusCode
+          & $py -m mdqc start --no-tray
+          Start-Sleep 5
+          $agents = @(Get-CimInstance Win32_Process -Filter "Name like 'python%'" | Where-Object { $_.CommandLine -match 'mdqc run' -and $_.ExecutablePath -notmatch 'mdqc\\Scripts' })
+          if ($agents.Count -ne 1) { Write-Error "expected one agent, found $($agents.Count)"; exit 1 }
+
+      - name: Upgrade over the running agent
+        shell: powershell
+        run: |
+          powershell -ExecutionPolicy Bypass -File scripts\install.ps1 -Source . -InstallDir "$env:RUNNER_TEMP\mdqc" -Python "${{ steps.py.outputs.python-path }}"
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+
+      - name: Uninstall
+        shell: powershell
+        run: |
+          powershell -ExecutionPolicy Bypass -File scripts\install.ps1 -InstallDir "$env:RUNNER_TEMP\mdqc" -Uninstall
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          if (Test-Path "$env:RUNNER_TEMP\mdqc") { Write-Error "environment left behind"; exit 1 }
+          if (-not (Test-Path "$env:MDQC_DATA_DIR\config.toml")) { Write-Error "data folder not kept"; exit 1 }
+
   build-exe:
     name: Build Windows exe
     needs: test
@@ -121,18 +179,20 @@ jobs:
           name: MD QC Agent v${{ steps.version.outputs.version }}
           generate_release_notes: true
           body: |
-            ## Installation
+            ## Install or upgrade
 
-            Windows PowerShell, with Python 3.11 or newer installed:
+            On the instrument PC, with [Python 3.11 or newer](https://www.python.org/downloads/)
+            installed, open Windows PowerShell as the user who uses the PC and run:
 
             ```powershell
-            py -3 -m venv C:\MassDynamics\mdqc
-            C:\MassDynamics\mdqc\Scripts\pip install https://github.com/MassDynamics/md-qc/archive/refs/tags/v${{ steps.version.outputs.version }}.tar.gz
-            C:\MassDynamics\mdqc\Scripts\mdqc run --foreground
+            Invoke-WebRequest -UseBasicParsing https://raw.githubusercontent.com/MassDynamics/md-qc/v${{ steps.version.outputs.version }}/scripts/install.ps1 -OutFile install.ps1
+            powershell -ExecutionPolicy Bypass -File install.ps1
             ```
 
-            Calling the venv's `pip` and `mdqc` by path avoids activating it,
-            so no PowerShell execution-policy change is needed.
+            The agent then runs in the background with a tray icon and starts at
+            every login. Open it from the tray icon or *Start menu > Mass Dynamics QC >
+            MD QC Dashboard*, and set it up under Settings. Re-run the same commands to
+            upgrade; add `-Uninstall` to remove it.
 
-            See [docs/INSTALL.md](https://github.com/MassDynamics/md-qc/blob/main/docs/INSTALL.md)
-            for Skyline setup, configuration and the Windows service.
+            See [docs/INSTALL.md](https://github.com/MassDynamics/md-qc/blob/v${{ steps.version.outputs.version }}/docs/INSTALL.md)
+            for Skyline setup, configuration and options.

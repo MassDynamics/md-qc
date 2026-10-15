@@ -24,7 +24,8 @@ Dynamics platform.*
 
 - **Watches** any folder containing raw files (Thermo, Sciex, Bruker, Agilent)
 - **Detects** stable files (configurable size/mtime quiescence window) and
-  classifies them by filename: QC A / QC B / SSC₀ / blank / sample
+  classifies them by filename: PCD (process control digest, 96- or
+  384-well kit) / SSC (system suitability control) / SSC-gold / blank / sample
 - **Extracts** per-peptide QC metrics with a real Skyline run — no copies,
   no proxies, the same numbers an analyst would get manually
 - **Scores** each run against a gold-standard baseline you record in the web
@@ -44,12 +45,24 @@ core monitoring loop.
 
 ### Install
 
-Windows, PowerShell, with [Python 3.11 or newer](https://www.python.org/downloads/)
-installed. Everything goes in one virtual environment:
+Windows, with [Python 3.11 or newer](https://www.python.org/downloads/)
+installed. In PowerShell, as the user who uses the instrument PC:
+
+```powershell
+Invoke-WebRequest -UseBasicParsing https://raw.githubusercontent.com/MassDynamics/md-qc/v1.2.0/scripts/install.ps1 -OutFile install.ps1
+powershell -ExecutionPolicy Bypass -File install.ps1
+```
+
+The script installs into `C:\MassDynamics\mdqc`, makes the agent and its tray
+icon start at login with no window, adds Start-menu shortcuts, and starts it.
+Re-run it to upgrade; `-Uninstall` removes it. Options (a Windows service,
+another release) are in [docs/INSTALL.md](./docs/INSTALL.md#3-install-the-agent).
+
+By hand, everything goes in one virtual environment:
 
 ```powershell
 py -3 -m venv C:\MassDynamics\mdqc
-C:\MassDynamics\mdqc\Scripts\pip install https://github.com/MassDynamics/md-qc/archive/refs/tags/v1.0.2.tar.gz
+C:\MassDynamics\mdqc\Scripts\pip install "mdqc[tray] @ https://github.com/MassDynamics/md-qc/archive/refs/tags/v1.2.0.tar.gz"
 C:\MassDynamics\mdqc\Scripts\mdqc version
 ```
 
@@ -69,13 +82,16 @@ py -3 -m venv .venv
 
 ### Run the agent
 
+Installed with the script, it is already running. Otherwise:
+
 ```powershell
-C:\MassDynamics\mdqc\Scripts\mdqc run --foreground
+C:\MassDynamics\mdqc\Scripts\mdqc start
 ```
 
-Watches the folders configured in `config.toml` and processes every new file.
-The web UI link is printed on the `service_started` line, and the tray icon
-opens the same page.
+starts the agent and tray icon in the background (`mdqc run --foreground`
+runs it in the window instead, for troubleshooting). It watches the folders
+configured in `config.toml` and processes every new file. The tray icon, or
+`mdqc open`, opens the web UI.
 
 For full operator setup — Skyline templates, configuration, recording a
 baseline, troubleshooting — see **[docs/INSTALL.md](./docs/INSTALL.md)**.
@@ -99,8 +115,8 @@ Payloads are JSON files, one per run, with a stable, versioned schema:
 
 ```jsonc
 {
-  "schema_version": "1.2",
-  "run":          { "instrument_id": "...", "raw_file_name": "...", "acquisition_time": "...", "control_type": "QC_B", "spd": 200 },
+  "schema_version": "1.3",
+  "run":          { "instrument_id": "...", "raw_file_name": "...", "acquisition_time": "...", "acquisition_time_source": "instrument", "control_type": "SSC", "spd": 200 },
   "extraction":   { "status": "SUCCESS", "extraction_time_ms": 22450, "backend_version": "..." },
   "run_metrics":  { "targets_found": 48, "targets_expected": 48, "median_rt_shift": 0.012, "median_mass_error_ppm": -3.21 },
   "target_metrics": [
@@ -142,9 +158,10 @@ printed at startup:
 
 ## Status
 
-**v1.0.2.** The pipeline is end-to-end on Windows: watcher, classifier,
+**v1.2.0.** The pipeline is end-to-end on Windows: watcher, classifier,
 Skyline extraction, spool, gold-standard comparison, and cloud upload to the
-Mass Dynamics platform. Validated by replay tests against real acquisitions at
+Mass Dynamics platform, installed by one script that leaves it running in the
+background with a tray icon. Validated by replay tests against real acquisitions at
 48/48 target recovery.
 
 Known limitations are listed in
