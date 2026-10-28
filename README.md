@@ -45,6 +45,10 @@ core monitoring loop.
 
 ### Install
 
+Setting up a new site? **[docs/SITE-PREP.md](./docs/SITE-PREP.md)** is a
+one-page checklist of what to have ready, the install steps, file naming and
+recording the baseline.
+
 **Easiest — the setup program.** Download
 **[MDQC-Setup-1.2.0.exe](https://github.com/MassDynamics/md-qc/releases/download/v1.2.0/MDQC-Setup-1.2.0.exe)**
 (also on the [latest release](https://github.com/MassDynamics/md-qc/releases/latest)
@@ -185,6 +189,7 @@ raw files in a watch path use the same Skyline template.
 
 | Document | Audience |
 |---|---|
+| [docs/SITE-PREP.md](./docs/SITE-PREP.md) | **Labs** — one page: what to have ready, install, naming, baseline |
 | [docs/INSTALL.md](./docs/INSTALL.md) | **Operators** — install, configure, record a baseline, troubleshoot |
 | [docs/payload-reference/](./docs/payload-reference/index.html) | **Integrators** — every payload field, how it is derived, when it is null |
 | [docs/examples/](./docs/examples) | **Integrators** — nine sample payloads covering healthy, warn, fail, blank and failed-extraction runs |
