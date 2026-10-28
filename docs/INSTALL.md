@@ -280,7 +280,7 @@ template = "QC_Method.sky"
 # rt_deviation_pct_max = 1.0
 
 # Strict naming — only a QC type at the very start of the name (PCD96_…,
-# SSC_…, SSCBASE_…) counts, and wells never imply one. Use it once automated
+# SSC_…, SSCBASE_…) counts. Use it once automated
 # sample prep names the files, so a customer sample can't be taken for a QC run.
 # classification_mode = "strict"
 ```

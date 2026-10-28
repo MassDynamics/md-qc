@@ -105,7 +105,8 @@ def test_the_miss_cleavage_pair_gets_the_digest_purpose(protein: str) -> None:
         # Customer samples that lenient mode would take for QC runs.
         ("PC_cells_rep1.raw", ControlType.SAMPLE, ControlType.PCD),
         ("mystudy_SSC_ctrl.raw", ControlType.SAMPLE, ControlType.SSC),
-        ("patient7_A1_run.raw", ControlType.SAMPLE, ControlType.PCD),
+        # A well is no marker in either mode.
+        ("patient7_A1_run.raw", ControlType.SAMPLE, ControlType.SAMPLE),
     ],
 )
 def test_strict_mode_reads_only_the_first_part(

@@ -100,8 +100,8 @@ def classify_filename(
 
     mode="lenient" finds a control-type marker anywhere in the name, in any
     spelling since the first pilot. mode="strict" only accepts one as the first
-    part of the name, where automated sample prep writes it, and never infers a type from
-    the well — a customer sample in well A1 is still a sample.
+    part of the name, where automated sample prep writes it. Neither infers a
+    type from the well: a customer sample in well A1 is still a sample.
     """
     stem = _strip_vendor_ext(name)
 
@@ -235,11 +235,9 @@ def _extract_control_type(
         return ControlType.SSC, ClassificationSource.FILENAME
     if _BLANK_RE.search(stem):
         return ControlType.BLANK, ClassificationSource.FILENAME
-    well = _extract_well(stem)
-    if well is not None:
-        inferred = _infer_from_well(well)
-        if inferred is not ControlType.SAMPLE:
-            return inferred, ClassificationSource.POSITION
+    # No inference from the well. An early pilot put QC in A1-A4, but in a
+    # folder shared with customer samples that made samples in those wells
+    # into QC runs.
     return ControlType.SAMPLE, ClassificationSource.DEFAULT
 
 
@@ -295,15 +293,6 @@ def _extract_instrument(stem: str) -> str | None:
     return m.group(1) if m else None
 
 
-def _infer_from_well(well: WellPosition) -> ControlType:
-    if well.row == "A":
-        if well.column in (1, 2):
-            return ControlType.PCD
-        if well.column in (3, 4):
-            return ControlType.SSC
-    return ControlType.SAMPLE
-
-
 def _confidence(
     control_type: ControlType,
     well: WellPosition | None,
@@ -311,6 +300,4 @@ def _confidence(
 ) -> Confidence:
     if source is ClassificationSource.FILENAME and control_type.is_qc():
         return Confidence.HIGH if well is not None else Confidence.MEDIUM
-    if source is ClassificationSource.POSITION:
-        return Confidence.MEDIUM
     return Confidence.LOW

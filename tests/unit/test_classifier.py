@@ -86,17 +86,18 @@ def test_case_insensitive_qca(variant: str) -> None:
     assert result.control_type is ControlType.PCD
 
 
-def test_well_position_inference_qca() -> None:
-    result = classify_filename("EXPLORIS_A1_2026-01-27.raw")
-    assert result.control_type is ControlType.PCD
-    assert result.source is ClassificationSource.POSITION
-    assert result.confidence is Confidence.MEDIUM
+@pytest.mark.parametrize("well", ["A1", "A2", "A3", "A4"])
+def test_well_position_does_not_imply_qc(well: str) -> None:
+    # Customer samples share folders with QC runs; a well alone is no marker.
+    result = classify_filename(f"EXPLORIS_{well}_2026-01-27.raw")
+    assert result.control_type is ControlType.SAMPLE
+    assert result.source is ClassificationSource.DEFAULT
+    assert result.well_position == WellPosition(row="A", column=int(well[1]))
 
 
-def test_well_position_inference_qcb() -> None:
-    result = classify_filename("EXPLORIS_A3_2026-01-27.raw")
-    assert result.control_type is ControlType.SSC
-    assert result.source is ClassificationSource.POSITION
+def test_plate_position_sample_name_is_sample() -> None:
+    result = classify_filename("20261021_patient13_S1-A3_200SPD.raw")
+    assert result.control_type is ControlType.SAMPLE
 
 
 def test_well_position_other_remains_sample() -> None:
