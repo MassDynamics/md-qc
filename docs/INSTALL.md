@@ -110,7 +110,7 @@ With Python 3.11 or newer installed (§2), download the script for the release
 and run it:
 
 ```powershell
-Invoke-WebRequest -UseBasicParsing https://raw.githubusercontent.com/MassDynamics/md-qc/v1.2.0/scripts/install.ps1 -OutFile install.ps1
+Invoke-WebRequest -UseBasicParsing https://raw.githubusercontent.com/MassDynamics/md-qc/v1.2.1/scripts/install.ps1 -OutFile install.ps1
 powershell -ExecutionPolicy Bypass -File install.ps1
 ```
 
@@ -149,7 +149,7 @@ The same install by hand (no startup entry or shortcuts; start it as in §5):
 
 ```powershell
 py -3 -m venv C:\MassDynamics\mdqc
-C:\MassDynamics\mdqc\Scripts\pip install "mdqc[tray] @ https://github.com/MassDynamics/md-qc/archive/refs/tags/v1.2.0.tar.gz"
+C:\MassDynamics\mdqc\Scripts\pip install "mdqc[tray] @ https://github.com/MassDynamics/md-qc/archive/refs/tags/v1.2.1.tar.gz"
 ```
 
 Calling the environment's `pip` and `mdqc` by full path means you never have to
@@ -172,7 +172,7 @@ Either way you should now be able to run:
 ```powershell
 C:\MassDynamics\mdqc\Scripts\mdqc version
 ```
-and see `mdqc 1.2.0`.
+and see `mdqc 1.2.1`.
 
 How the setup program in Option A is built, tested and signed is in
 [`installer/README.md`](../installer/README.md).
@@ -280,7 +280,7 @@ template = "QC_Method.sky"
 # rt_deviation_pct_max = 1.0
 
 # Strict naming — only a QC type at the very start of the name (PCD96_…,
-# SSC_…, SSCBASE_…) counts, and wells never imply one. Use it once automated
+# SSC_…, SSCBASE_…) counts. Use it once automated
 # sample prep names the files, so a customer sample can't be taken for a QC run.
 # classification_mode = "strict"
 ```

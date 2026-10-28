@@ -50,7 +50,7 @@ one-page checklist of what to have ready, the install steps, file naming and
 recording the baseline.
 
 **Easiest — the setup program.** Download
-**[MDQC-Setup-1.2.0.exe](https://github.com/MassDynamics/md-qc/releases/download/v1.2.0/MDQC-Setup-1.2.0.exe)**
+**[MDQC-Setup-1.2.1.exe](https://github.com/MassDynamics/md-qc/releases/download/v1.2.1/MDQC-Setup-1.2.1.exe)**
 (also on the [latest release](https://github.com/MassDynamics/md-qc/releases/latest)
 page), copy it to the instrument PC — a USB stick is fine — and double-click
 it. It includes its own Python and needs no internet, PowerShell or
@@ -63,7 +63,7 @@ Windows may show "Windows protected your PC": choose *More info > Run anyway*.
 is installed, as the user who uses the instrument PC:
 
 ```powershell
-Invoke-WebRequest -UseBasicParsing https://raw.githubusercontent.com/MassDynamics/md-qc/v1.2.0/scripts/install.ps1 -OutFile install.ps1
+Invoke-WebRequest -UseBasicParsing https://raw.githubusercontent.com/MassDynamics/md-qc/v1.2.1/scripts/install.ps1 -OutFile install.ps1
 powershell -ExecutionPolicy Bypass -File install.ps1
 ```
 
@@ -76,7 +76,7 @@ By hand, everything goes in one virtual environment:
 
 ```powershell
 py -3 -m venv C:\MassDynamics\mdqc
-C:\MassDynamics\mdqc\Scripts\pip install "mdqc[tray] @ https://github.com/MassDynamics/md-qc/archive/refs/tags/v1.2.0.tar.gz"
+C:\MassDynamics\mdqc\Scripts\pip install "mdqc[tray] @ https://github.com/MassDynamics/md-qc/archive/refs/tags/v1.2.1.tar.gz"
 C:\MassDynamics\mdqc\Scripts\mdqc version
 ```
 
@@ -172,10 +172,10 @@ printed at startup:
 
 ## Status
 
-**v1.2.0.** The pipeline is end-to-end on Windows: watcher, classifier,
+**v1.2.1.** The pipeline is end-to-end on Windows: watcher, classifier,
 Skyline extraction, spool, gold-standard comparison, and cloud upload to the
-Mass Dynamics platform, installed by one script that leaves it running in the
-background with a tray icon. Validated by replay tests against real acquisitions at
+Mass Dynamics platform, installed by a setup program (or one script) that
+leaves it running in the background with a tray icon. Validated by replay tests against real acquisitions at
 48/48 target recovery.
 
 Known limitations are listed in
