@@ -2,7 +2,8 @@
 
 This guide walks an operator through installing and running the
 Mass Dynamics QC Agent on an instrument acquisition PC.
-Estimated setup time: **20–30 minutes** end to end.
+Estimated setup time: **20–30 minutes** end to end. For a one-page checklist
+of what the lab needs ready beforehand, see [SITE-PREP.md](./SITE-PREP.md).
 
 ---
 
@@ -303,9 +304,9 @@ in the name, separated from the rest by `_`, `-`, `.` or a space:
 
 | Marker | What it is | Reported as |
 |---|---|---|
-| `PCD96`, `PCD384` | Process Control Digest, from a 96- or 384-well kit | `PCD`, with `kit_format` 96 or 384 |
+| `PCD96`, `PCD384` (or `PCD`) | Process Control Digest, from a 96- or 384-well kit | `PCD`, with `kit_format` 96 or 384 |
 | `SSC` | System Suitability Control | `SSC` |
-| `SSC_GOLD` | A run you intend as a gold standard | `SSC0` |
+| `SSCBASE` (or `SSCGOLD`) | A run you intend as a gold standard | `SSC0` |
 | `BLANK` | Blank injection | `BLANK` |
 
 PCD96 and PCD384 are the same control and are treated identically; the kit
@@ -328,7 +329,7 @@ gold-standard runs — and customers must not start a sample name with a QC type
 
 ## 5. Run the agent
 
-Installed with the script (§3, Option A), the agent is already running and
+Installed with the setup program or the script (§3, Options A and B), the agent is already running and
 starts by itself at every login. Open the dashboard from the tray icon or
 *Start menu > Mass Dynamics QC > MD QC Dashboard*. If it was stopped,
 *MD QC Agent* in the same folder starts it again, or from PowerShell:
@@ -356,7 +357,7 @@ Open the agent's web UI (tray icon, or the link printed at
 `service_started`). A run is only judged against a baseline you have
 recorded, so this step is what turns raw measurements into verdicts.
 
-Run your SSC0 set — 15-20 injections per SPD, at install or after a column
+Run your gold-standard set (`SSCBASE` in the name) — 15-20 injections per SPD, at install or after a column
 change — then open **Gold standards**, tick the runs that look
 representative, and **Save baseline**. The page shades any run or peptide
 that deviates from the currently-ticked set, so an equilibration outlier is
@@ -369,8 +370,8 @@ against that baseline plus a peak-area verdict.
 
 **Uploads wait for the gold standard.** With cloud upload configured, an
 instrument's runs at an SPD are held on the PC — not uploaded — until a
-baseline exists for it, and again whenever gold-standard runs (`SSCGOLD`, or
-the older `SSC0`) arrive, until they are saved as the new baseline. Every page
+baseline exists for it, and again whenever gold-standard runs (`SSCBASE`,
+`SSCGOLD`, or the older `SSC0`) arrive, until they are saved as the new baseline. Every page
 shows a red banner while anything is held. Saving the baseline re-scores the
 held runs against it and uploads them, so nothing reaches the platform compared
 against the wrong reference. Two buttons on the Gold standards page cover the
