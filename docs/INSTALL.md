@@ -110,7 +110,7 @@ With Python 3.11 or newer installed (§2), download the script for the release
 and run it:
 
 ```powershell
-Invoke-WebRequest -UseBasicParsing https://raw.githubusercontent.com/MassDynamics/md-qc/v1.2.1/scripts/install.ps1 -OutFile install.ps1
+Invoke-WebRequest -UseBasicParsing https://raw.githubusercontent.com/MassDynamics/md-qc/v1.2.2/scripts/install.ps1 -OutFile install.ps1
 powershell -ExecutionPolicy Bypass -File install.ps1
 ```
 
@@ -149,7 +149,7 @@ The same install by hand (no startup entry or shortcuts; start it as in §5):
 
 ```powershell
 py -3 -m venv C:\MassDynamics\mdqc
-C:\MassDynamics\mdqc\Scripts\pip install "mdqc[tray] @ https://github.com/MassDynamics/md-qc/archive/refs/tags/v1.2.1.tar.gz"
+C:\MassDynamics\mdqc\Scripts\pip install "mdqc[tray] @ https://github.com/MassDynamics/md-qc/archive/refs/tags/v1.2.2.tar.gz"
 ```
 
 Calling the environment's `pip` and `mdqc` by full path means you never have to
@@ -172,7 +172,7 @@ Either way you should now be able to run:
 ```powershell
 C:\MassDynamics\mdqc\Scripts\mdqc version
 ```
-and see `mdqc 1.2.1`.
+and see `mdqc 1.2.2`.
 
 How the setup program in Option A is built, tested and signed is in
 [`installer/README.md`](../installer/README.md).
@@ -443,6 +443,10 @@ To debug an installation, the most useful artefacts are:
 A simple `zip -r qc_logs.zip C:\ProgramData\MassDynamics\QC\logs\` plus the
 `spool\completed` folder is enough.
 
+These files contain instrument IDs, raw file names and paths. Send them by
+email to engineering@massdynamics.com (or to your private partner tracker),
+not as attachments to a public GitHub issue.
+
 ---
 
 ## 10. Known limitations
@@ -477,3 +481,6 @@ These are all v1.1 candidates.
 
 Questions or issues: contact engineering@massdynamics.com or open
 a GitHub issue at <https://github.com/MassDynamics/md-qc/issues>.
+GitHub issues are public: remove serial numbers, raw file names, sample and
+site names, and file paths first. Send anything that can't be made public by
+email instead, or to your private partner tracker if you have one.

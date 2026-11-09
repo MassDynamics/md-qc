@@ -3,7 +3,7 @@
 ; Built by scripts/build_installer.py, which stages MDQC with its own Python
 ; in build\installer\app and passes AppVersion and SourceDir:
 ;
-;   ISCC /DAppVersion=1.2.1 /DSourceDir=...\build\installer\app installer\mdqc.iss
+;   ISCC /DAppVersion=1.2.2 /DSourceDir=...\build\installer\app installer\mdqc.iss
 ;
 ; The result needs no Python, no PowerShell and no internet on the target PC,
 ; so it can be copied to a USB stick. By default it installs for the current

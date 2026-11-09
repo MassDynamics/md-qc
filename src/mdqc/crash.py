@@ -27,6 +27,7 @@ from mdqc.log import get_logger
 log = get_logger(__name__)
 
 GITHUB_ISSUE_URL = "https://github.com/MassDynamics/md-qc/issues/new"
+SUPPORT_EMAIL = "engineering@massdynamics.com"
 
 _installed = False
 _original_excepthook: Any = None
@@ -88,9 +89,31 @@ def _write_crash_report(report: str) -> Path | None:
         return None
 
 
-def _build_issue_url(report: str, exc_type: type[BaseException]) -> str:
+def _compose_public_issue_body(exc_type: type[BaseException]) -> str:
+    """The text prefilled into a *public* GitHub issue.
+
+    Only the agent version, Python version, platform and exception type. The
+    exception message and traceback stay in the local crash file: they can
+    carry raw file names, instrument serials, sample names and paths, which
+    must not be published without the user reviewing them first.
+    """
+    return (
+        "MD QC Agent crash\n\n"
+        f"Agent version: {_agent_version}\n"
+        f"Python version: {sys.version.split()[0]}\n"
+        f"Platform: {platform.platform()}\n"
+        f"Exception type: {exc_type.__name__}\n\n"
+        "This issue is public. The full traceback is in the crash file named "
+        "in the error dialog. Paste the parts that help, after removing "
+        "serial numbers, raw file names, sample or site names and file paths. "
+        "If the details can't be made public, email "
+        f"{SUPPORT_EMAIL} instead.\n"
+    )
+
+
+def _build_issue_url(exc_type: type[BaseException]) -> str:
     title = f"Crash: {exc_type.__name__}"
-    body = _truncate_for_url(report)
+    body = _truncate_for_url(_compose_public_issue_body(exc_type))
     return f"{GITHUB_ISSUE_URL}?title={quote(title)}&body={quote(body)}"
 
 
@@ -107,7 +130,10 @@ def _show_messagebox(crash_path: Path | None, url: str) -> bool:
         message = (
             "MD QC Agent has crashed.\n\n"
             f"Crash report: {path_str}\n\n"
-            "Open a GitHub issue with the crash details?"
+            "Open a public GitHub issue? Only the agent, Python and Windows "
+            "versions and the error type are filled in; the crash report "
+            "stays on this PC. For "
+            f"confidential details, email {SUPPORT_EMAIL} instead."
         )
         result = ctypes.windll.user32.MessageBoxW(  # type: ignore[attr-defined]
             0,
@@ -147,7 +173,7 @@ def _excepthook(
     )
 
     if _show_messagebox_enabled:
-        url = _build_issue_url(report, exc_type)
+        url = _build_issue_url(exc_type)
         _show_messagebox(crash_path, url)
 
     if _original_excepthook is not None:
@@ -174,5 +200,6 @@ def install_crash_handlers(*, log_messagebox: bool = True) -> None:
 
 __all__ = [
     "GITHUB_ISSUE_URL",
+    "SUPPORT_EMAIL",
     "install_crash_handlers",
 ]
