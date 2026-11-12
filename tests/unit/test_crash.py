@@ -3,13 +3,14 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 from typing import Any
-from urllib.parse import quote
+from urllib.parse import quote, unquote
 
 import pytest
 
 import mdqc.crash as crash_mod
 from mdqc.crash import (
     GITHUB_ISSUE_URL,
+    SUPPORT_EMAIL,
     _build_issue_url,
     _compose_crash_report,
     _excepthook,
@@ -50,14 +51,30 @@ def test_truncate_for_url_truncates_with_marker() -> None:
 
 
 def test_url_uses_urllib_quote() -> None:
-    exc_type, exc_value, tb = _fake_exc_info()
-    report = _compose_crash_report(exc_type, exc_value, tb)
-    url = _build_issue_url(report, exc_type)
+    exc_type, _exc_value, _tb = _fake_exc_info()
+    url = _build_issue_url(exc_type)
     assert url.startswith(GITHUB_ISSUE_URL + "?title=")
     expected_title = quote("Crash: ValueError")
     assert expected_title in url
-    body_part = url.split("&body=", 1)[1]
-    assert "%E2%98%83" in body_part or "%5Cu2603" in body_part or "%E2%98%83" in url
+    body = unquote(url.split("&body=", 1)[1])
+    assert "Exception type: ValueError" in body
+    assert "Agent version:" in body
+
+
+def test_public_issue_url_omits_message_and_traceback() -> None:
+    """The prefilled public issue must not leak the exception message or the
+    traceback, which can carry raw file names, serials and paths."""
+    try:
+        raise RuntimeError(r"cannot read C:\Data\SN12345_HeLa_customer.raw")
+    except RuntimeError as exc:
+        exc_type = type(exc)
+    url = _build_issue_url(exc_type)
+    decoded = unquote(url)
+    assert "SN12345" not in decoded
+    assert "customer" not in decoded
+    assert "Traceback" not in decoded
+    assert "test_crash.py" not in decoded
+    assert SUPPORT_EMAIL in decoded
 
 
 def test_install_crash_handlers_idempotent(monkeypatch: pytest.MonkeyPatch) -> None:

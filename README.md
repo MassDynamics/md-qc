@@ -1,7 +1,7 @@
 # MD QC Agent
 
 [![Latest release](https://img.shields.io/github/v/release/MassDynamics/md-qc?label=latest&color=blue)](https://github.com/MassDynamics/md-qc/releases/latest)
-[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](./LICENSE)
 
 **Automated quality-control monitoring for mass-spectrometry instruments.**
 
@@ -11,7 +11,7 @@ QC payload — designed for operators who want to spot chromatography drift,
 calibration shifts, and sample-prep issues *before* they contaminate weeks of
 data.
 
-Built by [Mass Dynamics](https://massdynamics.com). MIT-licensed.
+Built by [Mass Dynamics](https://massdynamics.com). Licensed under Apache-2.0.
 
 ![The agent's web UI](./docs/images/dashboard.png)
 *The agent's own web UI: service state, upload queue, configured instruments,
@@ -50,7 +50,7 @@ one-page checklist of what to have ready, the install steps, file naming and
 recording the baseline.
 
 **Easiest — the setup program.** Download
-**[MDQC-Setup-1.2.1.exe](https://github.com/MassDynamics/md-qc/releases/download/v1.2.1/MDQC-Setup-1.2.1.exe)**
+**[MDQC-Setup-1.2.2.exe](https://github.com/MassDynamics/md-qc/releases/download/v1.2.2/MDQC-Setup-1.2.2.exe)**
 (also on the [latest release](https://github.com/MassDynamics/md-qc/releases/latest)
 page), copy it to the instrument PC — a USB stick is fine — and double-click
 it. It includes its own Python and needs no internet, PowerShell or
@@ -63,7 +63,7 @@ Windows may show "Windows protected your PC": choose *More info > Run anyway*.
 is installed, as the user who uses the instrument PC:
 
 ```powershell
-Invoke-WebRequest -UseBasicParsing https://raw.githubusercontent.com/MassDynamics/md-qc/v1.2.1/scripts/install.ps1 -OutFile install.ps1
+Invoke-WebRequest -UseBasicParsing https://raw.githubusercontent.com/MassDynamics/md-qc/v1.2.2/scripts/install.ps1 -OutFile install.ps1
 powershell -ExecutionPolicy Bypass -File install.ps1
 ```
 
@@ -76,7 +76,7 @@ By hand, everything goes in one virtual environment:
 
 ```powershell
 py -3 -m venv C:\MassDynamics\mdqc
-C:\MassDynamics\mdqc\Scripts\pip install "mdqc[tray] @ https://github.com/MassDynamics/md-qc/archive/refs/tags/v1.2.1.tar.gz"
+C:\MassDynamics\mdqc\Scripts\pip install "mdqc[tray] @ https://github.com/MassDynamics/md-qc/archive/refs/tags/v1.2.2.tar.gz"
 C:\MassDynamics\mdqc\Scripts\mdqc version
 ```
 
@@ -172,7 +172,7 @@ printed at startup:
 
 ## Status
 
-**v1.2.1.** The pipeline is end-to-end on Windows: watcher, classifier,
+**v1.2.2.** The pipeline is end-to-end on Windows: watcher, classifier,
 Skyline extraction, spool, gold-standard comparison, and cloud upload to the
 Mass Dynamics platform, installed by a setup program (or one script) that
 leaves it running in the background with a tray icon. Validated by replay tests against real acquisitions at
@@ -241,11 +241,25 @@ src/mdqc/
 
 ## License
 
-[MIT](./LICENSE) — free to use, modify, and redistribute, including
-commercially. Attribution appreciated.
+[Apache License 2.0](./LICENSE) — free to use, modify, and redistribute,
+including commercially, with an explicit patent grant. Keep the
+[NOTICE](./NOTICE) file with any redistribution. Releases up to and including
+v1.2.1 were published under MIT.
 
 ---
 
 ## Contact
 
 engineering@massdynamics.com
+
+### Reporting issues
+
+[GitHub issues](https://github.com/MassDynamics/md-qc/issues) are public.
+Before posting, remove anything you would not want published: instrument
+serial numbers, raw file names, sample names, customer or site names, and
+file paths. Crash reports and logs often contain these.
+
+If the details can't be made public, email engineering@massdynamics.com
+instead. Partners who have been given a private issue tracker should file
+there. Fixes are still made in this public repository. For security issues,
+see [SECURITY.md](./SECURITY.md).

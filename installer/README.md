@@ -27,7 +27,7 @@ every run and attaches it to each GitHub release.
 | After install | Writes an empty `config.toml` if there is none, starts the agent and opens the dashboard |
 | Uninstall | Stops the agent and removes the program, shortcuts and startup entry. Configuration and results in `C:\ProgramData\MassDynamics\QC` are kept |
 
-Silent install for IT: `MDQC-Setup-1.2.1.exe /VERYSILENT /CURRENTUSER` (or
+Silent install for IT: `MDQC-Setup-1.2.2.exe /VERYSILENT /CURRENTUSER` (or
 `/ALLUSERS`). It starts the agent without opening a browser.
 
 ## Building it
