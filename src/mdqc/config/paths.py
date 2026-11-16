@@ -162,8 +162,13 @@ def bundled_assets_dir() -> Path:
 def ensure_bundled_assets() -> None:
     """Copy the bundled Skyline template + report into methods_dir() if not present.
 
-    Mirrors the Rust agent's first-run installation behaviour. Overwrite if the
-    bundled version is newer (compare mtime).
+    Never overwrites a working file. A site that keeps its own panel under the
+    bundled name must not have it replaced by an upgrade, whose files are
+    newer by mtime.
+
+    The one exception is the template shipped up to v1.2.1. It listed its
+    peptides but no transitions, so it found no target in any file. A copy of
+    that is set aside and replaced.
     """
     import shutil
 
@@ -172,8 +177,21 @@ def ensure_bundled_assets() -> None:
     methods.mkdir(parents=True, exist_ok=True)
     for name in ("QC_Method.sky", "MD_QC_Report.skyr"):
         bundled = src / name
+        target = methods / name
         if not bundled.exists():
             continue
-        target = methods / name
-        if not target.exists() or bundled.stat().st_mtime > target.stat().st_mtime:
+        if not target.exists():
             shutil.copy2(bundled, target)
+        elif name.endswith(".sky") and _has_no_transitions(target) and not _has_no_transitions(
+            bundled
+        ):
+            target.replace(target.with_name(f"{target.stem}.no-transitions.bak"))
+            shutil.copy2(bundled, target)
+
+
+def _has_no_transitions(template: Path) -> bool:
+    """True for a Skyline document that defines nothing to extract."""
+    try:
+        return b"<transition " not in template.read_bytes()
+    except OSError:
+        return False

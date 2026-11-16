@@ -46,6 +46,23 @@ def _resolve_spd(requested: str | None, available: list[int]) -> int | None:
     return available[0] if available else None
 
 
+MIN_BASELINE_RUNS_ADVISED = 3
+"""Below this a saved baseline carries a warning. Not a block: the site
+decides how many runs make its reference."""
+
+
+def _runs_without_targets(
+    instrument_id: str | None, spd: int | None, run_ids: list[str]
+) -> list[str]:
+    """File names of the selected runs in which no target was detected."""
+    chosen = set(run_ids)
+    return [
+        str(r.get("raw_file_name") or r["run_id"])
+        for r in gs.list_ssc0_runs(instrument_id, spd)
+        if r["run_id"] in chosen and r.get("targets_found") == 0
+    ]
+
+
 async def _page_context(
     request: Request,
     instrument_id: str | None,
@@ -53,6 +70,8 @@ async def _page_context(
     saved: bool = False,
     error: str | None = None,
     released: int | None = None,
+    notice: str | None = None,
+    warning: str | None = None,
 ) -> dict[str, Any]:
     state = get_state(request)
     cfg = state.cfg
@@ -100,6 +119,8 @@ async def _page_context(
             "rt_dev_pct_max": th.rt_deviation_pct_max,
             "saved": saved,
             "error": error,
+            "notice": notice,
+            "warning": warning,
             "gate_enabled": upload_gate.enabled(cfg),
             "gate_reason": gate_reason,
             "gate_reason_text": upload_gate.REASON_TEXT.get(gate_reason or "", ""),
@@ -135,7 +156,7 @@ async def gold_standards_delete_run(request: Request) -> HTMLResponse:
     removed = gs.delete_ssc0_run(instrument_id, spd, run_id)
     ctx = await _page_context(
         request, instrument_id, spd,
-        saved=removed,
+        notice="Run removed from this page." if removed else None,
         error=None if removed else "That run was not found.",
     )
     return get_templates(request).TemplateResponse(request, "gold_standards/index.html", ctx)
@@ -150,9 +171,17 @@ async def gold_standards_delete_baseline(request: Request) -> HTMLResponse:
     spd = _parse_spd(form.get("spd"))
     baseline_id = str(form.get("baseline_id") or "")
     removed = gs.delete_baseline(instrument_id, spd, baseline_id)
+    notice: str | None = None
+    if removed:
+        now_active = gs.get_active_baseline(instrument_id, spd)
+        notice = (
+            f"Baseline deleted. \"{now_active.get('label')}\" is now the active baseline."
+            if now_active
+            else "Baseline deleted. There is no active baseline at this SPD now."
+        )
     ctx = await _page_context(
         request, instrument_id, spd,
-        saved=removed,
+        notice=notice,
         error=None if removed else "That baseline was not found.",
     )
     return get_templates(request).TemplateResponse(request, "gold_standards/index.html", ctx)
@@ -170,12 +199,34 @@ async def gold_standards_save(request: Request) -> HTMLResponse:
     run_ids = [str(r) for r in form.getlist("run_id")]
 
     error: str | None = None
+    warning: str | None = None
     saved = False
+    empty = _runs_without_targets(instrument_id, spd, run_ids)
     if not run_ids:
         error = "Select at least one SSC run before saving a baseline."
+    elif empty:
+        # Extraction "succeeded" on these but found no peptides, usually a
+        # method that does not match the template. A baseline built on them
+        # has no values, and every later comparison comes out blank.
+        error = (
+            "No targets were found in "
+            + ", ".join(empty)
+            + ", so a baseline cannot include "
+            + ("it" if len(empty) == 1 else "them")
+            + ". Untick "
+            + ("it" if len(empty) == 1 else "them")
+            + ", or check the acquisition method against the Skyline template."
+        )
     else:
         gs.save_baseline(instrument_id, spd, run_ids, label, cfg.peptide_classes)
         saved = True
+        if len(run_ids) < MIN_BASELINE_RUNS_ADVISED:
+            warning = (
+                f"This baseline rests on {len(run_ids)} run"
+                f"{'s' if len(run_ids) != 1 else ''}. With fewer than "
+                f"{MIN_BASELINE_RUNS_ADVISED} there is no measure of normal "
+                "run-to-run variation; replace it once more SSC runs are in."
+            )
 
     # A new baseline is what held runs were waiting for: re-score them
     # against it and let them upload.
@@ -185,7 +236,8 @@ async def gold_standards_save(request: Request) -> HTMLResponse:
 
     templates = get_templates(request)
     ctx = await _page_context(
-        request, instrument_id, spd, saved=saved, error=error, released=released
+        request, instrument_id, spd, saved=saved, error=error, released=released,
+        warning=warning,
     )
     return templates.TemplateResponse(request, "gold_standards/index.html", ctx)
 

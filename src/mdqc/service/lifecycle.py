@@ -55,6 +55,7 @@ log = logging.getLogger(__name__)
 
 EVENT_EXTRACTION_STARTED = "extraction_started"
 EVENT_EXTRACTION_COMPLETED = "extraction_completed"
+EVENT_FILE_SKIPPED = "file_skipped"
 EVENT_EXTRACTION_FAILED = "extraction_failed"
 EVENT_UPLOAD_SUCCEEDED = "upload_succeeded"
 EVENT_UPLOAD_FAILED = "upload_failed"
@@ -269,7 +270,7 @@ def build_api(state: AppState) -> FastAPI:
                 vendor = _vendor_for_path(state, Path(entry.path))
                 if vendor is None:
                     continue
-                await state.finalizer.observe(Path(entry.path), vendor)
+                await state.finalizer.observe(Path(entry.path), vendor, force=True)
                 count += 1
             return {"count": count}
         vendor = _vendor_for_path(state, Path(path_raw))
@@ -277,7 +278,7 @@ def build_api(state: AppState) -> FastAPI:
             raise HTTPException(
                 status_code=400, detail=f"no instrument matches path {path_raw}"
             )
-        await state.finalizer.observe(Path(path_raw), vendor)
+        await state.finalizer.observe(Path(path_raw), vendor, force=True)
         return {"count": 1}
 
     @app.post("/api/failed/clear")
@@ -421,6 +422,12 @@ def _log_templates_newer_than_skyline(cfg: Config, skyline_version: str | None) 
 
 async def _build_state(cfg: Config) -> AppState:
     paths.ensure_dirs()
+    # Without this a fresh install has an empty methods folder and its first
+    # QC run fails with "template not found".
+    try:
+        paths.ensure_bundled_assets()
+    except OSError as exc:
+        log.error("bundled_assets_copy_failed", extra={"error": str(exc)})
 
     config_path = paths.config_path()
     agent_id = resolve_agent_id(
@@ -533,10 +540,13 @@ async def _build_state(cfg: Config) -> AppState:
                         instrument_id=instrument_id,
                         timestamp=datetime.now(UTC),
                         result=ExtractionStatus.SKIPPED,
+                        detail="not a QC run",
                     )
                 )
+                # Its own event: a skipped sample is not a completed
+                # extraction, and the tray raised a toast saying it was.
                 state.events_pubsub.publish(
-                    EVENT_EXTRACTION_COMPLETED,
+                    EVENT_FILE_SKIPPED,
                     {
                         "path": str(path),
                         "instrument_id": instrument_id,
@@ -583,6 +593,9 @@ async def _build_state(cfg: Config) -> AppState:
                 held=held,
             )
             record_ssc0_run(classification, extraction_result)
+            # A file that failed earlier and has now gone through is no
+            # longer a failed file.
+            state.failed.remove(str(path))
 
             run_metrics = extraction_result.run_metrics
             state.activity.record(
@@ -925,6 +938,7 @@ __all__ = [
     "EVENT_EXTRACTION_COMPLETED",
     "EVENT_EXTRACTION_FAILED",
     "EVENT_EXTRACTION_STARTED",
+    "EVENT_FILE_SKIPPED",
     "EVENT_PAUSED",
     "EVENT_RESUMED",
     "EVENT_UPDATE_AVAILABLE",

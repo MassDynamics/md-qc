@@ -25,6 +25,8 @@ class ActivityEntry:
     targets_expected: int | None = None
     extraction_time_ms: int | None = None
     error: str | None = None
+    # Why a file was skipped, e.g. "not a QC run".
+    detail: str | None = None
 
     def to_dict(self) -> dict[str, object]:
         d = asdict(self)
@@ -56,6 +58,7 @@ class ActivityEntry:
             targets_expected=_opt_int(data.get("targets_expected")),
             extraction_time_ms=_opt_int(data.get("extraction_time_ms")),
             error=data.get("error") if isinstance(data.get("error"), str) else None,  # type: ignore[arg-type]
+            detail=data.get("detail") if isinstance(data.get("detail"), str) else None,  # type: ignore[arg-type]
         )
 
 
@@ -109,6 +112,7 @@ class ActivityLog:
                     targets_expected=e.targets_expected,
                     extraction_time_ms=e.extraction_time_ms,
                     error=e.error,
+                    detail=e.detail,
                 )
                 for e in slice_
             ]

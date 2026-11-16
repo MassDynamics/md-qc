@@ -70,6 +70,18 @@ class Vendor(StrEnum):
         """Bruker .d, Waters .raw, Agilent .d are directories. Thermo .raw, Sciex .wiff are files."""
         return self in (Vendor.BRUKER, Vendor.WATERS, Vendor.AGILENT)
 
+    @property
+    def default_file_pattern(self) -> str:
+        """The vendor's acquisition extension. "*" picked up every file in the
+        watch folder, including a README."""
+        return {
+            Vendor.THERMO: "*.raw",
+            Vendor.BRUKER: "*.d",
+            Vendor.SCIEX: "*.wiff",
+            Vendor.WATERS: "*.raw",
+            Vendor.AGILENT: "*.d",
+        }[self]
+
 
 class Confidence(StrEnum):
     HIGH = "HIGH"

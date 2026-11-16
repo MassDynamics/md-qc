@@ -69,6 +69,13 @@ def _measure(path: Path, vendor: Vendor) -> tuple[int, float]:
 
 ProcessedCallback = Callable[[Path, Vendor], Awaitable[None]]
 
+MAX_AUTO_ATTEMPTS = 3
+"""How many times a file is extracted unprompted before it waits for Retry.
+
+A few, because some failures pass on their own (a share that dropped, a
+Skyline licence dialog); bounded, because the folder scan used to hand a
+failing file back every interval and Skyline ran on it for ever."""
+
 
 class Finalizer:
     def __init__(
@@ -88,6 +95,9 @@ class Finalizer:
         # with one line per event for a file that is never going to be
         # processed.
         self._skip_logged: set[Path] = set()
+        # Paths whose extraction failed: the file's (size, mtime) then, and
+        # how many attempts it has had. See MAX_AUTO_ATTEMPTS.
+        self._failed: dict[Path, tuple[tuple[int, float], int]] = {}
 
     async def observe(self, path: Path, vendor: Vendor, *, force: bool = False) -> bool:
         """Track a file. Returns True when it was accepted for processing.
@@ -100,6 +110,7 @@ class Finalizer:
             if force:
                 self._trackers.pop(path, None)
                 self._skip_logged.discard(path)
+                self._failed.pop(path, None)
                 existing = None
             elif existing is not None and existing.state in {
                 FinalizationState.DONE,
@@ -107,6 +118,13 @@ class Finalizer:
                 FinalizationState.PROCESSING,
             }:
                 return False
+            elif path in self._failed:
+                signature, attempts = self._failed[path]
+                if _measure(path, vendor) != signature:
+                    # Copied in again or still being written: a new file.
+                    del self._failed[path]
+                elif attempts >= MAX_AUTO_ATTEMPTS:
+                    return False
             if not force and self._registry.contains(path):
                 # Correct behaviour — this file has been processed before and
                 # must not be processed twice. But returning silently means a
@@ -121,8 +139,8 @@ class Finalizer:
                         extra={
                             "path": str(path),
                             "hint": (
-                                "clear the processed-file registry in Settings to "
-                                "reprocess this file"
+                                "already processed, so not run again; to run one "
+                                "file again use: mdqc reprocess file <path>"
                             ),
                         },
                     )
@@ -165,6 +183,10 @@ class Finalizer:
             tracker.state = FinalizationState.FAILED
             tracker.failure_reason = reason
             self._trackers.pop(path, None)
+            signature = _measure(path, tracker.vendor)
+            previous = self._failed.get(path)
+            attempts = previous[1] + 1 if previous and previous[0] == signature else 1
+            self._failed[path] = (signature, attempts)
 
     async def tick(self) -> None:
         ready_calls: list[tuple[Path, Vendor]] = []

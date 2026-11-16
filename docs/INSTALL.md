@@ -29,7 +29,7 @@ optional: without a token the agent is a complete local QC monitor.
 
 ### Hardware / OS
 - **Windows 10 or 11** (the agent is Windows-tested)
-- ~**2 GB free disk** (spectral libraries ~210 MB, spool grows ~5 KB per payload)
+- ~**2 GB free disk** (the spool grows ~5 KB per payload)
 - No administrator rights needed with the setup program (§3, Option A), unless
   you install for all users
 
@@ -66,12 +66,12 @@ Should print the resolved path. If it prints `NOT FOUND`, fix that before
 starting the agent — extraction will fail on every file otherwise.
 
 ### Files you provide (or that ship with the agent)
-- A populated Skyline document directory containing:
-  - `<template>.sky` — the QC method (5- or 48-peptide K562/HeLa)
-  - `Zoom200SPD200ngAstral_*.blib`
-  - `Zoom300SPD50ngAstral_*.blib`
-  - `Zoom500SPD200ngAstral_*.blib`
+- `QC_Method.sky` — the QC method. A 48-peptide HeLa method ships with the
+  agent. It extracts MS1 peak areas only, so it needs no spectral libraries
+  and does not depend on your DIA isolation windows.
 - `MD_QC_Report.skyr` — the report definition (ships with the agent)
+- Only if you use a different panel: your own `.sky` file, plus any
+  spectral libraries (`.blib`) it refers to
 
 ---
 
@@ -185,20 +185,21 @@ The agent stores its data under `C:\ProgramData\MassDynamics\QC\`.
 Three things to set up there:
 
 ### 4a. The Skyline method folder
-Create `C:\ProgramData\MassDynamics\QC\methods\` if it doesn't exist,
-and copy the following files into it:
+The agent creates `C:\ProgramData\MassDynamics\QC\methods\` the first time
+it starts and puts two files there:
 
 | File | Purpose |
 |------|---------|
-| `QC_Method.sky`                       | Skyline document with target peptides |
-| `Zoom200SPD200ngAstral_6328.blib`     | Spectral library for Whisper 200 SPD |
-| `Zoom300SPD50ngAstral_6329_6323.blib` | Spectral library for Whisper 300 SPD |
-| `Zoom500SPD200ngAstral_6321.blib`     | Spectral library for Whisper 500 SPD |
-| `MD_QC_Report.skyr`                   | Report column definition |
+| `QC_Method.sky`     | Skyline document with the 48 target peptides |
+| `MD_QC_Report.skyr` | Report column definition |
 
-> **Important.** The `.blib` files MUST live in the same folder as
-> `QC_Method.sky` — Skyline resolves library paths relative to the
-> document file's directory.
+A file already in the folder is left alone, so an upgrade never replaces a
+method you have changed. To use your own panel, copy your `.sky` file here
+and name it as the instrument's template under *Settings*.
+
+> **Important.** If your method uses spectral libraries, the `.blib` files
+> MUST live in the same folder as the `.sky` file — Skyline resolves library
+> paths relative to the document file's directory.
 
 ### 4b. The agent config — `config.toml`
 Create `C:\ProgramData\MassDynamics\QC\config.toml` with this content,
@@ -404,7 +405,7 @@ the acquisition. See *Troubleshooting* below.
 | Symptom | Likely cause | Fix |
 |---------|--------------|-----|
 | Dashboard shows "No `*_payload.json` files found" and the log has repeated `processed_callback_failed: SkylineNotFound: SkylineCmd.exe not found` | Skyline isn't installed at any default location and `[skyline].path` isn't set in config | Install Skyline at default path, OR add `[skyline] path = "C:\\path\\to\\SkylineCmd.exe"` to `config.toml`. Verify with the `find_skyline` snippet in §2 |
-| `0/48 targets found` on every run | Skyline template doesn't match acquisition method | Open `QC_Method.sky` in Skyline GUI, drag in one raw file, confirm peaks ARE found there. If not, the libraries are wrong-method (e.g., 200 SPD libraries vs 500 SPD acquisition) |
+| `0/48` targets, shown in red, on every run | The Skyline method doesn't match the sample or the acquisition. A `QC_Method.sky` copied from a v1.2.1 install had no transitions and always gave `0/43`; the agent now replaces that file when it starts | Open the method in the Skyline GUI, drag in one raw file, and confirm peaks are found there. If your method uses libraries, check they match the SPD |
 | Log shows `skyr_column_not_found`, and Diagnostics says runs "used the file mtime" | The report's Acquired Time column path doesn't exist for the report's row source. `Results!*.Value.PeptideResult.ResultFile.AcquiredTime` works in a precursor-level report like the one that ships; a peptide-level report needs a different path. Skyline writes `#COLUMN … NOT FOUND#` instead of failing | Add **Acquired Time** with Skyline's report editor rather than pasting a path — Skyline then writes the one that fits. Each payload's `acquisition_time_source` says `instrument` once it works |
 | Agent log says `MD_QC_Report does not exist` | `MD_QC_Report.skyr` missing from `methods/` | Copy it in. It ships with the agent under `src/mdqc/methods/`. |
 | Skyline error: `file is being used by another process` | Concurrent Skyline runs writing to the same `.skyd` cache | Already handled in code via per-extraction temp dir + library hardlinking. If you still see this, kill all stuck `SkylineCmd.exe` processes via Task Manager and restart the agent. |
@@ -473,7 +474,7 @@ These are all v1.1 candidates.
 | Path | What's there |
 |------|--------------|
 | `C:\ProgramData\MassDynamics\QC\config.toml`    | Agent config |
-| `C:\ProgramData\MassDynamics\QC\methods\`       | Skyline template + libraries + report |
+| `C:\ProgramData\MassDynamics\QC\methods\`       | Skyline template + report (+ libraries, if your method uses them) |
 | `C:\ProgramData\MassDynamics\QC\spool\completed\` | Per-run JSON payloads |
 | `C:\ProgramData\MassDynamics\QC\gold_standards\` | SSC0 run index + saved gold-standard baselines (Web UI → Gold standards) |
 | `C:\ProgramData\MassDynamics\QC\logs\mdqc.log`  | Agent log (JSONL) |

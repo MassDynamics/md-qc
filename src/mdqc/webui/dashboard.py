@@ -112,29 +112,31 @@ async def _dashboard_context(request: Request) -> dict[str, Any]:
     return ctx
 
 
-@router.get("/", response_class=HTMLResponse)
-async def root(request: Request) -> HTMLResponse:
+async def _dashboard_or_wizard(request: Request) -> HTMLResponse:
     state = get_state(request)
     cfg = getattr(state, "cfg", None)
+    templates = get_templates(request)
     if cfg is None or not cfg.instruments:
-        templates = get_templates(request)
         ctx = common_context(request)
         from mdqc.webui.wizard import _step_context
 
         ctx.update(_step_context(request, 1))
         return templates.TemplateResponse(request, "wizard/index.html", ctx)
-    templates = get_templates(request)
     return templates.TemplateResponse(
         request, "dashboard/index.html", await _dashboard_context(request)
     )
+
+
+@router.get("/", response_class=HTMLResponse)
+async def root(request: Request) -> HTMLResponse:
+    return await _dashboard_or_wizard(request)
 
 
 @router.get("/dashboard", response_class=HTMLResponse)
 async def dashboard(request: Request) -> HTMLResponse:
-    templates = get_templates(request)
-    return templates.TemplateResponse(
-        request, "dashboard/index.html", await _dashboard_context(request)
-    )
+    # Setup, the tray and the Start menu all open /dashboard, so the first-run
+    # wizard has to show here too; on "/" alone nobody ever saw it.
+    return await _dashboard_or_wizard(request)
 
 
 @router.get("/dashboard/status", response_class=HTMLResponse)

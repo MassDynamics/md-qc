@@ -210,7 +210,7 @@
         <div>
           <input type="text" name="file_pattern_{{ ic.idx }}"
                  value="{{ ic.inst.file_pattern }}" placeholder="*.raw">
-          <div class="field-hint">Glob pattern for files to pick up (e.g. <code>*.raw</code>, <code>*.d</code>).</div>
+          <div class="field-hint">Which files to pick up. Leave blank for the vendor's own type (<code>*.raw</code> for Thermo, <code>*.d</code> for Bruker).</div>
         </div>
       </div>
 
@@ -272,8 +272,8 @@
       <div class="field-row">
         <label>File pattern</label>
         <div>
-          <input type="text" name="file_pattern_0" value="*" placeholder="*.raw">
-          <div class="field-hint">Glob pattern for files to pick up (e.g. <code>*.raw</code>, <code>*.d</code>).</div>
+          <input type="text" name="file_pattern_0" value="" placeholder="*.raw">
+          <div class="field-hint">Which files to pick up. Leave blank for the vendor's own type (<code>*.raw</code> for Thermo, <code>*.d</code> for Bruker).</div>
         </div>
       </div>
 
@@ -641,8 +641,8 @@ function addInstrument() {
     <div class="field-row">
       <label>File pattern</label>
       <div>
-        <input type="text" name="file_pattern_${idx}" value="*" placeholder="*.raw">
-        <div class="field-hint">Glob pattern for files to pick up (e.g. <code>*.raw</code>, <code>*.d</code>).</div>
+        <input type="text" name="file_pattern_${idx}" value="" placeholder="*.raw">
+        <div class="field-hint">Which files to pick up. Leave blank for the vendor's own type (<code>*.raw</code> for Thermo, <code>*.d</code> for Bruker).</div>
       </div>
     </div>
 
