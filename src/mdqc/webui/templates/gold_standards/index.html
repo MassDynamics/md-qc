@@ -18,6 +18,7 @@
   .banner { padding:0.5rem 0.75rem; margin-bottom:1rem; font-size:0.9em; }
   .banner.ok  { background:#eef8ee; border:1px solid var(--good); color:var(--good); }
   .banner.bad { background:#fdf0f0; border:1px solid var(--bad);  color:var(--bad); }
+  .banner.warn { background:#fff8e6; border:1px solid #b7791f; color:#8a5a00; }
   .upload-gate { display:flex; gap:0.75rem; align-items:center; justify-content:space-between; padding:0.5rem 0.75rem; margin:0.5rem 0 1rem; font-size:0.9em; border:1px solid var(--rule, #ddd); }
   .upload-gate.held { background:#fdf0f0; border-color:var(--bad); }
 
@@ -82,6 +83,8 @@
 
 {% if saved %}<div class="banner ok">&#10003; Baseline saved and set active.{% if released %} {{ released }} held run{{ "s" if released != 1 }} re-scored against it and released for upload.{% endif %}</div>{% endif %}
 {% if released and not saved %}<div class="banner ok">&#10003; {{ released }} held run{{ "s" if released != 1 }} released for upload as {{ "they were" if released != 1 else "it was" }}.</div>{% endif %}
+{% if notice %}<div class="banner ok">&#10003; {{ notice }}</div>{% endif %}
+{% if warning %}<div class="banner warn">{{ warning }}</div>{% endif %}
 {% if error %}<div class="banner bad">&#10007; {{ error }}</div>{% endif %}
 
 {% if not instrument_id %}

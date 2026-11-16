@@ -16,12 +16,14 @@
       <td>{{ a.timestamp.isoformat(timespec="seconds") if a.timestamp else "" }}</td>
       <td>{{ a.instrument_id or "" }}</td>
       <td><code>{{ a.path }}</code></td>
-      <td class="{% if a.result.value == 'SUCCESS' %}ok{% elif a.result.value == 'FAILED' %}bad{% else %}warn{% endif %}">
-        {{ a.result.value if a.result.value is defined else a.result }}
+      {# Extraction ran but found nothing: not a pass, so not green. #}
+      {% set no_targets = a.result.value == 'SUCCESS' and a.targets_found == 0 %}
+      <td class="{% if no_targets %}bad{% elif a.result.value == 'SUCCESS' %}ok{% elif a.result.value == 'FAILED' %}bad{% else %}warn{% endif %}">
+        {{ a.result.value if a.result.value is defined else a.result }}{% if a.detail %} &mdash; {{ a.detail }}{% endif %}
       </td>
-      <td>
+      <td{% if no_targets %} class="bad"{% endif %}>
         {% if a.targets_found is not none and a.targets_expected is not none %}
-        {{ a.targets_found }} / {{ a.targets_expected }}
+        {{ a.targets_found }} / {{ a.targets_expected }}{% if no_targets %} &mdash; no targets found; check the method against the template{% endif %}
         {% endif %}
       </td>
       <td>{% if a.extraction_time_ms %}{{ a.extraction_time_ms }} ms{% endif %}</td>

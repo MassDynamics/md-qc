@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <srm_settings format_version="25.11" software_version="Skyline-daily (64-bit) 26.0.9.032 (e672b40dd)">
   <settings_summary name="Default">
     <peptide_settings>
@@ -8,7 +8,8 @@
       <peptide_filter start="25" min_length="8" max_length="25" auto_select="true">
         <peptide_exclusions />
       </peptide_filter>
-      <peptide_libraries pick="filter" />
+      <peptide_libraries pick="both">
+      </peptide_libraries>
       <peptide_modifications max_variable_mods="3" max_neutral_losses="1">
         <static_modifications>
           <static_modification name="Carbamidomethyl (C)" aminoacid="C" formula="H3C2NO" unimod_id="4" short_name="CAM" />
@@ -338,143 +339,2393 @@
         </isolation_scheme>
       </transition_full_scan>
     </transition_settings>
-    <data_settings audit_logging="false" />
+    <data_settings document_guid="10114e93-cada-4e1f-b809-dfebeed767c8" audit_logging="true">
+      <annotation name="Inter-SPD comparison" targets="replicate" type="value_list">
+        <value>a. 500SPD</value>
+        <value>b. 300SPD</value>
+        <value>c. 200SPD</value>
+        <value>d. 100SPD</value>
+        <value>e. 60SPD</value>
+      </annotation>
+    </data_settings>
   </settings_summary>
-  <peptide_list label_name="HeLa_50common_QC" auto_manage_children="false">
-    <peptide auto_manage_children="true" sequence="AAVPSGASTGIYEALELR" modified_sequence="AAVPSGASTGIYEALELR" calc_neutral_pep_mass="1803.936680" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="1803.936680" precursor_mz="902.975616" auto_manage_children="true" collision_energy="0" modified_sequence="AAVPSGASTGIYEALELR" />
+  <peptide_list label_name="peptides1" websearch_status="X#Upeptides1" auto_manage_children="false">
+    <peptide sequence="YRPGTVALR" modified_sequence="YRPGTVALR" calc_neutral_pep_mass="1031.587613" num_missed_cleavages="0" avg_measured_retention_time="1.48723423">
+      <note category="4">Good responder</note>
+      <precursor charge="2" calc_neutral_mass="1031.587613" precursor_mz="516.801083" auto_manage_children="false" collision_energy="0" modified_sequence="YRPGTVALR">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.5507894">
+          <precursor_mz>516.801083</precursor_mz>
+          <product_mz>516.801083</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.3166667">
+          <precursor_mz>516.801083</precursor_mz>
+          <product_mz>517.302489</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.102204517">
+          <precursor_mz>516.801083</precursor_mz>
+          <product_mz>517.803799</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="7" calc_neutral_mass="712.423174" product_charge="1" cleavage_aa="P">
+          <precursor_mz>516.801083</precursor_mz>
+          <product_mz>713.43045</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="6" calc_neutral_mass="615.37041" product_charge="1" cleavage_aa="G">
+          <precursor_mz>516.801083</precursor_mz>
+          <product_mz>616.377686</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="7" calc_neutral_mass="712.423174" product_charge="2" cleavage_aa="P">
+          <precursor_mz>516.801083</precursor_mz>
+          <product_mz>357.218863</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="6" calc_neutral_mass="673.35476" product_charge="1" cleavage_aa="V">
+          <precursor_mz>516.801083</precursor_mz>
+          <product_mz>674.362036</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="7" calc_neutral_mass="744.391873" product_charge="1" cleavage_aa="A">
+          <precursor_mz>516.801083</precursor_mz>
+          <product_mz>745.399149</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="7" calc_neutral_mass="744.391873" product_charge="2" cleavage_aa="A">
+          <precursor_mz>516.801083</precursor_mz>
+          <product_mz>373.203213</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="AGGPTTPLSPTR" modified_sequence="AGGPTTPLSPTR" calc_neutral_pep_mass="1153.609139" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="1153.609139" precursor_mz="577.811846" auto_manage_children="true" collision_energy="0" modified_sequence="AGGPTTPLSPTR" />
+    <peptide sequence="AGFAGDDAPR" modified_sequence="AGFAGDDAPR" calc_neutral_pep_mass="975.441009" num_missed_cleavages="0" avg_measured_retention_time="1.42967176">
+      <precursor charge="2" calc_neutral_mass="975.441009" precursor_mz="488.72778" auto_manage_children="false" collision_energy="0" modified_sequence="AGFAGDDAPR">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.583011448">
+          <precursor_mz>488.72778</precursor_mz>
+          <product_mz>488.72778</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.298275">
+          <precursor_mz>488.72778</precursor_mz>
+          <product_mz>489.229193</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.0921096653">
+          <precursor_mz>488.72778</precursor_mz>
+          <product_mz>489.730464</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="7" calc_neutral_mass="700.314017" product_charge="1" cleavage_aa="A">
+          <precursor_mz>488.72778</precursor_mz>
+          <product_mz>701.321293</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="6" calc_neutral_mass="629.276903" product_charge="1" cleavage_aa="G">
+          <precursor_mz>488.72778</precursor_mz>
+          <product_mz>630.284179</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="5" calc_neutral_mass="572.25544" product_charge="1" cleavage_aa="D">
+          <precursor_mz>488.72778</precursor_mz>
+          <product_mz>573.262716</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="4" calc_neutral_mass="457.228496" product_charge="1" cleavage_aa="D">
+          <precursor_mz>488.72778</precursor_mz>
+          <product_mz>458.235772</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="8" calc_neutral_mass="847.382431" product_charge="2" cleavage_aa="F">
+          <precursor_mz>488.72778</precursor_mz>
+          <product_mz>424.698492</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="3" calc_neutral_mass="275.126991" product_charge="1" cleavage_aa="F">
+          <precursor_mz>488.72778</precursor_mz>
+          <product_mz>276.134267</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="AGTGVDNVDLEAATR" modified_sequence="AGTGVDNVDLEAATR" calc_neutral_pep_mass="1487.721602" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="1487.721602" precursor_mz="744.868077" auto_manage_children="true" collision_energy="0" modified_sequence="AGTGVDNVDLEAATR" />
+    <peptide auto_manage_children="false" sequence="DSYVGDEAQSK" modified_sequence="DSYVGDEAQSK" calc_neutral_pep_mass="1197.514961" num_missed_cleavages="0" avg_measured_retention_time="1.31762064">
+      <note category="4">Good responder</note>
+      <precursor charge="2" calc_neutral_mass="1197.514961" precursor_mz="599.764757" auto_manage_children="false" collision_energy="0" modified_sequence="DSYVGDEAQSK">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.524300337">
+          <precursor_mz>599.764757</precursor_mz>
+          <product_mz>599.764757</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.316662163">
+          <precursor_mz>599.764757</precursor_mz>
+          <product_mz>600.266217</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.117654227">
+          <precursor_mz>599.764757</precursor_mz>
+          <product_mz>600.767512</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="8" calc_neutral_mass="832.392661" product_charge="1" cleavage_aa="V">
+          <precursor_mz>599.764757</precursor_mz>
+          <product_mz>833.399937</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="7" calc_neutral_mass="733.324247" product_charge="1" cleavage_aa="G">
+          <precursor_mz>599.764757</precursor_mz>
+          <product_mz>734.331523</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="6" calc_neutral_mass="676.302784" product_charge="1" cleavage_aa="D">
+          <precursor_mz>599.764757</precursor_mz>
+          <product_mz>677.31006</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="9" calc_neutral_mass="995.45599" product_charge="2" cleavage_aa="Y">
+          <precursor_mz>599.764757</precursor_mz>
+          <product_mz>498.735271</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="3" calc_neutral_mass="365.1223" product_charge="1" cleavage_aa="Y">
+          <precursor_mz>599.764757</precursor_mz>
+          <product_mz>366.129576</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="4" calc_neutral_mass="464.190714" product_charge="1" cleavage_aa="V">
+          <precursor_mz>599.764757</precursor_mz>
+          <product_mz>465.19799</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="AVFVDLEPTVIDEVR" modified_sequence="AVFVDLEPTVIDEVR" calc_neutral_pep_mass="1700.898503" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="1700.898503" precursor_mz="851.456528" auto_manage_children="true" collision_energy="0" modified_sequence="AVFVDLEPTVIDEVR" />
+    <peptide sequence="TPGPGAQSALR" modified_sequence="TPGPGAQSALR" calc_neutral_pep_mass="1053.556707" num_missed_cleavages="0" avg_measured_retention_time="1.4192493">
+      <precursor charge="2" calc_neutral_mass="1053.556707" precursor_mz="527.78563" auto_manage_children="false" collision_energy="0" modified_sequence="TPGPGAQSALR">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.55900383">
+          <precursor_mz>527.78563</precursor_mz>
+          <product_mz>527.78563</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.309612364">
+          <precursor_mz>527.78563</precursor_mz>
+          <product_mz>528.287026</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.100583583">
+          <precursor_mz>527.78563</precursor_mz>
+          <product_mz>528.788303</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="9" calc_neutral_mass="855.456265" product_charge="1" cleavage_aa="G">
+          <precursor_mz>527.78563</precursor_mz>
+          <product_mz>856.463541</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="8" calc_neutral_mass="798.434801" product_charge="1" cleavage_aa="P">
+          <precursor_mz>527.78563</precursor_mz>
+          <product_mz>799.442077</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="7" calc_neutral_mass="701.382037" product_charge="1" cleavage_aa="G">
+          <precursor_mz>527.78563</precursor_mz>
+          <product_mz>702.389313</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="5" calc_neutral_mass="573.32346" product_charge="1" cleavage_aa="Q">
+          <precursor_mz>527.78563</precursor_mz>
+          <product_mz>574.330736</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="9" calc_neutral_mass="855.456265" product_charge="2" cleavage_aa="G">
+          <precursor_mz>527.78563</precursor_mz>
+          <product_mz>428.735408</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="8" calc_neutral_mass="798.434801" product_charge="2" cleavage_aa="P">
+          <precursor_mz>527.78563</precursor_mz>
+          <product_mz>400.224676</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="DVNAAIATIK" modified_sequence="DVNAAIATIK" calc_neutral_pep_mass="1014.570961" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="1014.570961" precursor_mz="508.292757" auto_manage_children="true" collision_energy="0" modified_sequence="DVNAAIATIK" />
+    <peptide sequence="IQEAGTEVVK" modified_sequence="IQEAGTEVVK" calc_neutral_pep_mass="1072.57644" num_missed_cleavages="0" avg_measured_retention_time="1.40997565">
+      <note category="4">Good responder</note>
+      <precursor charge="2" calc_neutral_mass="1072.57644" precursor_mz="537.295496" auto_manage_children="false" collision_energy="0" modified_sequence="IQEAGTEVVK">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.5499357">
+          <precursor_mz>537.295496</precursor_mz>
+          <product_mz>537.295496</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.3113992">
+          <precursor_mz>537.295496</precursor_mz>
+          <product_mz>537.796962</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.105251119">
+          <precursor_mz>537.295496</precursor_mz>
+          <product_mz>538.298277</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="8" calc_neutral_mass="831.433798" product_charge="1" cleavage_aa="E">
+          <precursor_mz>537.295496</precursor_mz>
+          <product_mz>832.441074</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="7" calc_neutral_mass="702.391205" product_charge="1" cleavage_aa="A">
+          <precursor_mz>537.295496</precursor_mz>
+          <product_mz>703.398481</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="6" calc_neutral_mass="631.354091" product_charge="1" cleavage_aa="G">
+          <precursor_mz>537.295496</precursor_mz>
+          <product_mz>632.361367</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="3" calc_neutral_mass="344.242356" product_charge="1" cleavage_aa="V">
+          <precursor_mz>537.295496</precursor_mz>
+          <product_mz>345.249632</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="3" calc_neutral_mass="370.185235" product_charge="1" cleavage_aa="E">
+          <precursor_mz>537.295496</precursor_mz>
+          <product_mz>371.192511</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="4" calc_neutral_mass="441.222348" product_charge="1" cleavage_aa="A">
+          <precursor_mz>537.295496</precursor_mz>
+          <product_mz>442.229624</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="DYGVLLEGSGLALR" modified_sequence="DYGVLLEGSGLALR" calc_neutral_pep_mass="1461.782745" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="1461.782745" precursor_mz="731.898649" auto_manage_children="true" collision_energy="0" modified_sequence="DYGVLLEGSGLALR" />
+    <peptide sequence="FLNAENAQK" modified_sequence="FLNAENAQK" calc_neutral_pep_mass="1033.519259" num_missed_cleavages="0" avg_measured_retention_time="1.45838153">
+      <precursor charge="2" calc_neutral_mass="1033.519259" precursor_mz="517.766905" auto_manage_children="false" collision_energy="0" modified_sequence="FLNAENAQK">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.5573396">
+          <precursor_mz>517.766905</precursor_mz>
+          <product_mz>517.766905</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.31038034">
+          <precursor_mz>517.766905</precursor_mz>
+          <product_mz>518.268343</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.10139998">
+          <precursor_mz>517.766905</precursor_mz>
+          <product_mz>518.76965</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="7" calc_neutral_mass="773.366781" product_charge="1" cleavage_aa="N">
+          <precursor_mz>517.766905</precursor_mz>
+          <product_mz>774.374057</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="6" calc_neutral_mass="659.323854" product_charge="1" cleavage_aa="A">
+          <precursor_mz>517.766905</precursor_mz>
+          <product_mz>660.33113</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="5" calc_neutral_mass="588.28674" product_charge="1" cleavage_aa="E">
+          <precursor_mz>517.766905</precursor_mz>
+          <product_mz>589.294016</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="4" calc_neutral_mass="459.244147" product_charge="1" cleavage_aa="N">
+          <precursor_mz>517.766905</precursor_mz>
+          <product_mz>460.251423</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="3" calc_neutral_mass="345.201219" product_charge="1" cleavage_aa="A">
+          <precursor_mz>517.766905</precursor_mz>
+          <product_mz>346.208495</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="6" calc_neutral_mass="688.31804" product_charge="1" cleavage_aa="N">
+          <precursor_mz>517.766905</precursor_mz>
+          <product_mz>689.325316</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="EAVGDLLDAFK" modified_sequence="EAVGDLLDAFK" calc_neutral_pep_mass="1176.602655" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="1176.602655" precursor_mz="589.308604" auto_manage_children="true" collision_energy="0" modified_sequence="EAVGDLLDAFK" />
+    <peptide auto_manage_children="false" sequence="SNVSDAVAQSTR" modified_sequence="SNVSDAVAQSTR" calc_neutral_pep_mass="1233.594943" num_missed_cleavages="0" avg_measured_retention_time="1.44614279">
+      <precursor charge="2" calc_neutral_mass="1233.594943" precursor_mz="617.804748" auto_manage_children="false" collision_energy="0" modified_sequence="SNVSDAVAQSTR">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.522996366">
+          <precursor_mz>617.804748</precursor_mz>
+          <product_mz>617.804748</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.318236142">
+          <precursor_mz>617.804748</precursor_mz>
+          <product_mz>618.306135</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.117738977">
+          <precursor_mz>617.804748</precursor_mz>
+          <product_mz>618.807393</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="9" calc_neutral_mass="933.451573" product_charge="1" cleavage_aa="S">
+          <precursor_mz>617.804748</precursor_mz>
+          <product_mz>934.458849</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="8" calc_neutral_mass="846.419545" product_charge="1" cleavage_aa="D">
+          <precursor_mz>617.804748</precursor_mz>
+          <product_mz>847.426821</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="7" calc_neutral_mass="731.392602" product_charge="1" cleavage_aa="A">
+          <precursor_mz>617.804748</precursor_mz>
+          <product_mz>732.399878</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="6" calc_neutral_mass="660.355488" product_charge="1" cleavage_aa="V">
+          <precursor_mz>617.804748</precursor_mz>
+          <product_mz>661.362764</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="5" calc_neutral_mass="561.287074" product_charge="1" cleavage_aa="A">
+          <precursor_mz>617.804748</precursor_mz>
+          <product_mz>562.29435</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="3" calc_neutral_mass="300.14337" product_charge="1" cleavage_aa="V">
+          <precursor_mz>617.804748</precursor_mz>
+          <product_mz>301.150646</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="EEASDYLELDTIK" modified_sequence="EEASDYLELDTIK" calc_neutral_pep_mass="1524.719535" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="1524.719535" precursor_mz="763.367044" auto_manage_children="true" collision_energy="0" modified_sequence="EEASDYLELDTIK" />
+    <peptide sequence="EPSEVPTPK" modified_sequence="EPSEVPTPK" calc_neutral_pep_mass="982.497127" num_missed_cleavages="0" avg_measured_retention_time="1.4080354">
+      <note category="4">Good responder</note>
+      <precursor charge="2" calc_neutral_mass="982.497127" precursor_mz="492.255839" auto_manage_children="false" collision_energy="0" modified_sequence="EPSEVPTPK">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.574603438">
+          <precursor_mz>492.255839</precursor_mz>
+          <product_mz>492.255839</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.3012032">
+          <precursor_mz>492.255839</precursor_mz>
+          <product_mz>492.757329</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.09589649">
+          <precursor_mz>492.255839</precursor_mz>
+          <product_mz>493.258646</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="7" calc_neutral_mass="756.40177" product_charge="1" cleavage_aa="S">
+          <precursor_mz>492.255839</precursor_mz>
+          <product_mz>757.409046</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="6" calc_neutral_mass="669.369741" product_charge="1" cleavage_aa="E">
+          <precursor_mz>492.255839</precursor_mz>
+          <product_mz>670.377017</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="5" calc_neutral_mass="540.327148" product_charge="1" cleavage_aa="V">
+          <precursor_mz>492.255839</precursor_mz>
+          <product_mz>541.334424</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="4" calc_neutral_mass="441.258734" product_charge="1" cleavage_aa="P">
+          <precursor_mz>492.255839</precursor_mz>
+          <product_mz>442.26601</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="3" calc_neutral_mass="344.20597" product_charge="1" cleavage_aa="T">
+          <precursor_mz>492.255839</precursor_mz>
+          <product_mz>345.213246</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="7" calc_neutral_mass="756.40177" product_charge="2" cleavage_aa="S">
+          <precursor_mz>492.255839</precursor_mz>
+          <product_mz>379.208161</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="EFHLNESGDPSSK" modified_sequence="EFHLNESGDPSSK" calc_neutral_pep_mass="1445.642286" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="1445.642286" precursor_mz="723.828419" auto_manage_children="true" collision_energy="0" modified_sequence="EFHLNESGDPSSK" />
+    <peptide sequence="LNVTEQEK" modified_sequence="LNVTEQEK" calc_neutral_pep_mass="959.492375" num_missed_cleavages="0" avg_measured_retention_time="1.31622374">
+      <note category="4">Good responder</note>
+      <precursor charge="2" calc_neutral_mass="959.492375" precursor_mz="480.753464" auto_manage_children="false" collision_energy="0" modified_sequence="LNVTEQEK">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.5916178">
+          <precursor_mz>480.753464</precursor_mz>
+          <product_mz>480.753464</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.29275924">
+          <precursor_mz>480.753464</precursor_mz>
+          <product_mz>481.254918</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.0899121538">
+          <precursor_mz>480.753464</precursor_mz>
+          <product_mz>481.756199</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="6" calc_neutral_mass="732.365384" product_charge="1" cleavage_aa="V">
+          <precursor_mz>480.753464</precursor_mz>
+          <product_mz>733.37266</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="5" calc_neutral_mass="633.29697" product_charge="1" cleavage_aa="T">
+          <precursor_mz>480.753464</precursor_mz>
+          <product_mz>634.304246</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="4" calc_neutral_mass="532.249292" product_charge="1" cleavage_aa="E">
+          <precursor_mz>480.753464</precursor_mz>
+          <product_mz>533.256568</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="3" calc_neutral_mass="403.206698" product_charge="1" cleavage_aa="Q">
+          <precursor_mz>480.753464</precursor_mz>
+          <product_mz>404.213974</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="3" calc_neutral_mass="326.195405" product_charge="1" cleavage_aa="V">
+          <precursor_mz>480.753464</precursor_mz>
+          <product_mz>327.202681</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="6" calc_neutral_mass="684.344255" product_charge="1" cleavage_aa="Q">
+          <precursor_mz>480.753464</precursor_mz>
+          <product_mz>685.351531</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="EGLELPEDEEEK" modified_sequence="EGLELPEDEEEK" calc_neutral_pep_mass="1415.630385" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="1415.630385" precursor_mz="708.822469" auto_manage_children="true" collision_energy="0" modified_sequence="EGLELPEDEEEK" />
+    <peptide sequence="LLADQAEAR" modified_sequence="LLADQAEAR" calc_neutral_pep_mass="985.519259" num_missed_cleavages="0" avg_measured_retention_time="1.41946483">
+      <note category="4">Good responder</note>
+      <precursor charge="2" calc_neutral_mass="985.519259" precursor_mz="493.766905" auto_manage_children="false" collision_energy="0" modified_sequence="LLADQAEAR">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.58217454">
+          <precursor_mz>493.766905</precursor_mz>
+          <product_mz>493.766905</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.2986911">
+          <precursor_mz>493.766905</precursor_mz>
+          <product_mz>494.268323</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.09240567">
+          <precursor_mz>493.766905</precursor_mz>
+          <product_mz>494.769598</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="7" calc_neutral_mass="759.351131" product_charge="1" cleavage_aa="A">
+          <precursor_mz>493.766905</precursor_mz>
+          <product_mz>760.358407</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="6" calc_neutral_mass="688.314017" product_charge="1" cleavage_aa="D">
+          <precursor_mz>493.766905</precursor_mz>
+          <product_mz>689.321293</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="5" calc_neutral_mass="573.287074" product_charge="1" cleavage_aa="Q">
+          <precursor_mz>493.766905</precursor_mz>
+          <product_mz>574.29435</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="4" calc_neutral_mass="445.228496" product_charge="1" cleavage_aa="A">
+          <precursor_mz>493.766905</precursor_mz>
+          <product_mz>446.235772</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="3" calc_neutral_mass="374.191383" product_charge="1" cleavage_aa="E">
+          <precursor_mz>493.766905</precursor_mz>
+          <product_mz>375.198659</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="3" calc_neutral_mass="297.205242" product_charge="1" cleavage_aa="A">
+          <precursor_mz>493.766905</precursor_mz>
+          <product_mz>298.212518</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="EVFEDAAEIR" modified_sequence="EVFEDAAEIR" calc_neutral_pep_mass="1177.561518" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="1177.561518" precursor_mz="589.788035" auto_manage_children="true" collision_energy="0" modified_sequence="EVFEDAAEIR" />
+    <peptide sequence="IGGIGTVPVGR" modified_sequence="IGGIGTVPVGR" calc_neutral_pep_mass="1024.602929" num_missed_cleavages="0" avg_measured_retention_time="2.07512856">
+      <precursor charge="2" calc_neutral_mass="1024.602929" precursor_mz="513.30874" auto_manage_children="false" collision_energy="0" modified_sequence="IGGIGTVPVGR">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.557271838">
+          <precursor_mz>513.30874</precursor_mz>
+          <product_mz>513.30874</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.312693626">
+          <precursor_mz>513.30874</precursor_mz>
+          <product_mz>513.810162</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.100316472">
+          <precursor_mz>513.30874</precursor_mz>
+          <product_mz>514.311473</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="7" calc_neutral_mass="684.391873" product_charge="1" cleavage_aa="G">
+          <precursor_mz>513.30874</precursor_mz>
+          <product_mz>685.399149</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="6" calc_neutral_mass="627.37041" product_charge="1" cleavage_aa="T">
+          <precursor_mz>513.30874</precursor_mz>
+          <product_mz>628.377686</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="5" calc_neutral_mass="526.322731" product_charge="1" cleavage_aa="V">
+          <precursor_mz>513.30874</precursor_mz>
+          <product_mz>527.330007</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="4" calc_neutral_mass="427.254317" product_charge="1" cleavage_aa="P">
+          <precursor_mz>513.30874</precursor_mz>
+          <product_mz>428.261593</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="9" calc_neutral_mass="854.497401" product_charge="2" cleavage_aa="G">
+          <precursor_mz>513.30874</precursor_mz>
+          <product_mz>428.255977</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="3" calc_neutral_mass="227.126991" product_charge="1" cleavage_aa="G">
+          <precursor_mz>513.30874</precursor_mz>
+          <product_mz>228.134267</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="FYALSASFEPFSNK" modified_sequence="FYALSASFEPFSNK" calc_neutral_pep_mass="1606.766759" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="1606.766759" precursor_mz="804.390656" auto_manage_children="true" collision_energy="0" modified_sequence="FYALSASFEPFSNK" />
+    <peptide auto_manage_children="false" sequence="RISGLIYEETR" modified_sequence="RISGLIYEETR" calc_neutral_pep_mass="1335.714664" num_missed_cleavages="1" avg_measured_retention_time="1.97968137">
+      <note category="4">Good responder</note>
+      <precursor charge="2" calc_neutral_mass="1335.714664" precursor_mz="668.864608" auto_manage_children="false" collision_energy="0" modified_sequence="RISGLIYEETR">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.470312327">
+          <precursor_mz>668.864608</precursor_mz>
+          <product_mz>668.864608</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.338316679">
+          <precursor_mz>668.864608</precursor_mz>
+          <product_mz>669.366044</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.13828209">
+          <precursor_mz>668.864608</precursor_mz>
+          <product_mz>669.867377</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="9" calc_neutral_mass="1066.529489" product_charge="1" cleavage_aa="S">
+          <precursor_mz>668.864608</precursor_mz>
+          <product_mz>1067.536765</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="5" calc_neutral_mass="696.307869" product_charge="1" cleavage_aa="Y">
+          <precursor_mz>668.864608</precursor_mz>
+          <product_mz>697.315145</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="3" calc_neutral_mass="404.201947" product_charge="1" cleavage_aa="E">
+          <precursor_mz>668.864608</precursor_mz>
+          <product_mz>405.209223</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="7" calc_neutral_mass="802.470124" product_charge="1" cleavage_aa="Y">
+          <precursor_mz>668.864608</precursor_mz>
+          <product_mz>803.4774</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="8" calc_neutral_mass="931.512717" product_charge="1" cleavage_aa="E">
+          <precursor_mz>668.864608</precursor_mz>
+          <product_mz>932.519993</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="9" calc_neutral_mass="1060.55531" product_charge="1" cleavage_aa="E">
+          <precursor_mz>668.864608</precursor_mz>
+          <product_mz>1061.562586</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="GILFVGSGVSGGEEGAR" modified_sequence="GILFVGSGVSGGEEGAR" calc_neutral_pep_mass="1590.800186" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="1590.800186" precursor_mz="796.407369" auto_manage_children="true" collision_energy="0" modified_sequence="GILFVGSGVSGGEEGAR" />
+    <peptide auto_manage_children="false" sequence="GGGGNFGPGPGSNFR" modified_sequence="GGGGNFGPGPGSNFR" calc_neutral_pep_mass="1376.622161" num_missed_cleavages="0" avg_measured_retention_time="1.86118662">
+      <precursor charge="2" calc_neutral_mass="1376.622161" precursor_mz="689.318356" auto_manage_children="false" collision_energy="0" modified_sequence="GGGGNFGPGPGSNFR">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.460992277">
+          <precursor_mz>689.318356</precursor_mz>
+          <product_mz>689.318356</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.340875536">
+          <precursor_mz>689.318356</precursor_mz>
+          <product_mz>689.819748</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.1422649">
+          <precursor_mz>689.318356</precursor_mz>
+          <product_mz>690.321052</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="10" calc_neutral_mass="1034.493379" product_charge="1" cleavage_aa="F">
+          <precursor_mz>689.318356</precursor_mz>
+          <product_mz>1035.500655</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="9" calc_neutral_mass="887.424965" product_charge="1" cleavage_aa="G">
+          <precursor_mz>689.318356</precursor_mz>
+          <product_mz>888.432241</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="8" calc_neutral_mass="830.403501" product_charge="1" cleavage_aa="P">
+          <precursor_mz>689.318356</precursor_mz>
+          <product_mz>831.410777</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="6" calc_neutral_mass="676.329273" product_charge="1" cleavage_aa="P">
+          <precursor_mz>689.318356</precursor_mz>
+          <product_mz>677.336549</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="8" calc_neutral_mass="830.403501" product_charge="2" cleavage_aa="P">
+          <precursor_mz>689.318356</precursor_mz>
+          <product_mz>416.209026</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="6" calc_neutral_mass="489.197196" product_charge="1" cleavage_aa="F">
+          <precursor_mz>689.318356</precursor_mz>
+          <product_mz>490.204472</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="GTDVNVFNTILTTR" modified_sequence="GTDVNVFNTILTTR" calc_neutral_pep_mass="1549.810023" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="1549.810023" precursor_mz="775.912288" auto_manage_children="true" collision_energy="0" modified_sequence="GTDVNVFNTILTTR" />
+    <peptide sequence="GGNFGFGDSR" modified_sequence="GGNFGFGDSR" calc_neutral_pep_mass="1012.436258" num_missed_cleavages="0" avg_measured_retention_time="1.84368026">
+      <precursor charge="2" calc_neutral_mass="1012.436258" precursor_mz="507.225405" auto_manage_children="false" collision_energy="0" modified_sequence="GGNFGFGDSR">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.568432748">
+          <precursor_mz>507.225405</precursor_mz>
+          <product_mz>507.225405</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.305280745">
+          <precursor_mz>507.225405</precursor_mz>
+          <product_mz>507.726808</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.09721874">
+          <precursor_mz>507.225405</precursor_mz>
+          <product_mz>508.228083</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="7" calc_neutral_mass="784.350403" product_charge="1" cleavage_aa="F">
+          <precursor_mz>507.225405</precursor_mz>
+          <product_mz>785.357679</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="6" calc_neutral_mass="637.281989" product_charge="1" cleavage_aa="G">
+          <precursor_mz>507.225405</precursor_mz>
+          <product_mz>638.289265</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="5" calc_neutral_mass="580.260525" product_charge="1" cleavage_aa="F">
+          <precursor_mz>507.225405</precursor_mz>
+          <product_mz>581.267801</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="4" calc_neutral_mass="433.192111" product_charge="1" cleavage_aa="G">
+          <precursor_mz>507.225405</precursor_mz>
+          <product_mz>434.199387</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="3" calc_neutral_mass="228.085855" product_charge="1" cleavage_aa="N">
+          <precursor_mz>507.225405</precursor_mz>
+          <product_mz>229.093131</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="4" calc_neutral_mass="375.154269" product_charge="1" cleavage_aa="F">
+          <precursor_mz>507.225405</precursor_mz>
+          <product_mz>376.161545</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="GVDEATIIDILTK" modified_sequence="GVDEATIIDILTK" calc_neutral_pep_mass="1386.760613" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="1386.760613" precursor_mz="694.387583" auto_manage_children="true" collision_energy="0" modified_sequence="GVDEATIIDILTK" />
+    <peptide auto_manage_children="false" sequence="SIYYITGESK" modified_sequence="SIYYITGESK" calc_neutral_pep_mass="1159.576105" num_missed_cleavages="0" avg_measured_retention_time="2.0507164">
+      <precursor charge="2" calc_neutral_mass="1159.576105" precursor_mz="580.795329" auto_manage_children="false" collision_energy="0" modified_sequence="SIYYITGESK">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.5101115">
+          <precursor_mz>580.795329</precursor_mz>
+          <product_mz>580.795329</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.326374233">
+          <precursor_mz>580.795329</precursor_mz>
+          <product_mz>581.296838</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.12116725">
+          <precursor_mz>580.795329</precursor_mz>
+          <product_mz>581.798205</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="8" calc_neutral_mass="959.460013" product_charge="1" cleavage_aa="Y">
+          <precursor_mz>580.795329</precursor_mz>
+          <product_mz>960.467289</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="7" calc_neutral_mass="796.396684" product_charge="1" cleavage_aa="Y">
+          <precursor_mz>580.795329</precursor_mz>
+          <product_mz>797.40396</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="6" calc_neutral_mass="633.333356" product_charge="1" cleavage_aa="I">
+          <precursor_mz>580.795329</precursor_mz>
+          <product_mz>634.340632</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="5" calc_neutral_mass="520.249292" product_charge="1" cleavage_aa="T">
+          <precursor_mz>580.795329</precursor_mz>
+          <product_mz>521.256568</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="3" calc_neutral_mass="363.179421" product_charge="1" cleavage_aa="Y">
+          <precursor_mz>580.795329</precursor_mz>
+          <product_mz>364.186697</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="7" calc_neutral_mass="797.395956" product_charge="1" cleavage_aa="G">
+          <precursor_mz>580.795329</precursor_mz>
+          <product_mz>798.403232</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="GVDEVTIVNILTNR" modified_sequence="GVDEVTIVNILTNR" calc_neutral_pep_mass="1541.841322" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="1541.841322" precursor_mz="771.927937" auto_manage_children="true" collision_energy="0" modified_sequence="GVDEVTIVNILTNR" />
+    <peptide auto_manage_children="false" sequence="GILAADESTGSIAK" modified_sequence="GILAADESTGSIAK" calc_neutral_pep_mass="1331.69326" num_missed_cleavages="0" avg_measured_retention_time="1.98324966">
+      <precursor charge="2" calc_neutral_mass="1331.69326" precursor_mz="666.853906" auto_manage_children="false" collision_energy="0" modified_sequence="GILAADESTGSIAK">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.480715424">
+          <precursor_mz>666.853906</precursor_mz>
+          <product_mz>666.853906</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.33228007">
+          <precursor_mz>666.853906</precursor_mz>
+          <product_mz>667.355367</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.1348217">
+          <precursor_mz>666.853906</precursor_mz>
+          <product_mz>667.856695</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="11" calc_neutral_mass="1048.503668" product_charge="1" cleavage_aa="A">
+          <precursor_mz>666.853906</precursor_mz>
+          <product_mz>1049.510944</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="10" calc_neutral_mass="977.466555" product_charge="1" cleavage_aa="A">
+          <precursor_mz>666.853906</precursor_mz>
+          <product_mz>978.473831</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="9" calc_neutral_mass="906.429441" product_charge="1" cleavage_aa="D">
+          <precursor_mz>666.853906</precursor_mz>
+          <product_mz>907.436717</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="12" calc_neutral_mass="1161.587733" product_charge="2" cleavage_aa="L">
+          <precursor_mz>666.853906</precursor_mz>
+          <product_mz>581.801142</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="3" calc_neutral_mass="283.189592" product_charge="1" cleavage_aa="L">
+          <precursor_mz>666.853906</precursor_mz>
+          <product_mz>284.196868</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="4" calc_neutral_mass="354.226706" product_charge="1" cleavage_aa="A">
+          <precursor_mz>666.853906</precursor_mz>
+          <product_mz>355.233982</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="HFVALSTNTTK" modified_sequence="HFVALSTNTTK" calc_neutral_pep_mass="1217.640438" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="1217.640438" precursor_mz="609.827495" auto_manage_children="true" collision_energy="0" modified_sequence="HFVALSTNTTK" />
+    <peptide sequence="EIAEAYLGK" modified_sequence="EIAEAYLGK" calc_neutral_pep_mass="992.517862" num_missed_cleavages="0" avg_measured_retention_time="1.95680225">
+      <precursor charge="2" calc_neutral_mass="992.517862" precursor_mz="497.266207" auto_manage_children="false" collision_energy="0" modified_sequence="EIAEAYLGK">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.5634194">
+          <precursor_mz>497.266207</precursor_mz>
+          <product_mz>497.266207</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.307638735">
+          <precursor_mz>497.266207</precursor_mz>
+          <product_mz>497.767704</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.09938914">
+          <precursor_mz>497.266207</precursor_mz>
+          <product_mz>498.269046</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="7" calc_neutral_mass="750.391205" product_charge="1" cleavage_aa="A">
+          <precursor_mz>497.266207</precursor_mz>
+          <product_mz>751.398481</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="6" calc_neutral_mass="679.354091" product_charge="1" cleavage_aa="E">
+          <precursor_mz>497.266207</precursor_mz>
+          <product_mz>680.361367</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="5" calc_neutral_mass="550.311498" product_charge="1" cleavage_aa="A">
+          <precursor_mz>497.266207</precursor_mz>
+          <product_mz>551.318774</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="4" calc_neutral_mass="479.274384" product_charge="1" cleavage_aa="Y">
+          <precursor_mz>497.266207</precursor_mz>
+          <product_mz>480.28166</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="3" calc_neutral_mass="316.211056" product_charge="1" cleavage_aa="L">
+          <precursor_mz>497.266207</precursor_mz>
+          <product_mz>317.218332</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="7" calc_neutral_mass="750.391205" product_charge="2" cleavage_aa="A">
+          <precursor_mz>497.266207</precursor_mz>
+          <product_mz>376.202878</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="IAIYELLFK" modified_sequence="IAIYELLFK" calc_neutral_pep_mass="1108.653234" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="1108.653234" precursor_mz="555.333893" auto_manage_children="true" collision_energy="0" modified_sequence="IAIYELLFK" />
+    <peptide sequence="GLTSVINQK" modified_sequence="GLTSVINQK" calc_neutral_pep_mass="958.544745" num_missed_cleavages="0" avg_measured_retention_time="1.79979265">
+      <precursor charge="2" calc_neutral_mass="958.544745" precursor_mz="480.279649" auto_manage_children="false" collision_energy="0" modified_sequence="GLTSVINQK">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.5854767">
+          <precursor_mz>480.279649</precursor_mz>
+          <product_mz>480.279649</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.298266858">
+          <precursor_mz>480.279649</precursor_mz>
+          <product_mz>480.781088</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.0907462239">
+          <precursor_mz>480.279649</precursor_mz>
+          <product_mz>481.282383</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="7" calc_neutral_mass="788.439218" product_charge="1" cleavage_aa="T">
+          <precursor_mz>480.279649</precursor_mz>
+          <product_mz>789.446494</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="6" calc_neutral_mass="687.391539" product_charge="1" cleavage_aa="S">
+          <precursor_mz>480.279649</precursor_mz>
+          <product_mz>688.398815</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="5" calc_neutral_mass="600.359511" product_charge="1" cleavage_aa="V">
+          <precursor_mz>480.279649</precursor_mz>
+          <product_mz>601.366787</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="4" calc_neutral_mass="501.291097" product_charge="1" cleavage_aa="I">
+          <precursor_mz>480.279649</precursor_mz>
+          <product_mz>502.298373</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="3" calc_neutral_mass="388.207033" product_charge="1" cleavage_aa="N">
+          <precursor_mz>480.279649</precursor_mz>
+          <product_mz>389.214309</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="7" calc_neutral_mass="788.439218" product_charge="2" cleavage_aa="T">
+          <precursor_mz>480.279649</precursor_mz>
+          <product_mz>395.226885</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="ILGADTSVDLEETGR" modified_sequence="ILGADTSVDLEETGR" calc_neutral_pep_mass="1574.778782" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="1574.778782" precursor_mz="788.396667" auto_manage_children="true" collision_energy="0" modified_sequence="ILGADTSVDLEETGR" />
+    <peptide auto_manage_children="false" sequence="ASGPPVSELITK" modified_sequence="ASGPPVSELITK" calc_neutral_pep_mass="1197.660504" num_missed_cleavages="0" avg_measured_retention_time="2.37431">
+      <note category="4">Good responder</note>
+      <precursor charge="2" calc_neutral_mass="1197.660504" precursor_mz="599.837528" auto_manage_children="false" collision_energy="0" modified_sequence="ASGPPVSELITK">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.5056475">
+          <precursor_mz>599.837528</precursor_mz>
+          <product_mz>599.837528</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.3279664">
+          <precursor_mz>599.837528</precursor_mz>
+          <product_mz>600.339007</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.123340622">
+          <precursor_mz>599.837528</precursor_mz>
+          <product_mz>600.840356</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="10" calc_neutral_mass="1039.591361" product_charge="1" cleavage_aa="G">
+          <precursor_mz>599.837528</precursor_mz>
+          <product_mz>1040.598637</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="9" calc_neutral_mass="982.569898" product_charge="1" cleavage_aa="P">
+          <precursor_mz>599.837528</precursor_mz>
+          <product_mz>983.577174</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="8" calc_neutral_mass="885.517134" product_charge="1" cleavage_aa="P">
+          <precursor_mz>599.837528</precursor_mz>
+          <product_mz>886.52441</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="6" calc_neutral_mass="689.395956" product_charge="1" cleavage_aa="S">
+          <precursor_mz>599.837528</precursor_mz>
+          <product_mz>690.403232</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="10" calc_neutral_mass="1039.591361" product_charge="2" cleavage_aa="G">
+          <precursor_mz>599.837528</precursor_mz>
+          <product_mz>520.802957</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="9" calc_neutral_mass="982.569898" product_charge="2" cleavage_aa="P">
+          <precursor_mz>599.837528</precursor_mz>
+          <product_mz>492.292225</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="ISSDLDGHPVPK" modified_sequence="ISSDLDGHPVPK" calc_neutral_pep_mass="1263.645916" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="1263.645916" precursor_mz="632.830234" auto_manage_children="true" collision_energy="0" modified_sequence="ISSDLDGHPVPK" />
+    <peptide auto_manage_children="false" sequence="GALQNIIPASTGAAK" modified_sequence="GALQNIIPASTGAAK" calc_neutral_pep_mass="1410.783078" num_missed_cleavages="0" avg_measured_retention_time="2.54368854">
+      <precursor charge="2" calc_neutral_mass="1410.783078" precursor_mz="706.398815" auto_manage_children="false" collision_energy="0" modified_sequence="GALQNIIPASTGAAK">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.451840162">
+          <precursor_mz>706.398815</precursor_mz>
+          <product_mz>706.398815</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.342304915">
+          <precursor_mz>706.398815</precursor_mz>
+          <product_mz>706.900251</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.146448836">
+          <precursor_mz>706.398815</precursor_mz>
+          <product_mz>707.401588</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="11" calc_neutral_mass="1041.581859" product_charge="1" cleavage_aa="N">
+          <precursor_mz>706.398815</precursor_mz>
+          <product_mz>1042.589135</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="10" calc_neutral_mass="927.538932" product_charge="1" cleavage_aa="I">
+          <precursor_mz>706.398815</precursor_mz>
+          <product_mz>928.546208</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="9" calc_neutral_mass="814.454868" product_charge="1" cleavage_aa="I">
+          <precursor_mz>706.398815</precursor_mz>
+          <product_mz>815.462144</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="8" calc_neutral_mass="701.370804" product_charge="1" cleavage_aa="P">
+          <precursor_mz>706.398815</precursor_mz>
+          <product_mz>702.37808</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="3" calc_neutral_mass="241.142642" product_charge="1" cleavage_aa="L">
+          <precursor_mz>706.398815</precursor_mz>
+          <product_mz>242.149918</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="6" calc_neutral_mass="596.328211" product_charge="1" cleavage_aa="I">
+          <precursor_mz>706.398815</precursor_mz>
+          <product_mz>597.335487</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="ITPSYVAFTPEGER" modified_sequence="ITPSYVAFTPEGER" calc_neutral_pep_mass="1565.772575" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="1565.772575" precursor_mz="783.893564" auto_manage_children="true" collision_energy="0" modified_sequence="ITPSYVAFTPEGER" />
+    <peptide auto_manage_children="false" sequence="QITVNDLPVGR" modified_sequence="QITVNDLPVGR" calc_neutral_pep_mass="1210.666986" num_missed_cleavages="0" avg_measured_retention_time="2.43788242">
+      <precursor charge="3" calc_neutral_mass="1210.666986" precursor_mz="404.562938" auto_manage_children="false" collision_energy="0" modified_sequence="QITVNDLPVGR">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.506891847">
+          <precursor_mz>404.562938</precursor_mz>
+          <product_mz>404.562938</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.328538656">
+          <precursor_mz>404.562938</precursor_mz>
+          <product_mz>404.897221</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.122474246">
+          <precursor_mz>404.562938</precursor_mz>
+          <product_mz>405.231431</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="9" calc_neutral_mass="969.524344" product_charge="1" cleavage_aa="T">
+          <precursor_mz>404.562938</precursor_mz>
+          <product_mz>970.53162</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="7" calc_neutral_mass="769.408252" product_charge="1" cleavage_aa="N">
+          <precursor_mz>404.562938</precursor_mz>
+          <product_mz>770.415528</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="5" calc_neutral_mass="540.338381" product_charge="1" cleavage_aa="L">
+          <precursor_mz>404.562938</precursor_mz>
+          <product_mz>541.345657</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="4" calc_neutral_mass="427.254317" product_charge="1" cleavage_aa="P">
+          <precursor_mz>404.562938</precursor_mz>
+          <product_mz>428.261593</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="3" calc_neutral_mass="330.201553" product_charge="1" cleavage_aa="V">
+          <precursor_mz>404.562938</precursor_mz>
+          <product_mz>331.208829</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="5" calc_neutral_mass="555.301661" product_charge="1" cleavage_aa="N">
+          <precursor_mz>404.562938</precursor_mz>
+          <product_mz>556.308937</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="6" calc_neutral_mass="670.328605" product_charge="1" cleavage_aa="D">
+          <precursor_mz>404.562938</precursor_mz>
+          <product_mz>671.335881</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="LAPITSDPTEATAVGAVEASFK" modified_sequence="LAPITSDPTEATAVGAVEASFK" calc_neutral_pep_mass="2174.110682" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="2174.110682" precursor_mz="1088.062617" auto_manage_children="true" collision_energy="0" modified_sequence="LAPITSDPTEATAVGAVEASFK" />
+    <peptide auto_manage_children="false" sequence="IDIIPNPQER" modified_sequence="IDIIPNPQER" calc_neutral_pep_mass="1193.640437" num_missed_cleavages="0" avg_measured_retention_time="2.40934253">
+      <precursor charge="2" calc_neutral_mass="1193.640437" precursor_mz="597.827494" auto_manage_children="false" collision_energy="0" modified_sequence="IDIIPNPQER">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.5089808">
+          <precursor_mz>597.827494</precursor_mz>
+          <product_mz>597.827494</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.327801436">
+          <precursor_mz>597.827494</precursor_mz>
+          <product_mz>598.328934</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.121631578">
+          <precursor_mz>597.827494</precursor_mz>
+          <product_mz>598.83026</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="8" calc_neutral_mass="965.52943" product_charge="1" cleavage_aa="I">
+          <precursor_mz>597.827494</precursor_mz>
+          <product_mz>966.536706</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="7" calc_neutral_mass="852.445366" product_charge="1" cleavage_aa="I">
+          <precursor_mz>597.827494</precursor_mz>
+          <product_mz>853.452642</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="6" calc_neutral_mass="739.361302" product_charge="1" cleavage_aa="P">
+          <precursor_mz>597.827494</precursor_mz>
+          <product_mz>740.368578</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="6" calc_neutral_mass="739.361302" product_charge="2" cleavage_aa="P">
+          <precursor_mz>597.827494</precursor_mz>
+          <product_mz>370.687927</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="3" calc_neutral_mass="341.195071" product_charge="1" cleavage_aa="I">
+          <precursor_mz>597.827494</precursor_mz>
+          <product_mz>342.202347</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="4" calc_neutral_mass="454.279135" product_charge="1" cleavage_aa="I">
+          <precursor_mz>597.827494</precursor_mz>
+          <product_mz>455.286411</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="LATNAAVTVLR" modified_sequence="LATNAAVTVLR" calc_neutral_pep_mass="1127.666259" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="1127.666259" precursor_mz="564.840406" auto_manage_children="true" collision_energy="0" modified_sequence="LATNAAVTVLR" />
+    <peptide auto_manage_children="false" sequence="TTPSYVAFTDTER" modified_sequence="TTPSYVAFTDTER" calc_neutral_pep_mass="1486.693989" num_missed_cleavages="0" avg_measured_retention_time="2.34130836">
+      <precursor charge="2" calc_neutral_mass="1486.693989" precursor_mz="744.35427" auto_manage_children="false" collision_energy="0" modified_sequence="TTPSYVAFTDTER">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.432070047">
+          <precursor_mz>744.35427</precursor_mz>
+          <product_mz>744.35427</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.343248278">
+          <precursor_mz>744.35427</precursor_mz>
+          <product_mz>744.855745</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.155835375">
+          <precursor_mz>744.35427</precursor_mz>
+          <product_mz>745.357104</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="11" calc_neutral_mass="1284.598632" product_charge="1" cleavage_aa="P">
+          <precursor_mz>744.35427</precursor_mz>
+          <product_mz>1285.605908</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="9" calc_neutral_mass="1100.513839" product_charge="1" cleavage_aa="Y">
+          <precursor_mz>744.35427</precursor_mz>
+          <product_mz>1101.521115</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="8" calc_neutral_mass="937.450511" product_charge="1" cleavage_aa="V">
+          <precursor_mz>744.35427</precursor_mz>
+          <product_mz>938.457787</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="7" calc_neutral_mass="838.382097" product_charge="1" cleavage_aa="A">
+          <precursor_mz>744.35427</precursor_mz>
+          <product_mz>839.389373</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="6" calc_neutral_mass="767.344983" product_charge="1" cleavage_aa="F">
+          <precursor_mz>744.35427</precursor_mz>
+          <product_mz>768.352259</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="11" calc_neutral_mass="1284.598632" product_charge="2" cleavage_aa="P">
+          <precursor_mz>744.35427</precursor_mz>
+          <product_mz>643.306592</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="LDVTSVEDYK" modified_sequence="LDVTSVEDYK" calc_neutral_pep_mass="1167.565935" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="1167.565935" precursor_mz="584.790244" auto_manage_children="true" collision_energy="0" modified_sequence="LDVTSVEDYK" />
+    <peptide auto_manage_children="false" sequence="LVQAFQFTDK" modified_sequence="LVQAFQFTDK" calc_neutral_pep_mass="1195.623724" num_missed_cleavages="0" avg_measured_retention_time="2.6036284">
+      <precursor charge="2" calc_neutral_mass="1195.623724" precursor_mz="598.819138" auto_manage_children="false" collision_energy="0" modified_sequence="LVQAFQFTDK">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.492180824">
+          <precursor_mz>598.819138</precursor_mz>
+          <product_mz>598.819138</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.3346107">
+          <precursor_mz>598.819138</precursor_mz>
+          <product_mz>599.320624</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.128166988">
+          <precursor_mz>598.819138</precursor_mz>
+          <product_mz>599.821999</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="8" calc_neutral_mass="983.471246" product_charge="1" cleavage_aa="Q">
+          <precursor_mz>598.819138</precursor_mz>
+          <product_mz>984.478522</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="7" calc_neutral_mass="855.412669" product_charge="1" cleavage_aa="A">
+          <precursor_mz>598.819138</precursor_mz>
+          <product_mz>856.419945</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="6" calc_neutral_mass="784.375555" product_charge="1" cleavage_aa="F">
+          <precursor_mz>598.819138</precursor_mz>
+          <product_mz>785.382831</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="4" calc_neutral_mass="509.248563" product_charge="1" cleavage_aa="F">
+          <precursor_mz>598.819138</precursor_mz>
+          <product_mz>510.255839</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="8" calc_neutral_mass="983.471246" product_charge="2" cleavage_aa="Q">
+          <precursor_mz>598.819138</precursor_mz>
+          <product_mz>492.742899</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="3" calc_neutral_mass="340.211056" product_charge="1" cleavage_aa="Q">
+          <precursor_mz>598.819138</precursor_mz>
+          <product_mz>341.218332</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="LFIGGLSFETTDESLR" modified_sequence="LFIGGLSFETTDESLR" calc_neutral_pep_mass="1783.899231" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="1783.899231" precursor_mz="892.956892" auto_manage_children="true" collision_energy="0" modified_sequence="LFIGGLSFETTDESLR" />
+    <peptide sequence="TGAAPIIDVVR" modified_sequence="TGAAPIIDVVR" calc_neutral_pep_mass="1110.639708" num_missed_cleavages="0" avg_measured_retention_time="2.58955169">
+      <precursor charge="2" calc_neutral_mass="1110.639708" precursor_mz="556.32713" auto_manage_children="false" collision_energy="0" modified_sequence="TGAAPIIDVVR">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.5304587">
+          <precursor_mz>556.32713</precursor_mz>
+          <product_mz>556.32713</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.321765751">
+          <precursor_mz>556.32713</precursor_mz>
+          <product_mz>556.828574</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.111615792">
+          <precursor_mz>556.32713</precursor_mz>
+          <product_mz>557.329902</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="8" calc_neutral_mass="881.533452" product_charge="1" cleavage_aa="A">
+          <precursor_mz>556.32713</precursor_mz>
+          <product_mz>882.540728</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="7" calc_neutral_mass="810.496339" product_charge="1" cleavage_aa="P">
+          <precursor_mz>556.32713</precursor_mz>
+          <product_mz>811.503615</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="8" calc_neutral_mass="881.533452" product_charge="2" cleavage_aa="A">
+          <precursor_mz>556.32713</precursor_mz>
+          <product_mz>441.774002</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="7" calc_neutral_mass="810.496339" product_charge="2" cleavage_aa="P">
+          <precursor_mz>556.32713</precursor_mz>
+          <product_mz>406.255445</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="3" calc_neutral_mass="229.106256" product_charge="1" cleavage_aa="A">
+          <precursor_mz>556.32713</precursor_mz>
+          <product_mz>230.113532</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="4" calc_neutral_mass="300.14337" product_charge="1" cleavage_aa="A">
+          <precursor_mz>556.32713</precursor_mz>
+          <product_mz>301.150646</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="LIAPVAEEEATVPNNK" modified_sequence="LIAPVAEEEATVPNNK" calc_neutral_pep_mass="1693.888666" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="1693.888666" precursor_mz="847.951609" auto_manage_children="true" collision_energy="0" modified_sequence="LIAPVAEEEATVPNNK" />
+    <peptide sequence="AALQELLSK" modified_sequence="AALQELLSK" calc_neutral_pep_mass="971.565147" num_missed_cleavages="0" avg_measured_retention_time="2.6447897">
+      <precursor charge="2" calc_neutral_mass="971.565147" precursor_mz="486.789849" auto_manage_children="false" collision_energy="0" modified_sequence="AALQELLSK">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.574694932">
+          <precursor_mz>486.789849</precursor_mz>
+          <product_mz>486.789849</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.303509">
+          <precursor_mz>486.789849</precursor_mz>
+          <product_mz>487.29132</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.09466423">
+          <precursor_mz>486.789849</precursor_mz>
+          <product_mz>487.792645</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="7" calc_neutral_mass="829.490919" product_charge="1" cleavage_aa="L">
+          <precursor_mz>486.789849</precursor_mz>
+          <product_mz>830.498195</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="6" calc_neutral_mass="716.406855" product_charge="1" cleavage_aa="Q">
+          <precursor_mz>486.789849</precursor_mz>
+          <product_mz>717.414131</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="5" calc_neutral_mass="588.348277" product_charge="1" cleavage_aa="E">
+          <precursor_mz>486.789849</precursor_mz>
+          <product_mz>589.355553</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="3" calc_neutral_mass="346.22162" product_charge="1" cleavage_aa="L">
+          <precursor_mz>486.789849</precursor_mz>
+          <product_mz>347.228896</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="7" calc_neutral_mass="829.490919" product_charge="2" cleavage_aa="L">
+          <precursor_mz>486.789849</precursor_mz>
+          <product_mz>415.752735</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="3" calc_neutral_mass="255.158292" product_charge="1" cleavage_aa="L">
+          <precursor_mz>486.789849</precursor_mz>
+          <product_mz>256.165568</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="LVPLLDTGDIIIDGGNSEYR" modified_sequence="LVPLLDTGDIIIDGGNSEYR" calc_neutral_pep_mass="2159.111015" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="2159.111015" precursor_mz="1080.562784" auto_manage_children="true" collision_energy="0" modified_sequence="LVPLLDTGDIIIDGGNSEYR" />
+    <peptide sequence="VNFTVDQIR" modified_sequence="VNFTVDQIR" calc_neutral_pep_mass="1090.577108" num_missed_cleavages="0" avg_measured_retention_time="2.35629678">
+      <precursor charge="2" calc_neutral_mass="1090.577108" precursor_mz="546.29583" auto_manage_children="false" collision_energy="0" modified_sequence="VNFTVDQIR">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.536889553">
+          <precursor_mz>546.29583</precursor_mz>
+          <product_mz>546.29583</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.31916">
+          <precursor_mz>546.29583</precursor_mz>
+          <product_mz>546.797266</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.109094933">
+          <precursor_mz>546.29583</precursor_mz>
+          <product_mz>547.298585</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="7" calc_neutral_mass="877.465767" product_charge="1" cleavage_aa="F">
+          <precursor_mz>546.29583</precursor_mz>
+          <product_mz>878.473043</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="6" calc_neutral_mass="730.397353" product_charge="1" cleavage_aa="T">
+          <precursor_mz>546.29583</precursor_mz>
+          <product_mz>731.404629</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="5" calc_neutral_mass="629.349674" product_charge="1" cleavage_aa="V">
+          <precursor_mz>546.29583</precursor_mz>
+          <product_mz>630.35695</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="4" calc_neutral_mass="530.28126" product_charge="1" cleavage_aa="D">
+          <precursor_mz>546.29583</precursor_mz>
+          <product_mz>531.288536</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="7" calc_neutral_mass="877.465767" product_charge="2" cleavage_aa="F">
+          <precursor_mz>546.29583</precursor_mz>
+          <product_mz>439.740159</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="3" calc_neutral_mass="360.179755" product_charge="1" cleavage_aa="F">
+          <precursor_mz>546.29583</precursor_mz>
+          <product_mz>361.187031</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="NLEPEWAAAASEVK" modified_sequence="NLEPEWAAAASEVK" calc_neutral_pep_mass="1513.741273" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="1513.741273" precursor_mz="757.877913" auto_manage_children="true" collision_energy="0" modified_sequence="NLEPEWAAAASEVK" />
+    <peptide sequence="VFSGLVSTGLK" modified_sequence="VFSGLVSTGLK" calc_neutral_pep_mass="1106.63356" num_missed_cleavages="0" avg_measured_retention_time="2.633317">
+      <precursor charge="2" calc_neutral_mass="1106.63356" precursor_mz="554.324056" auto_manage_children="false" collision_energy="0" modified_sequence="VFSGLVSTGLK">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.522845149">
+          <precursor_mz>554.324056</precursor_mz>
+          <product_mz>554.324056</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.3247657">
+          <precursor_mz>554.324056</precursor_mz>
+          <product_mz>554.825543</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.114810988">
+          <precursor_mz>554.324056</precursor_mz>
+          <product_mz>555.326907</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="9" calc_neutral_mass="860.496733" product_charge="1" cleavage_aa="S">
+          <precursor_mz>554.324056</precursor_mz>
+          <product_mz>861.504009</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="8" calc_neutral_mass="773.464704" product_charge="1" cleavage_aa="G">
+          <precursor_mz>554.324056</precursor_mz>
+          <product_mz>774.47198</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="6" calc_neutral_mass="603.359176" product_charge="1" cleavage_aa="V">
+          <precursor_mz>554.324056</precursor_mz>
+          <product_mz>604.366452</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="5" calc_neutral_mass="504.290762" product_charge="1" cleavage_aa="S">
+          <precursor_mz>554.324056</precursor_mz>
+          <product_mz>505.298038</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="3" calc_neutral_mass="333.168856" product_charge="1" cleavage_aa="S">
+          <precursor_mz>554.324056</precursor_mz>
+          <product_mz>334.176132</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="5" calc_neutral_mass="503.274384" product_charge="1" cleavage_aa="L">
+          <precursor_mz>554.324056</precursor_mz>
+          <product_mz>504.28166</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="NPDDITNEEYGEFYK" modified_sequence="NPDDITNEEYGEFYK" calc_neutral_pep_mass="1832.774090" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="1832.774090" precursor_mz="917.394321" auto_manage_children="true" collision_energy="0" modified_sequence="NPDDITNEEYGEFYK" />
+    <peptide sequence="VSFELFADK" modified_sequence="VSFELFADK" calc_neutral_pep_mass="1054.533512" num_missed_cleavages="0" avg_measured_retention_time="3.11394668">
+      <precursor charge="2" calc_neutral_mass="1054.533512" precursor_mz="528.274032" auto_manage_children="false" collision_energy="0" modified_sequence="VSFELFADK">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.5333879">
+          <precursor_mz>528.274032</precursor_mz>
+          <product_mz>528.274032</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.320622057">
+          <precursor_mz>528.274032</precursor_mz>
+          <product_mz>528.775546</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.110783242">
+          <precursor_mz>528.274032</precursor_mz>
+          <product_mz>529.276924</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="7" calc_neutral_mass="868.43307" product_charge="1" cleavage_aa="F">
+          <precursor_mz>528.274032</precursor_mz>
+          <product_mz>869.440346</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="6" calc_neutral_mass="721.364656" product_charge="1" cleavage_aa="E">
+          <precursor_mz>528.274032</precursor_mz>
+          <product_mz>722.371932</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="5" calc_neutral_mass="592.322063" product_charge="1" cleavage_aa="L">
+          <precursor_mz>528.274032</precursor_mz>
+          <product_mz>593.329339</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="4" calc_neutral_mass="479.237999" product_charge="1" cleavage_aa="F">
+          <precursor_mz>528.274032</precursor_mz>
+          <product_mz>480.245275</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="3" calc_neutral_mass="332.169585" product_charge="1" cleavage_aa="A">
+          <precursor_mz>528.274032</precursor_mz>
+          <product_mz>333.176861</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="7" calc_neutral_mass="868.43307" product_charge="2" cleavage_aa="F">
+          <precursor_mz>528.274032</precursor_mz>
+          <product_mz>435.223811</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="NVTELNEPLSNEER" modified_sequence="NVTELNEPLSNEER" calc_neutral_pep_mass="1642.779842" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="1642.779842" precursor_mz="822.397197" auto_manage_children="true" collision_energy="0" modified_sequence="NVTELNEPLSNEER" />
+    <peptide auto_manage_children="false" sequence="DAGTIAGLNVLR" modified_sequence="DAGTIAGLNVLR" calc_neutral_pep_mass="1198.666986" num_missed_cleavages="0" avg_measured_retention_time="2.97496">
+      <precursor charge="2" calc_neutral_mass="1198.666986" precursor_mz="600.340769" auto_manage_children="false" collision_energy="0" modified_sequence="DAGTIAGLNVLR">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.51244247">
+          <precursor_mz>600.340769</precursor_mz>
+          <product_mz>600.340769</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.3265205">
+          <precursor_mz>600.340769</precursor_mz>
+          <product_mz>600.842189</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.120237105">
+          <precursor_mz>600.340769</precursor_mz>
+          <product_mz>601.343498</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="10" calc_neutral_mass="1012.602929" product_charge="1" cleavage_aa="G">
+          <precursor_mz>600.340769</precursor_mz>
+          <product_mz>1013.610205</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="8" calc_neutral_mass="854.533787" product_charge="1" cleavage_aa="I">
+          <precursor_mz>600.340769</precursor_mz>
+          <product_mz>855.541063</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="7" calc_neutral_mass="741.449723" product_charge="1" cleavage_aa="A">
+          <precursor_mz>600.340769</precursor_mz>
+          <product_mz>742.456999</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="6" calc_neutral_mass="670.412609" product_charge="1" cleavage_aa="G">
+          <precursor_mz>600.340769</precursor_mz>
+          <product_mz>671.419885</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="4" calc_neutral_mass="500.307081" product_charge="1" cleavage_aa="N">
+          <precursor_mz>600.340769</precursor_mz>
+          <product_mz>501.314357</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="4" calc_neutral_mass="344.133199" product_charge="1" cleavage_aa="T">
+          <precursor_mz>600.340769</precursor_mz>
+          <product_mz>345.140475</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="PFAIDIFPVTNK" modified_sequence="PFAIDIFPVTNK" calc_neutral_pep_mass="1360.739089" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="1360.739089" precursor_mz="681.376821" auto_manage_children="true" collision_energy="0" modified_sequence="PFAIDIFPVTNK" />
+    <peptide sequence="YLTVAAVFR" modified_sequence="YLTVAAVFR" calc_neutral_pep_mass="1038.586216" num_missed_cleavages="0" avg_measured_retention_time="3.139437">
+      <precursor charge="2" calc_neutral_mass="1038.586216" precursor_mz="520.300384" auto_manage_children="false" collision_energy="0" modified_sequence="YLTVAAVFR">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.533036053">
+          <precursor_mz>520.300384</precursor_mz>
+          <product_mz>520.300384</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.324028432">
+          <precursor_mz>520.300384</precursor_mz>
+          <product_mz>520.801863</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.109463841">
+          <precursor_mz>520.300384</precursor_mz>
+          <product_mz>521.303238</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="7" calc_neutral_mass="762.438824" product_charge="1" cleavage_aa="T">
+          <precursor_mz>520.300384</precursor_mz>
+          <product_mz>763.4461</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="6" calc_neutral_mass="661.391145" product_charge="1" cleavage_aa="V">
+          <precursor_mz>520.300384</precursor_mz>
+          <product_mz>662.398421</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="5" calc_neutral_mass="562.322731" product_charge="1" cleavage_aa="A">
+          <precursor_mz>520.300384</precursor_mz>
+          <product_mz>563.330007</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="4" calc_neutral_mass="491.285617" product_charge="1" cleavage_aa="A">
+          <precursor_mz>520.300384</precursor_mz>
+          <product_mz>492.292893</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="3" calc_neutral_mass="420.248504" product_charge="1" cleavage_aa="V">
+          <precursor_mz>520.300384</precursor_mz>
+          <product_mz>421.25578</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="3" calc_neutral_mass="377.195071" product_charge="1" cleavage_aa="T">
+          <precursor_mz>520.300384</precursor_mz>
+          <product_mz>378.202347</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="PVSSAASVYAGAGGSGSR" modified_sequence="PVSSAASVYAGAGGSGSR" calc_neutral_pep_mass="1579.759049" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="1579.759049" precursor_mz="790.886801" auto_manage_children="true" collision_energy="0" modified_sequence="PVSSAASVYAGAGGSGSR" />
+    <peptide auto_manage_children="false" sequence="VFIGNLNTLVVK" modified_sequence="VFIGNLNTLVVK" calc_neutral_pep_mass="1315.786373" num_missed_cleavages="0" avg_measured_retention_time="3.281907">
+      <precursor charge="2" calc_neutral_mass="1315.786373" precursor_mz="658.900462" auto_manage_children="false" collision_energy="0" modified_sequence="VFIGNLNTLVVK">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.456348181">
+          <precursor_mz>658.900462</precursor_mz>
+          <product_mz>658.900462</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.3449323">
+          <precursor_mz>658.900462</precursor_mz>
+          <product_mz>659.401942</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.143558413">
+          <precursor_mz>658.900462</precursor_mz>
+          <product_mz>659.903332</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="10" calc_neutral_mass="1069.649545" product_charge="1" cleavage_aa="I">
+          <precursor_mz>658.900462</precursor_mz>
+          <product_mz>1070.656821</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="9" calc_neutral_mass="956.565481" product_charge="1" cleavage_aa="G">
+          <precursor_mz>658.900462</precursor_mz>
+          <product_mz>957.572757</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="8" calc_neutral_mass="899.544017" product_charge="1" cleavage_aa="N">
+          <precursor_mz>658.900462</precursor_mz>
+          <product_mz>900.551293</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="7" calc_neutral_mass="785.50109" product_charge="1" cleavage_aa="L">
+          <precursor_mz>658.900462</precursor_mz>
+          <product_mz>786.508366</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="6" calc_neutral_mass="672.417026" product_charge="1" cleavage_aa="N">
+          <precursor_mz>658.900462</precursor_mz>
+          <product_mz>673.424302</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="10" calc_neutral_mass="1069.649545" product_charge="2" cleavage_aa="I">
+          <precursor_mz>658.900462</precursor_mz>
+          <product_mz>535.832048</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="SEHPGLSIGDTAK" modified_sequence="SEHPGLSIGDTAK" calc_neutral_pep_mass="1310.646645" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="1310.646645" precursor_mz="656.330599" auto_manage_children="true" collision_energy="0" modified_sequence="SEHPGLSIGDTAK" />
+    <peptide auto_manage_children="false" sequence="YISPDQLADLYK" modified_sequence="YISPDQLADLYK" calc_neutral_pep_mass="1424.718747" num_missed_cleavages="0" avg_measured_retention_time="3.15766764">
+      <note category="4">Good responder</note>
+      <precursor charge="2" calc_neutral_mass="1424.718747" precursor_mz="713.366649" auto_manage_children="false" collision_energy="0" modified_sequence="YISPDQLADLYK">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.4335325">
+          <precursor_mz>713.366649</precursor_mz>
+          <product_mz>713.366649</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.345607549">
+          <precursor_mz>713.366649</precursor_mz>
+          <product_mz>713.868154</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.1546336">
+          <precursor_mz>713.366649</precursor_mz>
+          <product_mz>714.369549</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="10" calc_neutral_mass="1148.571354" product_charge="1" cleavage_aa="S">
+          <precursor_mz>713.366649</precursor_mz>
+          <product_mz>1149.57863</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="9" calc_neutral_mass="1061.539326" product_charge="1" cleavage_aa="P">
+          <precursor_mz>713.366649</precursor_mz>
+          <product_mz>1062.546602</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="5" calc_neutral_mass="608.316977" product_charge="1" cleavage_aa="A">
+          <precursor_mz>713.366649</precursor_mz>
+          <product_mz>609.324253</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="10" calc_neutral_mass="1148.571354" product_charge="2" cleavage_aa="S">
+          <precursor_mz>713.366649</precursor_mz>
+          <product_mz>575.292953</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="9" calc_neutral_mass="1061.539326" product_charge="2" cleavage_aa="P">
+          <precursor_mz>713.366649</precursor_mz>
+          <product_mz>531.776939</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="3" calc_neutral_mass="363.179421" product_charge="1" cleavage_aa="S">
+          <precursor_mz>713.366649</precursor_mz>
+          <product_mz>364.186697</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="SEPIPESNDGPVK" modified_sequence="SEPIPESNDGPVK" calc_neutral_pep_mass="1367.656874" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="1367.656874" precursor_mz="684.835713" auto_manage_children="true" collision_energy="0" modified_sequence="SEPIPESNDGPVK" />
+    <peptide auto_manage_children="false" sequence="PPYTVVYFPVR" modified_sequence="PPYTVVYFPVR" calc_neutral_pep_mass="1336.717959" num_missed_cleavages="0" avg_measured_retention_time="3.21597338">
+      <precursor charge="2" calc_neutral_mass="1336.717959" precursor_mz="669.366255" auto_manage_children="false" collision_energy="0" modified_sequence="PPYTVVYFPVR">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.43535763">
+          <precursor_mz>669.366255</precursor_mz>
+          <product_mz>669.366255</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.3505886">
+          <precursor_mz>669.366255</precursor_mz>
+          <product_mz>669.867759</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.152735725">
+          <precursor_mz>669.366255</precursor_mz>
+          <product_mz>670.369183</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="9" calc_neutral_mass="1142.612431" product_charge="1" cleavage_aa="Y">
+          <precursor_mz>669.366255</precursor_mz>
+          <product_mz>1143.619707</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="8" calc_neutral_mass="979.549102" product_charge="1" cleavage_aa="T">
+          <precursor_mz>669.366255</precursor_mz>
+          <product_mz>980.556378</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="7" calc_neutral_mass="878.501424" product_charge="1" cleavage_aa="V">
+          <precursor_mz>669.366255</precursor_mz>
+          <product_mz>879.5087</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="6" calc_neutral_mass="779.43301" product_charge="1" cleavage_aa="V">
+          <precursor_mz>669.366255</precursor_mz>
+          <product_mz>780.440286</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="5" calc_neutral_mass="680.364596" product_charge="1" cleavage_aa="Y">
+          <precursor_mz>669.366255</precursor_mz>
+          <product_mz>681.371872</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="4" calc_neutral_mass="517.301268" product_charge="1" cleavage_aa="F">
+          <precursor_mz>669.366255</precursor_mz>
+          <product_mz>518.308544</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="3" calc_neutral_mass="370.232854" product_charge="1" cleavage_aa="P">
+          <precursor_mz>669.366255</precursor_mz>
+          <product_mz>371.24013</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="STGGAPTFNVTVTK" modified_sequence="STGGAPTFNVTVTK" calc_neutral_pep_mass="1378.709247" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="1378.709247" precursor_mz="690.361900" auto_manage_children="true" collision_energy="0" modified_sequence="STGGAPTFNVTVTK" />
+    <peptide auto_manage_children="false" sequence="NAVITVPAYFNDSQR" modified_sequence="NAVITVPAYFNDSQR" calc_neutral_pep_mass="1693.842384" num_missed_cleavages="0" avg_measured_retention_time="2.97111773">
+      <precursor charge="2" calc_neutral_mass="1693.842384" precursor_mz="847.928468" auto_manage_children="false" collision_energy="0" modified_sequence="NAVITVPAYFNDSQR">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.379480243">
+          <precursor_mz>847.928468</precursor_mz>
+          <product_mz>847.928468</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.3509616">
+          <precursor_mz>847.928468</precursor_mz>
+          <product_mz>848.429913</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.1791713">
+          <precursor_mz>847.928468</precursor_mz>
+          <product_mz>848.931274</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="12" calc_neutral_mass="1409.693929" product_charge="1" cleavage_aa="I">
+          <precursor_mz>847.928468</precursor_mz>
+          <product_mz>1410.701205</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="11" calc_neutral_mass="1296.609865" product_charge="1" cleavage_aa="T">
+          <precursor_mz>847.928468</precursor_mz>
+          <product_mz>1297.617141</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="10" calc_neutral_mass="1195.562186" product_charge="1" cleavage_aa="V">
+          <precursor_mz>847.928468</precursor_mz>
+          <product_mz>1196.569462</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="9" calc_neutral_mass="1096.493772" product_charge="1" cleavage_aa="P">
+          <precursor_mz>847.928468</precursor_mz>
+          <product_mz>1097.501048</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="3" calc_neutral_mass="284.148455" product_charge="1" cleavage_aa="V">
+          <precursor_mz>847.928468</precursor_mz>
+          <product_mz>285.155731</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="4" calc_neutral_mass="397.232519" product_charge="1" cleavage_aa="I">
+          <precursor_mz>847.928468</precursor_mz>
+          <product_mz>398.239795</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="TDYNASVSVPDSSGPER" modified_sequence="TDYNASVSVPDSSGPER" calc_neutral_pep_mass="1779.791136" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="1779.791136" precursor_mz="890.902844" auto_manage_children="true" collision_energy="0" modified_sequence="TDYNASVSVPDSSGPER" />
+    <peptide sequence="VLITTDLLAR" modified_sequence="VLITTDLLAR" calc_neutral_pep_mass="1113.67576" num_missed_cleavages="0" avg_measured_retention_time="3.076068">
+      <precursor charge="2" calc_neutral_mass="1113.67576" precursor_mz="557.845156" auto_manage_children="false" collision_energy="0" modified_sequence="VLITTDLLAR">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.5262582">
+          <precursor_mz>557.845156</precursor_mz>
+          <product_mz>557.845156</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.32343334">
+          <precursor_mz>557.845156</precursor_mz>
+          <product_mz>558.346623</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.1133699">
+          <precursor_mz>557.845156</precursor_mz>
+          <product_mz>558.847971</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="8" calc_neutral_mass="901.523282" product_charge="1" cleavage_aa="I">
+          <precursor_mz>557.845156</precursor_mz>
+          <product_mz>902.530558</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="7" calc_neutral_mass="788.439218" product_charge="1" cleavage_aa="T">
+          <precursor_mz>557.845156</precursor_mz>
+          <product_mz>789.446494</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="6" calc_neutral_mass="687.391539" product_charge="1" cleavage_aa="T">
+          <precursor_mz>557.845156</precursor_mz>
+          <product_mz>688.398815</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="5" calc_neutral_mass="586.343861" product_charge="1" cleavage_aa="D">
+          <precursor_mz>557.845156</precursor_mz>
+          <product_mz>587.351137</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="8" calc_neutral_mass="901.523282" product_charge="2" cleavage_aa="I">
+          <precursor_mz>557.845156</precursor_mz>
+          <product_mz>451.768917</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="3" calc_neutral_mass="325.236542" product_charge="1" cleavage_aa="I">
+          <precursor_mz>557.845156</precursor_mz>
+          <product_mz>326.243818</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="TFVNITPAEVGVLVGK" modified_sequence="TFVNITPAEVGVLVGK" calc_neutral_pep_mass="1642.929410" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="1642.929410" precursor_mz="822.471981" auto_manage_children="true" collision_energy="0" modified_sequence="TFVNITPAEVGVLVGK" />
+    <peptide auto_manage_children="false" sequence="SSGPTSLFAVTVAPPGAR" modified_sequence="SSGPTSLFAVTVAPPGAR" calc_neutral_pep_mass="1713.904984" num_missed_cleavages="0" avg_measured_retention_time="3.24152637">
+      <precursor charge="2" calc_neutral_mass="1713.904984" precursor_mz="857.959768" auto_manage_children="false" collision_energy="0" modified_sequence="SSGPTSLFAVTVAPPGAR">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.374933153">
+          <precursor_mz>857.959768</precursor_mz>
+          <product_mz>857.959768</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.3513">
+          <precursor_mz>857.959768</precursor_mz>
+          <product_mz>858.461217</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.181231469">
+          <precursor_mz>857.959768</precursor_mz>
+          <product_mz>858.962585</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="11" calc_neutral_mass="1084.602929" product_charge="1" cleavage_aa="F">
+          <precursor_mz>857.959768</precursor_mz>
+          <product_mz>1085.610205</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="10" calc_neutral_mass="937.534515" product_charge="1" cleavage_aa="A">
+          <precursor_mz>857.959768</precursor_mz>
+          <product_mz>938.541791</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="9" calc_neutral_mass="866.497401" product_charge="1" cleavage_aa="V">
+          <precursor_mz>857.959768</precursor_mz>
+          <product_mz>867.504677</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="8" calc_neutral_mass="767.428987" product_charge="1" cleavage_aa="T">
+          <precursor_mz>857.959768</precursor_mz>
+          <product_mz>768.436263</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="6" calc_neutral_mass="567.312895" product_charge="1" cleavage_aa="A">
+          <precursor_mz>857.959768</precursor_mz>
+          <product_mz>568.320171</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="5" calc_neutral_mass="496.275781" product_charge="1" cleavage_aa="P">
+          <precursor_mz>857.959768</precursor_mz>
+          <product_mz>497.283057</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="TGAIVDVPVGEELLGR" modified_sequence="TGAIVDVPVGEELLGR" calc_neutral_pep_mass="1623.883188" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="1623.883188" precursor_mz="812.948870" auto_manage_children="true" collision_energy="0" modified_sequence="TGAIVDVPVGEELLGR" />
+    <peptide sequence="GFTIPEAFR" modified_sequence="GFTIPEAFR" calc_neutral_pep_mass="1036.534181" num_missed_cleavages="0" avg_measured_retention_time="3.09519482">
+      <note category="4">Good responder</note>
+      <precursor charge="2" calc_neutral_mass="1036.534181" precursor_mz="519.274366" auto_manage_children="false" collision_energy="0" modified_sequence="GFTIPEAFR">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.5380451">
+          <precursor_mz>519.274366</precursor_mz>
+          <product_mz>519.274366</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.3209133">
+          <precursor_mz>519.274366</precursor_mz>
+          <product_mz>519.775839</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.10791751">
+          <precursor_mz>519.274366</precursor_mz>
+          <product_mz>520.277199</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="7" calc_neutral_mass="832.444303" product_charge="1" cleavage_aa="T">
+          <precursor_mz>519.274366</precursor_mz>
+          <product_mz>833.451579</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="6" calc_neutral_mass="731.396625" product_charge="1" cleavage_aa="I">
+          <precursor_mz>519.274366</precursor_mz>
+          <product_mz>732.403901</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="5" calc_neutral_mass="618.312561" product_charge="1" cleavage_aa="P">
+          <precursor_mz>519.274366</precursor_mz>
+          <product_mz>619.319837</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="3" calc_neutral_mass="392.217204" product_charge="1" cleavage_aa="A">
+          <precursor_mz>519.274366</precursor_mz>
+          <product_mz>393.22448</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="5" calc_neutral_mass="618.312561" product_charge="2" cleavage_aa="P">
+          <precursor_mz>519.274366</precursor_mz>
+          <product_mz>310.163556</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="3" calc_neutral_mass="305.137556" product_charge="1" cleavage_aa="T">
+          <precursor_mz>519.274366</precursor_mz>
+          <product_mz>306.144832</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="TGEAIVDAALSALR" modified_sequence="TGEAIVDAALSALR" calc_neutral_pep_mass="1385.751445" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="1385.751445" precursor_mz="693.882999" auto_manage_children="true" collision_energy="0" modified_sequence="TGEAIVDAALSALR" />
+    <peptide auto_manage_children="false" sequence="DLADELALVDVIEDK" modified_sequence="DLADELALVDVIEDK" calc_neutral_pep_mass="1656.845798" num_missed_cleavages="0" avg_measured_retention_time="3.859463">
+      <precursor charge="2" calc_neutral_mass="1656.845798" precursor_mz="829.430175" auto_manage_children="false" collision_energy="0" modified_sequence="DLADELALVDVIEDK">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.3952204">
+          <precursor_mz>829.430175</precursor_mz>
+          <product_mz>829.430175</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.3461534">
+          <precursor_mz>829.430175</precursor_mz>
+          <product_mz>829.931675</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.172499239">
+          <precursor_mz>829.430175</precursor_mz>
+          <product_mz>830.433057</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="10" calc_neutral_mass="1113.628141" product_charge="1" cleavage_aa="L">
+          <precursor_mz>829.430175</precursor_mz>
+          <product_mz>1114.635417</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="9" calc_neutral_mass="1000.544077" product_charge="1" cleavage_aa="A">
+          <precursor_mz>829.430175</precursor_mz>
+          <product_mz>1001.551353</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="8" calc_neutral_mass="929.506963" product_charge="1" cleavage_aa="L">
+          <precursor_mz>829.430175</precursor_mz>
+          <product_mz>930.514239</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="7" calc_neutral_mass="816.422899" product_charge="1" cleavage_aa="V">
+          <precursor_mz>829.430175</precursor_mz>
+          <product_mz>817.430175</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="6" calc_neutral_mass="717.354485" product_charge="1" cleavage_aa="D">
+          <precursor_mz>829.430175</precursor_mz>
+          <product_mz>718.361761</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="5" calc_neutral_mass="543.217657" product_charge="1" cleavage_aa="E">
+          <precursor_mz>829.430175</precursor_mz>
+          <product_mz>544.224933</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="TITLEVEPSDTIENVK" modified_sequence="TITLEVEPSDTIENVK" calc_neutral_pep_mass="1786.920026" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="1786.920026" precursor_mz="894.467289" auto_manage_children="true" collision_energy="0" modified_sequence="TITLEVEPSDTIENVK" />
+    <peptide auto_manage_children="false" sequence="ISLPLPNFSSLNLR" modified_sequence="ISLPLPNFSSLNLR" calc_neutral_pep_mass="1569.887878" num_missed_cleavages="0" avg_measured_retention_time="3.767823">
+      <precursor charge="2" calc_neutral_mass="1569.887878" precursor_mz="785.951215" auto_manage_children="false" collision_energy="0" modified_sequence="ISLPLPNFSSLNLR">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.398579061">
+          <precursor_mz>785.951215</precursor_mz>
+          <product_mz>785.951215</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.352218419">
+          <precursor_mz>785.951215</precursor_mz>
+          <product_mz>786.452675</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.170166656">
+          <precursor_mz>785.951215</precursor_mz>
+          <product_mz>786.954055</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="11" calc_neutral_mass="1256.687721" product_charge="1" cleavage_aa="P">
+          <precursor_mz>785.951215</precursor_mz>
+          <product_mz>1257.694997</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="9" calc_neutral_mass="1046.550893" product_charge="1" cleavage_aa="P">
+          <precursor_mz>785.951215</precursor_mz>
+          <product_mz>1047.558169</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="6" calc_neutral_mass="688.386788" product_charge="1" cleavage_aa="S">
+          <precursor_mz>785.951215</precursor_mz>
+          <product_mz>689.394064</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="12" calc_neutral_mass="1369.771785" product_charge="2" cleavage_aa="L">
+          <precursor_mz>785.951215</precursor_mz>
+          <product_mz>685.893169</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="11" calc_neutral_mass="1256.687721" product_charge="2" cleavage_aa="P">
+          <precursor_mz>785.951215</precursor_mz>
+          <product_mz>629.351137</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="9" calc_neutral_mass="1046.550893" product_charge="2" cleavage_aa="P">
+          <precursor_mz>785.951215</precursor_mz>
+          <product_mz>524.282723</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="VNPTVFFDIAVDGEPLGR" modified_sequence="VNPTVFFDIAVDGEPLGR" calc_neutral_pep_mass="1944.994529" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="1944.994529" precursor_mz="973.504541" auto_manage_children="true" collision_energy="0" modified_sequence="VNPTVFFDIAVDGEPLGR" />
+    <peptide auto_manage_children="false" sequence="LLGQFTLIGIPPAPR" modified_sequence="LLGQFTLIGIPPAPR" calc_neutral_pep_mass="1591.944999" num_missed_cleavages="0" avg_measured_retention_time="3.67265987">
+      <precursor charge="2" calc_neutral_mass="1591.944999" precursor_mz="796.979775" auto_manage_children="false" collision_energy="0" modified_sequence="LLGQFTLIGIPPAPR">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.383095175">
+          <precursor_mz>796.979775</precursor_mz>
+          <product_mz>796.979775</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.35537082">
+          <precursor_mz>796.979775</precursor_mz>
+          <product_mz>797.481247</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.177142262">
+          <precursor_mz>796.979775</precursor_mz>
+          <product_mz>797.98265</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="11" calc_neutral_mass="1180.696829" product_charge="1" cleavage_aa="F">
+          <precursor_mz>796.979775</precursor_mz>
+          <product_mz>1181.704105</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="10" calc_neutral_mass="1033.628415" product_charge="1" cleavage_aa="T">
+          <precursor_mz>796.979775</precursor_mz>
+          <product_mz>1034.635691</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="9" calc_neutral_mass="932.580737" product_charge="1" cleavage_aa="L">
+          <precursor_mz>796.979775</precursor_mz>
+          <product_mz>933.588013</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="8" calc_neutral_mass="819.496673" product_charge="1" cleavage_aa="I">
+          <precursor_mz>796.979775</precursor_mz>
+          <product_mz>820.503949</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="7" calc_neutral_mass="706.412609" product_charge="1" cleavage_aa="G">
+          <precursor_mz>796.979775</precursor_mz>
+          <product_mz>707.419885</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="5" calc_neutral_mass="536.307081" product_charge="1" cleavage_aa="P">
+          <precursor_mz>796.979775</precursor_mz>
+          <product_mz>537.314357</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="VVGDVAYDEAK" modified_sequence="VVGDVAYDEAK" calc_neutral_pep_mass="1164.566270" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="1164.566270" precursor_mz="583.290411" auto_manage_children="true" collision_energy="0" modified_sequence="VVGDVAYDEAK" />
+    <peptide auto_manage_children="false" sequence="AIIIFVPVPQLK" modified_sequence="AIIIFVPVPQLK" calc_neutral_pep_mass="1336.848245" num_missed_cleavages="0" avg_measured_retention_time="3.76789975">
+      <precursor charge="2" calc_neutral_mass="1336.848245" precursor_mz="669.431398" auto_manage_children="false" collision_energy="0" modified_sequence="AIIIFVPVPQLK">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.435396463">
+          <precursor_mz>669.431398</precursor_mz>
+          <product_mz>669.431398</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.3514647">
+          <precursor_mz>669.431398</precursor_mz>
+          <product_mz>669.932907</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.1525377">
+          <precursor_mz>669.431398</precursor_mz>
+          <product_mz>670.434339</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="9" calc_neutral_mass="1039.643003" product_charge="1" cleavage_aa="I">
+          <precursor_mz>669.431398</precursor_mz>
+          <product_mz>1040.650279</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="8" calc_neutral_mass="926.558939" product_charge="1" cleavage_aa="F">
+          <precursor_mz>669.431398</precursor_mz>
+          <product_mz>927.566215</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="7" calc_neutral_mass="779.490525" product_charge="1" cleavage_aa="V">
+          <precursor_mz>669.431398</precursor_mz>
+          <product_mz>780.497801</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="6" calc_neutral_mass="680.422111" product_charge="1" cleavage_aa="P">
+          <precursor_mz>669.431398</precursor_mz>
+          <product_mz>681.429387</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="4" calc_neutral_mass="484.300933" product_charge="1" cleavage_aa="P">
+          <precursor_mz>669.431398</precursor_mz>
+          <product_mz>485.308209</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="3" calc_neutral_mass="297.205242" product_charge="1" cleavage_aa="I">
+          <precursor_mz>669.431398</precursor_mz>
+          <product_mz>298.212518</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="VVLAYEPVWAIGTGK" modified_sequence="VVLAYEPVWAIGTGK" calc_neutral_pep_mass="1601.881732" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="1601.881732" precursor_mz="801.948142" auto_manage_children="true" collision_energy="0" modified_sequence="VVLAYEPVWAIGTGK" />
+    <peptide sequence="IAIYELLFK" modified_sequence="IAIYELLFK" calc_neutral_pep_mass="1108.653233" num_missed_cleavages="0" avg_measured_retention_time="3.77767539">
+      <precursor charge="2" calc_neutral_mass="1108.653233" precursor_mz="555.333893" auto_manage_children="false" collision_energy="0" modified_sequence="IAIYELLFK">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.501034558">
+          <precursor_mz>555.333893</precursor_mz>
+          <product_mz>555.333893</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.3347552">
+          <precursor_mz>555.333893</precursor_mz>
+          <product_mz>555.835427</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.123140536">
+          <precursor_mz>555.333893</precursor_mz>
+          <product_mz>556.336857</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="7" calc_neutral_mass="924.532055" product_charge="1" cleavage_aa="I">
+          <precursor_mz>555.333893</precursor_mz>
+          <product_mz>925.539331</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="6" calc_neutral_mass="811.447991" product_charge="1" cleavage_aa="Y">
+          <precursor_mz>555.333893</precursor_mz>
+          <product_mz>812.455267</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="5" calc_neutral_mass="648.384663" product_charge="1" cleavage_aa="E">
+          <precursor_mz>555.333893</precursor_mz>
+          <product_mz>649.391939</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="4" calc_neutral_mass="519.34207" product_charge="1" cleavage_aa="L">
+          <precursor_mz>555.333893</precursor_mz>
+          <product_mz>520.349346</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="7" calc_neutral_mass="924.532055" product_charge="2" cleavage_aa="I">
+          <precursor_mz>555.333893</precursor_mz>
+          <product_mz>463.273304</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="3" calc_neutral_mass="297.205242" product_charge="1" cleavage_aa="I">
+          <precursor_mz>555.333893</precursor_mz>
+          <product_mz>298.212518</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="VVVAENFDEIVNNENK" modified_sequence="VVVAENFDEIVNNENK" calc_neutral_pep_mass="1831.895206" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="1831.895206" precursor_mz="916.954879" auto_manage_children="true" collision_energy="0" modified_sequence="VVVAENFDEIVNNENK" />
+    <peptide auto_manage_children="false" sequence="LGFAGLVQEISFGTTK" modified_sequence="LGFAGLVQEISFGTTK" calc_neutral_pep_mass="1666.893023" num_missed_cleavages="0" avg_measured_retention_time="3.78850317">
+      <precursor charge="2" calc_neutral_mass="1666.893023" precursor_mz="834.453787" auto_manage_children="false" collision_energy="0" modified_sequence="LGFAGLVQEISFGTTK">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.375932544">
+          <precursor_mz>834.453787</precursor_mz>
+          <product_mz>834.453787</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.352015883">
+          <precursor_mz>834.453787</precursor_mz>
+          <product_mz>834.955273</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.180723667">
+          <precursor_mz>834.453787</precursor_mz>
+          <product_mz>835.456673</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="12" calc_neutral_mass="1278.681967" product_charge="1" cleavage_aa="G">
+          <precursor_mz>834.453787</precursor_mz>
+          <product_mz>1279.689243</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="10" calc_neutral_mass="1108.57644" product_charge="1" cleavage_aa="V">
+          <precursor_mz>834.453787</precursor_mz>
+          <product_mz>1109.583716</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="9" calc_neutral_mass="1009.508026" product_charge="1" cleavage_aa="Q">
+          <precursor_mz>834.453787</precursor_mz>
+          <product_mz>1010.515302</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="8" calc_neutral_mass="881.449448" product_charge="1" cleavage_aa="E">
+          <precursor_mz>834.453787</precursor_mz>
+          <product_mz>882.456724</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="6" calc_neutral_mass="639.322791" product_charge="1" cleavage_aa="S">
+          <precursor_mz>834.453787</precursor_mz>
+          <product_mz>640.330067</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="3" calc_neutral_mass="317.173942" product_charge="1" cleavage_aa="F">
+          <precursor_mz>834.453787</precursor_mz>
+          <product_mz>318.181218</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
-    <peptide auto_manage_children="true" sequence="YSLEPVAVELK" modified_sequence="YSLEPVAVELK" calc_neutral_pep_mass="1246.680905" num_missed_cleavages="0">
-      <precursor charge="2" calc_neutral_mass="1246.680905" precursor_mz="624.347729" auto_manage_children="true" collision_energy="0" modified_sequence="YSLEPVAVELK" />
+    <peptide auto_manage_children="false" sequence="LTTDFNVIVEALSK" modified_sequence="LTTDFNVIVEALSK" calc_neutral_pep_mass="1548.839925" num_missed_cleavages="0" avg_measured_retention_time="3.82758069">
+      <precursor charge="2" calc_neutral_mass="1548.839925" precursor_mz="775.427238" auto_manage_children="false" collision_energy="0" modified_sequence="LTTDFNVIVEALSK">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.409077674">
+          <precursor_mz>775.427238</precursor_mz>
+          <product_mz>775.427238</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.348309934">
+          <precursor_mz>775.427238</precursor_mz>
+          <product_mz>775.928731</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.165778562">
+          <precursor_mz>775.427238</precursor_mz>
+          <product_mz>776.43012</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="12" calc_neutral_mass="1334.708182" product_charge="1" cleavage_aa="T">
+          <precursor_mz>775.427238</precursor_mz>
+          <product_mz>1335.715458</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="9" calc_neutral_mass="971.565147" product_charge="1" cleavage_aa="N">
+          <precursor_mz>775.427238</precursor_mz>
+          <product_mz>972.572423</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="8" calc_neutral_mass="857.522219" product_charge="1" cleavage_aa="V">
+          <precursor_mz>775.427238</precursor_mz>
+          <product_mz>858.529495</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="7" calc_neutral_mass="758.453805" product_charge="1" cleavage_aa="I">
+          <precursor_mz>775.427238</precursor_mz>
+          <product_mz>759.461081</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="6" calc_neutral_mass="645.369741" product_charge="1" cleavage_aa="V">
+          <precursor_mz>775.427238</precursor_mz>
+          <product_mz>646.377017</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="5" calc_neutral_mass="546.301327" product_charge="1" cleavage_aa="E">
+          <precursor_mz>775.427238</precursor_mz>
+          <product_mz>547.308603</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
+    </peptide>
+    <peptide auto_manage_children="false" sequence="GYAFIEFASFEDAK" modified_sequence="GYAFIEFASFEDAK" calc_neutral_pep_mass="1593.735125" num_missed_cleavages="0" avg_measured_retention_time="3.60866785">
+      <precursor charge="2" calc_neutral_mass="1593.735125" precursor_mz="797.874839" auto_manage_children="false" collision_energy="0" modified_sequence="GYAFIEFASFEDAK">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.38532275">
+          <precursor_mz>797.874839</precursor_mz>
+          <product_mz>797.874839</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.3512779">
+          <precursor_mz>797.874839</precursor_mz>
+          <product_mz>798.376353</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.176463425">
+          <precursor_mz>797.874839</precursor_mz>
+          <product_mz>798.877772</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="10" calc_neutral_mass="1155.544805" product_charge="1" cleavage_aa="I">
+          <precursor_mz>797.874839</precursor_mz>
+          <product_mz>1156.552081</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="9" calc_neutral_mass="1042.460741" product_charge="1" cleavage_aa="E">
+          <precursor_mz>797.874839</precursor_mz>
+          <product_mz>1043.468017</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="8" calc_neutral_mass="913.418148" product_charge="1" cleavage_aa="F">
+          <precursor_mz>797.874839</precursor_mz>
+          <product_mz>914.425424</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="7" calc_neutral_mass="766.349734" product_charge="1" cleavage_aa="A">
+          <precursor_mz>797.874839</precursor_mz>
+          <product_mz>767.35701</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="3" calc_neutral_mass="291.121906" product_charge="1" cleavage_aa="A">
+          <precursor_mz>797.874839</precursor_mz>
+          <product_mz>292.129182</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="4" calc_neutral_mass="438.19032" product_charge="1" cleavage_aa="F">
+          <precursor_mz>797.874839</precursor_mz>
+          <product_mz>439.197596</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
+    </peptide>
+    <peptide auto_manage_children="false" sequence="YPSPFFVFGEK" modified_sequence="YPSPFFVFGEK" calc_neutral_pep_mass="1316.644125" num_missed_cleavages="0" avg_measured_retention_time="3.584515">
+      <precursor charge="2" calc_neutral_mass="1316.644125" precursor_mz="659.329339" auto_manage_children="false" collision_energy="0" modified_sequence="YPSPFFVFGEK">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.4380059">
+          <precursor_mz>659.329339</precursor_mz>
+          <product_mz>659.329339</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.349161446">
+          <precursor_mz>659.329339</precursor_mz>
+          <product_mz>659.830868</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.1517187">
+          <precursor_mz>659.329339</precursor_mz>
+          <product_mz>660.332306</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="9" calc_neutral_mass="1056.528033" product_charge="1" cleavage_aa="S">
+          <precursor_mz>659.329339</precursor_mz>
+          <product_mz>1057.535309</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="8" calc_neutral_mass="969.496004" product_charge="1" cleavage_aa="P">
+          <precursor_mz>659.329339</precursor_mz>
+          <product_mz>970.50328</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="6" calc_neutral_mass="725.374826" product_charge="1" cleavage_aa="F">
+          <precursor_mz>659.329339</precursor_mz>
+          <product_mz>726.382102</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="3" calc_neutral_mass="332.169585" product_charge="1" cleavage_aa="G">
+          <precursor_mz>659.329339</precursor_mz>
+          <product_mz>333.176861</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="9" calc_neutral_mass="1056.528033" product_charge="2" cleavage_aa="S">
+          <precursor_mz>659.329339</precursor_mz>
+          <product_mz>529.271292</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="8" calc_neutral_mass="969.496004" product_charge="2" cleavage_aa="P">
+          <precursor_mz>659.329339</precursor_mz>
+          <product_mz>485.755278</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="3" calc_neutral_mass="347.148121" product_charge="1" cleavage_aa="S">
+          <precursor_mz>659.329339</precursor_mz>
+          <product_mz>348.155397</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
+    </peptide>
+    <peptide auto_manage_children="false" sequence="ISGLIYEETR" modified_sequence="ISGLIYEETR" calc_neutral_pep_mass="1179.613553" num_missed_cleavages="0" avg_measured_retention_time="2.243775">
+      <precursor charge="2" calc_neutral_mass="1179.613553" precursor_mz="590.814053" auto_manage_children="false" collision_energy="0" modified_sequence="ISGLIYEETR">
+        <transition fragment_type="precursor" isotope_dist_rank="1" isotope_dist_proportion="0.511635065">
+          <precursor_mz>590.814053</precursor_mz>
+          <product_mz>590.814053</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="1" isotope_dist_rank="2" isotope_dist_proportion="0.325797856">
+          <precursor_mz>590.814053</precursor_mz>
+          <product_mz>591.315526</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="precursor" mass_index="2" isotope_dist_rank="3" isotope_dist_proportion="0.120942511">
+          <precursor_mz>590.814053</precursor_mz>
+          <product_mz>591.816867</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="8" calc_neutral_mass="979.497461" product_charge="1" cleavage_aa="G">
+          <precursor_mz>590.814053</precursor_mz>
+          <product_mz>980.504737</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="6" calc_neutral_mass="809.391933" product_charge="1" cleavage_aa="I">
+          <precursor_mz>590.814053</precursor_mz>
+          <product_mz>810.399209</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="5" calc_neutral_mass="696.307869" product_charge="1" cleavage_aa="Y">
+          <precursor_mz>590.814053</precursor_mz>
+          <product_mz>697.315145</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="y" fragment_ordinal="4" calc_neutral_mass="533.244541" product_charge="1" cleavage_aa="E">
+          <precursor_mz>590.814053</precursor_mz>
+          <product_mz>534.251817</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="3" calc_neutral_mass="257.137556" product_charge="1" cleavage_aa="G">
+          <precursor_mz>590.814053</precursor_mz>
+          <product_mz>258.144832</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+        <transition fragment_type="b" fragment_ordinal="4" calc_neutral_mass="370.22162" product_charge="1" cleavage_aa="L">
+          <precursor_mz>590.814053</precursor_mz>
+          <product_mz>371.228896</product_mz>
+          <collision_energy>0</collision_energy>
+          </transition>
+      </precursor>
     </peptide>
   </peptide_list>
 </srm_settings>

@@ -491,17 +491,18 @@ def _parse_instruments(form: dict[str, Any]) -> list[InstrumentConfig]:
         raw_id = str(form.get(f"instrument_id_{idx}", "")).strip()
         raw_vendor = str(form.get(f"vendor_{idx}", "thermo"))
         raw_path = str(form.get(f"watch_path_{idx}", "")).strip()
-        raw_pattern = str(form.get(f"file_pattern_{idx}", "*")).strip()
+        raw_pattern = str(form.get(f"file_pattern_{idx}", "")).strip()
         raw_template = str(form.get(f"template_{idx}", "QC_Method.sky")).strip()
 
         if not raw_id and not raw_path:
             continue  # skip completely empty rows
 
+        vendor = Vendor(raw_vendor if raw_vendor in VENDORS else "thermo")
         instruments.append(InstrumentConfig(
             id=raw_id or f"instrument-{idx + 1}",
-            vendor=Vendor(raw_vendor if raw_vendor in VENDORS else "thermo"),
+            vendor=vendor,
             watch_path=Path(raw_path or "."),
-            file_pattern=raw_pattern or "*",
+            file_pattern=raw_pattern or vendor.default_file_pattern,
             template=raw_template or "QC_Method.sky",
         ))
 

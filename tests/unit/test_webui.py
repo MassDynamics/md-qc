@@ -1528,3 +1528,228 @@ def test_settings_lists_the_built_in_file_names(
     for name in ("PCD96", "PCD384", "SSCBASE", "SSCGOLD", "SSC0", "BLANK"):
         assert f"<code>{name}</code>" in html
     assert "Extra rules" in html
+
+
+# --- First-run and commissioning (v1.2.2) ----------------------------------
+
+
+def test_dashboard_shows_the_wizard_on_a_first_run(
+    state_without_instruments: _FakeAppState,
+) -> None:
+    """Setup, the tray and the Start menu all open /dashboard. The wizard was
+    only on "/", so a new install never showed it."""
+    body = _client(_build_app(state_without_instruments)).get("/dashboard").text
+    assert "Step 1" in body
+
+
+def test_wizard_save_takes_effect_without_a_restart(
+    state_without_instruments: _FakeAppState, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The wizard wrote config.toml but the running agent kept its empty
+    config: it watched nothing and showed the wizard again."""
+    monkeypatch.setenv("MDQC_DATA_DIR", str(tmp_path))
+    client = _client(_build_app(state_without_instruments))
+    client.post("/wizard/step/1", data={"vendor": "bruker"})
+    client.post(
+        "/wizard/step/2",
+        data={"instrument_id": "tims-1", "watch_path": str(tmp_path / "data")},
+    )
+    client.post("/wizard/step/3", data={"skyline_path": ""})
+    client.post("/wizard/step/4", data={"template_path": ""})
+    client.post("/wizard/step/5", data={"output_mode": "local"})
+
+    cfg = state_without_instruments.cfg
+    assert [i.id for i in cfg.instruments] == ["tims-1"]
+    # The vendor's own extension, not "*", which picked up a README.
+    assert cfg.instruments[0].file_pattern == "*.d"
+    assert "Step 1" not in client.get("/dashboard").text
+
+
+def test_settings_blank_file_pattern_uses_the_vendor_default(
+    state_with_instruments: _FakeAppState, tmp_data_dir: Path
+) -> None:
+    client = _client(_build_app(state_with_instruments))
+    client.post(
+        "/settings",
+        data=_base_settings_form(
+            instrument_id_0="astral-1", vendor_0="thermo",
+            watch_path_0=str(tmp_data_dir), file_pattern_0="", template_0="QC_Method.sky",
+            instrument_id_1="zeno-1", vendor_1="sciex",
+            watch_path_1=str(tmp_data_dir), file_pattern_1="", template_1="QC_Method.sky",
+        ),
+    )
+    patterns = {i.id: i.file_pattern for i in state_with_instruments.cfg.instruments}
+    assert patterns == {"astral-1": "*.raw", "zeno-1": "*.wiff"}
+
+
+class _FakeFinalizer:
+    def __init__(self) -> None:
+        self.calls: list[tuple[Path, Vendor, bool]] = []
+
+    async def observe(self, path: Path, vendor: Vendor, *, force: bool = False) -> bool:
+        self.calls.append((path, vendor, force))
+        return True
+
+
+def test_failed_retry_requeues_the_file_and_says_so(
+    state_with_instruments: _FakeAppState,
+) -> None:
+    """Retry used to bump a counter and nothing else: no extraction started
+    and the page did not change."""
+    state = state_with_instruments
+    raw = state.cfg.instruments[0].watch_path / "SSC_200SPD_r01.raw"
+    raw.write_bytes(b"x")
+    state.failed.add(str(raw), "qe-test", "template not found: QC_Method.sky")
+    finalizer = _FakeFinalizer()
+    state.finalizer = finalizer  # type: ignore[attr-defined]
+
+    response = _client(_build_app(state)).post(f"/failed/retry/{raw}")
+
+    assert finalizer.calls == [(raw, Vendor.THERMO, True)]
+    assert "Retrying SSC_200SPD_r01.raw" in response.text
+
+
+def test_failed_retry_of_a_missing_file_explains(
+    state_with_instruments: _FakeAppState,
+) -> None:
+    state = state_with_instruments
+    gone = state.cfg.instruments[0].watch_path / "SSC_200SPD_gone.raw"
+    state.failed.add(str(gone), "qe-test", "boom")
+    finalizer = _FakeFinalizer()
+    state.finalizer = finalizer  # type: ignore[attr-defined]
+
+    response = _client(_build_app(state)).post(f"/failed/retry/{gone}")
+
+    assert finalizer.calls == []
+    assert "no longer in the watch folder" in response.text
+
+
+def test_activity_flags_a_run_with_no_targets(
+    state_with_instruments: _FakeAppState,
+) -> None:
+    """0 of 43 targets was shown as a green SUCCESS."""
+    from mdqc.activity_log import ActivityEntry
+    from mdqc.types import ExtractionStatus
+
+    state_with_instruments.activity._entries = [
+        ActivityEntry(
+            path="SSC_180SPD_r04.raw", instrument_id="qe-test",
+            timestamp=datetime.now(UTC), result=ExtractionStatus.SUCCESS,
+            targets_found=0, targets_expected=43,
+        ),
+        ActivityEntry(
+            path="plasma_12.raw", instrument_id="qe-test",
+            timestamp=datetime.now(UTC), result=ExtractionStatus.SKIPPED,
+            detail="not a QC run",
+        ),
+    ]
+    body = _client(_build_app(state_with_instruments)).get("/dashboard/activity").text
+    assert "no targets found" in body
+    assert "not a QC run" in body
+
+
+def _seed_empty_ssc_run(name: str = "SSC_HEK_180SPD_r01.raw") -> str:
+    """A run Skyline extracted without finding a single target."""
+    classification = RunClassification(
+        control_type=ControlType.SSC, well_position=None, instrument_id="qe-test",
+        plate_id=None, confidence=Confidence.HIGH,
+        source=ClassificationSource.FILENAME, spd=200,
+    )
+    extraction = ExtractionResult(
+        run_id=uuid4(),
+        raw_file_path=Path(name),
+        target_metrics=[
+            TargetMetric(target_id="PEPA", peptide_sequence="PEPA", protein_name="Targets")
+        ],
+        run_metrics=RunMetrics(targets_found=0, targets_expected=1, target_recovery_pct=0.0),
+    )
+    gs.record_ssc0_run(classification, extraction)
+    return str(extraction.run_id)
+
+
+def test_gold_standards_refuses_a_run_with_no_targets(
+    state_with_instruments: _FakeAppState, tmp_data_dir: Path
+) -> None:
+    """A baseline saved from a 0/43 run had no values, and every comparison
+    after it came out blank with no explanation."""
+    good = _seed_ssc0_run()
+    empty = _seed_empty_ssc_run()
+    response = _client(_build_app(state_with_instruments)).post(
+        "/gold-standards/save",
+        data={"instrument_id": "qe-test", "spd": "200", "label": "x", "run_id": [good, empty]},
+    )
+    assert "No targets were found in SSC_HEK_180SPD_r01.raw" in response.text
+    assert gs.get_active_baseline("qe-test", 200) is None
+
+
+def test_gold_standards_warns_on_a_thin_baseline(
+    state_with_instruments: _FakeAppState, tmp_data_dir: Path
+) -> None:
+    run_id = _seed_ssc0_run()
+    response = _client(_build_app(state_with_instruments)).post(
+        "/gold-standards/save",
+        data={"instrument_id": "qe-test", "spd": "200", "label": "x", "run_id": [run_id]},
+    )
+    assert "Baseline saved" in response.text
+    assert "This baseline rests on 1 run." in response.text
+    assert gs.get_active_baseline("qe-test", 200) is not None
+
+
+def test_deleting_a_baseline_does_not_say_one_was_saved(
+    state_with_instruments: _FakeAppState, tmp_data_dir: Path
+) -> None:
+    """Delete reused the save banner: "Baseline saved and set active"."""
+    ids = [_seed_ssc0_run() for _ in range(3)]
+    record = gs.save_baseline("qe-test", 200, ids, "Install", None)
+    response = _client(_build_app(state_with_instruments)).post(
+        "/gold-standards/baselines/delete",
+        data={"instrument_id": "qe-test", "spd": "200", "baseline_id": record["baseline_id"]},
+    )
+    assert "Baseline saved and set active" not in response.text
+    assert "There is no active baseline at this SPD now." in response.text
+
+
+def test_failed_retry_ignores_a_path_not_on_the_list(
+    state_with_instruments: _FakeAppState,
+) -> None:
+    """The path comes from the URL. Only a listed file may be sent to Skyline."""
+    state = state_with_instruments
+    other = state.cfg.instruments[0].watch_path / "customer_sample.raw"
+    other.write_bytes(b"x")
+    finalizer = _FakeFinalizer()
+    state.finalizer = finalizer  # type: ignore[attr-defined]
+
+    response = _client(_build_app(state)).post(f"/failed/retry/{other}")
+
+    assert finalizer.calls == []
+    assert "no longer on this list" in response.text
+
+
+def test_wizard_keeps_the_rest_of_an_existing_config(
+    state_without_instruments: _FakeAppState, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The wizard shows whenever there are no instruments, including at a
+    configured site that removed its last one. It must not reset the rest."""
+    monkeypatch.setenv("MDQC_DATA_DIR", str(tmp_path))
+    state = state_without_instruments
+    state.cfg = state.cfg.model_copy(
+        update={
+            "classification_mode": "strict",
+            "qc_thresholds": state.cfg.qc_thresholds.model_copy(
+                update={"peak_area_deviation_pct_warn": 12.0}
+            ),
+        }
+    )
+    client = _client(_build_app(state))
+    client.post("/wizard/step/1", data={"vendor": "thermo"})
+    client.post(
+        "/wizard/step/2",
+        data={"instrument_id": "astral-2", "watch_path": str(tmp_path / "data")},
+    )
+    client.post("/wizard/step/3", data={"skyline_path": ""})
+    client.post("/wizard/step/4", data={"template_path": ""})
+    client.post("/wizard/step/5", data={"output_mode": "local"})
+
+    assert state.cfg.classification_mode == "strict"
+    assert state.cfg.qc_thresholds.peak_area_deviation_pct_warn == 12.0
+    assert [i.id for i in state.cfg.instruments] == ["astral-2"]

@@ -227,17 +227,46 @@ async def test_mark_failed_removes_tracker(tmp_path: Path, tmp_data_dir: Path) -
 
 
 @pytest.mark.asyncio
-async def test_mark_failed_does_not_block_reobserve(
+async def test_failed_file_is_retried_a_few_times_then_waits(
     tmp_path: Path, tmp_data_dir: Path
 ) -> None:
+    """The folder scan re-observes every file each interval. A failed file
+    used to be accepted again each time, so Skyline re-ran on it for ever."""
+    from mdqc.watcher.finalizer import MAX_AUTO_ATTEMPTS
+
     raw = _make_thermo_file(tmp_path)
     registry = ProcessedRegistry()
     fin = Finalizer(_cfg(), registry=registry, processed_callback=_Recorder())
-    await fin.observe(raw, Vendor.THERMO)
-    await fin.mark_failed(raw, "boom")
+    for _ in range(MAX_AUTO_ATTEMPTS):
+        assert await fin.observe(raw, Vendor.THERMO) is True
+        await fin.mark_failed(raw, "boom")
 
-    await fin.observe(raw, Vendor.THERMO)
+    assert await fin.observe(raw, Vendor.THERMO) is False
+    assert fin.state_of(raw) is None
+
+    # Retry on the Failed page, or `mdqc reprocess`.
+    assert await fin.observe(raw, Vendor.THERMO, force=True) is True
     assert fin.state_of(raw) is FinalizationState.DETECTED
+
+
+@pytest.mark.asyncio
+async def test_failed_file_copied_in_again_starts_afresh(
+    tmp_path: Path, tmp_data_dir: Path
+) -> None:
+    """An operator who replaces a truncated file should not also have to
+    find the Retry button."""
+    from mdqc.watcher.finalizer import MAX_AUTO_ATTEMPTS
+
+    raw = _make_thermo_file(tmp_path)
+    fin = Finalizer(_cfg(), registry=ProcessedRegistry(), processed_callback=_Recorder())
+    for _ in range(MAX_AUTO_ATTEMPTS):
+        await fin.observe(raw, Vendor.THERMO)
+        await fin.mark_failed(raw, "boom")
+    assert await fin.observe(raw, Vendor.THERMO) is False
+
+    raw.write_bytes(raw.read_bytes() + b"more")
+
+    assert await fin.observe(raw, Vendor.THERMO) is True
 
 
 @pytest.mark.asyncio

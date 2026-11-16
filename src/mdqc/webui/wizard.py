@@ -172,7 +172,14 @@ async def wizard_step_5(
     return await wizard_save(request)
 
 
-def _build_config(data: dict[str, Any]) -> Config:
+def _build_config(data: dict[str, Any], base: Config | None = None) -> Config:
+    """The wizard's answers as a Config.
+
+    ``base`` is the running config. The wizard shows whenever there are no
+    instruments, which includes a configured site that removed its last one;
+    starting from a bare Config there would wipe its thresholds, naming rules
+    and peptide classes.
+    """
     vendor_str = data.get("vendor", "thermo")
     vendor = Vendor(vendor_str)
     instrument_id = data.get("instrument_id") or "instrument-1"
@@ -187,7 +194,7 @@ def _build_config(data: dict[str, Any]) -> Config:
         id=instrument_id,
         vendor=vendor,
         watch_path=Path(watch_path),
-        file_pattern="*",
+        file_pattern=vendor.default_file_pattern,
         template=template,
     )
     endpoint = defaults.ENDPOINT_PROD if cloud_environment == "prod" else defaults.ENDPOINT_DEV
@@ -195,6 +202,16 @@ def _build_config(data: dict[str, Any]) -> Config:
         endpoint=endpoint,
         api_token=api_token if output_mode == "cloud" else None,
     )
+    if base is not None:
+        return base.model_copy(
+            update={
+                "cloud": base.cloud.model_copy(
+                    update={"endpoint": endpoint, "api_token": cloud.api_token}
+                ),
+                "skyline": base.skyline.model_copy(update={"path": skyline_path or "auto"}),
+                "instruments": [instrument],
+            }
+        )
     return Config(
         agent=AgentConfig(),
         cloud=cloud,
@@ -212,10 +229,34 @@ def _serialize_config(cfg: Config) -> dict[str, Any]:
     return raw
 
 
+async def _apply_to_running_agent(state: Any, cfg: Config) -> None:
+    """Make the saved setup take effect without a restart.
+
+    The wizard used to write config.toml and stop there: the running agent
+    kept its empty config, watched nothing, and showed the wizard again.
+    """
+    from mdqc.extractor import Extractor
+    from mdqc.service.lifecycle import reload_watcher
+    from mdqc.webui.settings import _apply_cloud_live, _clear_cloud_status_cache
+
+    state.cfg = cfg
+    if getattr(state, "extractor", None) is not None:
+        state.extractor = Extractor(
+            cfg.skyline,
+            work_dir=paths.spool_work(),
+            peptide_class_rules=cfg.peptide_classes,
+        )
+    _clear_cloud_status_cache()
+    _apply_cloud_live(state, cfg)
+    if getattr(state, "finalizer", None) is not None:
+        await reload_watcher(state)
+
+
 @router.post("/wizard/save", response_class=HTMLResponse)
 async def wizard_save(request: Request) -> HTMLResponse:
     sess = _session(request)
-    cfg = _build_config(sess)
+    state = get_state(request)
+    cfg = _build_config(sess, getattr(state, "cfg", None))
     target = paths.config_path()
     target.parent.mkdir(parents=True, exist_ok=True)
     tmp = target.with_name(f".{target.name}.tmp")
@@ -226,13 +267,10 @@ async def wizard_save(request: Request) -> HTMLResponse:
     os.replace(tmp, target)
 
     log.info("wizard_saved", extra={"path": str(target)})
-    state = get_state(request)
-    reload_fn = getattr(state, "reload_config", None)
-    if callable(reload_fn):
-        try:
-            reload_fn()
-        except Exception as exc:
-            log.warning("wizard_reload_failed", extra={"error": str(exc)})
+    try:
+        await _apply_to_running_agent(state, cfg)
+    except Exception as exc:
+        log.warning("wizard_reload_failed", extra={"error": str(exc)})
 
     templates = get_templates(request)
     ctx = common_context(request)
