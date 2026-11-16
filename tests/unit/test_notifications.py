@@ -19,7 +19,12 @@ class _RecordingNotifier:
         self.calls.append((title, body, sound))
 
 
-def test_notifier_non_windows_does_not_raise(caplog: pytest.LogCaptureFixture) -> None:
+def test_notifier_non_windows_does_not_raise(
+    caplog: pytest.LogCaptureFixture, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # Named for the non-Windows path, so take it: on a Windows PC with winsdk
+    # installed this test put five real toasts ("w" / "b") on the desktop.
+    monkeypatch.setattr("mdqc.notifications._WINSDK_AVAILABLE", False)
     n = Notifier()
     n.notify("Hello", "World")
     n.notify_info("i", "b")
