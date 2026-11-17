@@ -1753,3 +1753,27 @@ def test_wizard_keeps_the_rest_of_an_existing_config(
     assert state.cfg.classification_mode == "strict"
     assert state.cfg.qc_thresholds.peak_area_deviation_pct_warn == 12.0
     assert [i.id for i in state.cfg.instruments] == ["astral-2"]
+
+
+def test_wizard_final_button_saves_the_token(
+    state_without_instruments: _FakeAppState, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The last step's button posts its form to /wizard/save. The answers on
+    that step were ignored, so a token typed into the wizard was dropped."""
+    monkeypatch.setenv("MDQC_DATA_DIR", str(tmp_path))
+    state = state_without_instruments
+    client = _client(_build_app(state))
+    client.post("/wizard/step/1", data={"vendor": "thermo"})
+    client.post(
+        "/wizard/step/2",
+        data={"instrument_id": "astral-3", "watch_path": str(tmp_path / "data")},
+    )
+    client.post("/wizard/step/3", data={"skyline_path": ""})
+    client.post("/wizard/step/4", data={"template_path": ""})
+    client.post(
+        "/wizard/save",
+        data={"output_mode": "cloud", "cloud_environment": "dev", "api_token": " tok-123 "},
+    )
+
+    assert state.cfg.cloud.api_token == "tok-123"
+    assert "dev.massdynamics.com" in state.cfg.cloud.endpoint
