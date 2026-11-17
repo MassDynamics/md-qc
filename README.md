@@ -50,7 +50,7 @@ one-page checklist of what to have ready, the install steps, file naming and
 recording the baseline.
 
 **Easiest — the setup program.** Download
-**[MDQC-Setup-1.2.2.exe](https://github.com/MassDynamics/md-qc/releases/download/v1.2.2/MDQC-Setup-1.2.2.exe)**
+**[MDQC-Setup-1.2.3.exe](https://github.com/MassDynamics/md-qc/releases/download/v1.2.3/MDQC-Setup-1.2.3.exe)**
 (also on the [latest release](https://github.com/MassDynamics/md-qc/releases/latest)
 page), copy it to the instrument PC — a USB stick is fine — and double-click
 it. It includes its own Python and needs no internet, PowerShell or
@@ -63,7 +63,7 @@ Windows may show "Windows protected your PC": choose *More info > Run anyway*.
 is installed, as the user who uses the instrument PC:
 
 ```powershell
-Invoke-WebRequest -UseBasicParsing https://raw.githubusercontent.com/MassDynamics/md-qc/v1.2.2/scripts/install.ps1 -OutFile install.ps1
+Invoke-WebRequest -UseBasicParsing https://raw.githubusercontent.com/MassDynamics/md-qc/v1.2.3/scripts/install.ps1 -OutFile install.ps1
 powershell -ExecutionPolicy Bypass -File install.ps1
 ```
 
@@ -76,7 +76,7 @@ By hand, everything goes in one virtual environment:
 
 ```powershell
 py -3 -m venv C:\MassDynamics\mdqc
-C:\MassDynamics\mdqc\Scripts\pip install "mdqc[tray] @ https://github.com/MassDynamics/md-qc/archive/refs/tags/v1.2.2.tar.gz"
+C:\MassDynamics\mdqc\Scripts\pip install "mdqc[tray] @ https://github.com/MassDynamics/md-qc/archive/refs/tags/v1.2.3.tar.gz"
 C:\MassDynamics\mdqc\Scripts\mdqc version
 ```
 
@@ -172,7 +172,7 @@ printed at startup:
 
 ## Status
 
-**v1.2.2.** The pipeline is end-to-end on Windows: watcher, classifier,
+**v1.2.3.** The pipeline is end-to-end on Windows: watcher, classifier,
 Skyline extraction, spool, gold-standard comparison, and cloud upload to the
 Mass Dynamics platform, installed by a setup program (or one script) that
 leaves it running in the background with a tray icon. Validated by replay tests against real acquisitions at
