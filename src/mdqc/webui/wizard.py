@@ -255,6 +255,15 @@ async def _apply_to_running_agent(state: Any, cfg: Config) -> None:
 @router.post("/wizard/save", response_class=HTMLResponse)
 async def wizard_save(request: Request) -> HTMLResponse:
     sess = _session(request)
+    # Step 5's button posts here, not to /wizard/step/5, so its answers arrive
+    # with this request. Reading only the session dropped them: a token typed
+    # into the wizard was never saved and the agent stayed local-only.
+    form = await request.form()
+    if "output_mode" in form:
+        environment = str(form.get("cloud_environment", "prod"))
+        sess["output_mode"] = str(form.get("output_mode"))
+        sess["cloud_environment"] = environment if environment in ("dev", "prod") else "prod"
+        sess["api_token"] = str(form.get("api_token", "")).strip()
     state = get_state(request)
     cfg = _build_config(sess, getattr(state, "cfg", None))
     target = paths.config_path()
