@@ -279,6 +279,25 @@ def _map_columns(
     return single_idx, sum_idx, extra
 
 
+class ReportFormatError(ValueError):
+    """The Skyline report is not comma-separated, so no value in it can be read."""
+
+
+def _require_comma_separated(headers: list[str], path: Path) -> None:
+    """Refuse a report written with another column separator.
+
+    Skyline's "csv" follows the PC's regional format unless it is asked for
+    the invariant one. A semicolon-separated report still has one line per
+    target, so it used to parse as "all targets present, none detected, no
+    acquisition time" and be reported as a successful run.
+    """
+    if len(headers) == 1 and any(sep in headers[0] for sep in (";", "	")):
+        raise ReportFormatError(
+            f"the Skyline report {path.name} is not comma-separated; it looks like it "
+            "was written in this PC's regional number format, so its values cannot be read"
+        )
+
+
 _NA_TOKENS = frozenset({"#n/a", "n/a", "na", "nan", "null", "none", ""})
 
 
@@ -480,6 +499,7 @@ def parse_skyline_csv(
         except StopIteration:
             return metrics
 
+        _require_comma_separated(headers, path)
         single_idx, sum_idx, extra = _map_columns(headers, column_overrides)
 
         for row_idx, row in enumerate(reader):
@@ -541,8 +561,14 @@ def parse_skyline_csv(
     return metrics
 
 
-def parse_skyline_run_metadata(path: Path) -> tuple[str | None, str | None]:
+def parse_skyline_run_metadata(
+    path: Path, *, invariant: bool = False
+) -> tuple[str | None, str | None]:
     """Extract run-level ``(acquired_time, modified_time)`` from a Skyline CSV.
+
+    ``invariant`` says the report was exported with ``--report-invariant``,
+    whose dates are always month-first (``02/10/2026 11:07:23``). The order is
+    then known and is not guessed from the values or the host's locale.
 
     These columns (added to the ``.skyr`` in 2026-07) carry the real
     acquisition timestamp Skyline reads from the raw-file header — identical on
@@ -556,6 +582,7 @@ def parse_skyline_run_metadata(path: Path) -> tuple[str | None, str | None]:
             headers = next(reader)
         except StopIteration:
             return None, None
+        _require_comma_separated(headers, path)
         # Skyline captions simple columns ("Protein Name") but exports the
         # full property path for nested ones:
         #   Results!*.Value.PrecursorResult.ResultFile.AcquiredTime
@@ -583,8 +610,10 @@ def parse_skyline_run_metadata(path: Path) -> tuple[str | None, str | None]:
         if first is None:
             return None, None
 
-        day_first = infer_day_first(seen)
-        if day_first is None:
+        day_first = False if invariant else infer_day_first(seen)
+        if invariant:
+            pass
+        elif day_first is None:
             day_first = locale_prefers_day_first()
         elif day_first != locale_prefers_day_first():
             # Worth a line: it means Skyline and Windows disagree on this PC,

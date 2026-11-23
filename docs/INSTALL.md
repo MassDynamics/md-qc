@@ -110,7 +110,7 @@ With Python 3.11 or newer installed (§2), download the script for the release
 and run it:
 
 ```powershell
-Invoke-WebRequest -UseBasicParsing https://raw.githubusercontent.com/MassDynamics/md-qc/v1.2.3/scripts/install.ps1 -OutFile install.ps1
+Invoke-WebRequest -UseBasicParsing https://raw.githubusercontent.com/MassDynamics/md-qc/v1.2.4/scripts/install.ps1 -OutFile install.ps1
 powershell -ExecutionPolicy Bypass -File install.ps1
 ```
 
@@ -149,7 +149,7 @@ The same install by hand (no startup entry or shortcuts; start it as in §5):
 
 ```powershell
 py -3 -m venv C:\MassDynamics\mdqc
-C:\MassDynamics\mdqc\Scripts\pip install "mdqc[tray] @ https://github.com/MassDynamics/md-qc/archive/refs/tags/v1.2.3.tar.gz"
+C:\MassDynamics\mdqc\Scripts\pip install "mdqc[tray] @ https://github.com/MassDynamics/md-qc/archive/refs/tags/v1.2.4.tar.gz"
 ```
 
 Calling the environment's `pip` and `mdqc` by full path means you never have to
@@ -172,7 +172,7 @@ Either way you should now be able to run:
 ```powershell
 C:\MassDynamics\mdqc\Scripts\mdqc version
 ```
-and see `mdqc 1.2.3`.
+and see `mdqc 1.2.4`.
 
 How the setup program in Option A is built, tested and signed is in
 [`installer/README.md`](../installer/README.md).
@@ -406,6 +406,7 @@ the acquisition. See *Troubleshooting* below.
 |---------|--------------|-----|
 | Dashboard shows "No `*_payload.json` files found" and the log has repeated `processed_callback_failed: SkylineNotFound: SkylineCmd.exe not found` | Skyline isn't installed at any default location and `[skyline].path` isn't set in config | Install Skyline at default path, OR add `[skyline] path = "C:\\path\\to\\SkylineCmd.exe"` to `config.toml`. Verify with the `find_skyline` snippet in §2 |
 | `0/48` targets, shown in red, on every run | The Skyline method doesn't match the sample or the acquisition. A `QC_Method.sky` copied from a v1.2.1 install had no transitions and always gave `0/43`; the agent now replaces that file when it starts | Open the method in the Skyline GUI, drag in one raw file, and confirm peaks are found there. If your method uses libraries, check they match the SPD |
+| Every QC run shows 0 targets and the file's date, on a PC whose Windows regional format is not English (v1.2.3 and earlier) | Skyline wrote its report with semicolons and decimal commas, which the agent could not read | Upgrade to v1.2.4, which asks Skyline for a fixed format. Then copy the files in again under new names |
 | Log shows `skyr_column_not_found`, and Diagnostics says runs "used the file mtime" | The report's Acquired Time column path doesn't exist for the report's row source. `Results!*.Value.PeptideResult.ResultFile.AcquiredTime` works in a precursor-level report like the one that ships; a peptide-level report needs a different path. Skyline writes `#COLUMN … NOT FOUND#` instead of failing | Add **Acquired Time** with Skyline's report editor rather than pasting a path — Skyline then writes the one that fits. Each payload's `acquisition_time_source` says `instrument` once it works |
 | Agent log says `MD_QC_Report does not exist` | `MD_QC_Report.skyr` missing from `methods/` | Copy it in. It ships with the agent under `src/mdqc/methods/`. |
 | Skyline error: `file is being used by another process` | Concurrent Skyline runs writing to the same `.skyd` cache | Already handled in code via per-extraction temp dir + library hardlinking. If you still see this, kill all stuck `SkylineCmd.exe` processes via Task Manager and restart the agent. |
