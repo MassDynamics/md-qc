@@ -381,9 +381,10 @@ def acquisition_time_summary(report: DiagnosticsReport) -> tuple[str, str]:
     if n == 0:
         return "ok", f"from the instrument on all {of} recent runs"
     return "fail", (
-        f"{n} of {of} recent runs used the file mtime - the report's Acquired "
-        "Time column is missing or its path does not fit the report; see the "
-        "skyr_column_not_found line in the log"
+        f"{n} of {of} recent runs used the file mtime - the acquisition time "
+        "could not be read from the Skyline report. If those runs also found no "
+        "targets, nothing was read from the raw file; otherwise look for "
+        "skyr_column_not_found in the log"
     )
 
 

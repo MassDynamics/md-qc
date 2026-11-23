@@ -326,6 +326,11 @@ async def run_skyline(
             f"--report-name={report_name}",
             f"--report-file={output_csv}",
             "--report-format=csv",
+            # Without this Skyline writes the report in the PC's regional
+            # format: on a Danish or German PC that is semicolons between
+            # columns and commas as decimal points, which read here as a
+            # report with every target present and none detected.
+            "--report-invariant",
         ]
 
         start = time.monotonic()

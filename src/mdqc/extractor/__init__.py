@@ -12,6 +12,7 @@ from pathlib import Path
 from mdqc.config.paths import methods_dir
 from mdqc.config.schema import PeptideClassRule, SkylineConfig
 from mdqc.extractor.report import (
+    ReportFormatError,
     collapse_transitions_to_peptides,
     parse_skyline_csv,
     parse_skyline_run_metadata,
@@ -310,11 +311,17 @@ class Extractor:
             else None
         )
         try:
-            acquired_time, modified_time = parse_skyline_run_metadata(output_csv)
+            acquired_time, modified_time = parse_skyline_run_metadata(
+                output_csv, invariant=True
+            )
             target_metrics = parse_skyline_csv(output_csv, column_overrides=column_overrides)
         except FileNotFoundError as exc:
             result.status = ExtractionStatus.FAILED
             result.error_message = f"Skyline did not produce a report file: {exc}"
+            return result
+        except ReportFormatError as exc:
+            result.status = ExtractionStatus.FAILED
+            result.error_message = str(exc)
             return result
         finally:
             self._cleanup(output_csv)
